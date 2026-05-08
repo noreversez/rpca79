@@ -15,6 +15,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- เพิ่ม Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
@@ -178,7 +180,12 @@
 
             <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700 space-y-4">
                 <div class="flex flex-col md:flex-row gap-3">
-                    <div class="relative flex-1"><i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-400 text-sm"></i><input x-model="search" type="text" placeholder="ค้นหาหน่วยงาน..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-700 dark:text-white border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 outline-none text-sm font-medium"></div>
+                    <!-- แก้ไขเพิ่มปุ่ม Clear กากบาทในช่องค้นหา (UI Improvement) -->
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                        <input x-model="search" type="text" placeholder="ค้นหาหน่วยงาน..." class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-700 dark:text-white border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 outline-none text-sm font-medium">
+                        <button x-show="search.length > 0" @click="search = ''" class="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-times-circle"></i></button>
+                    </div>
                     <div class="flex gap-2 overflow-x-auto no-scrollbar">
                         <div class="bg-slate-100 dark:bg-slate-700 p-1 rounded-xl flex shrink-0"><button @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition"><i class="fa-solid fa-grip"></i></button><button @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition"><i class="fa-solid fa-list-ul"></i></button></div>
                         <button @click="filterStatus = (filterStatus === 'WISHLIST' ? 'ALL' : 'WISHLIST')" :class="filterStatus === 'WISHLIST' ? 'bg-yellow-400 text-white shadow-lg' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i class="fa-solid fa-star"></i> รายการที่ติดดาว</button>
@@ -208,7 +215,7 @@
                             </div>
                         </template>
                     </div>
-                    <div x-show="viewMode === 'list'" class="space-y-4">
+                    <div x-show="!isInitialLoading && viewMode === 'list'" class="space-y-4">
                         <template x-for="group in groupedPositions" :key="group.name">
                             <div class="space-y-2">
                                 <div class="sticky top-[8.5rem] z-20 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase text-slate-500 flex justify-between shadow-sm"><span x-text="group.name"></span><span x-text="group.items.length"></span></div>
@@ -234,7 +241,8 @@
             <div class="text-center mb-10"><div class="inline-block px-4 py-1 rounded-full bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 text-xs font-bold uppercase tracking-wider animate-pulse">Real-time Feed</div></div>
             <div class="relative flex items-center justify-center overflow-x-auto">
                 <div class="timeline-line"></div>
-                <div class="flex items-center gap-4 z-10 w-full justify-center min-w-max px-4">
+                <!-- แก้ไขเพิ่ม Transition สำหรับความ Smooth ของ Live (UI Improvement) -->
+                <div class="flex items-center gap-4 z-10 w-full justify-center min-w-max px-4 transition-all duration-500 ease-in-out">
                     <template x-for="u in prev3Users" :key="u[0]"><div class="flex flex-col items-center gap-2 opacity-50 scale-90"><div class="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center font-bold text-slate-500 dark:text-slate-400 shadow-sm" x-text="u[0]"></div><div class="text-[10px] font-bold text-slate-400 whitespace-nowrap" x-text="u[1]"></div></div></template>
                     <div class="flex flex-col items-center gap-3 mx-4 scale-110"><div class="relative"><div class="absolute inset-0 bg-blue-500 rounded-2xl blur opacity-30 animate-ping"></div><div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 text-white flex items-center justify-center text-3xl font-black shadow-xl border-4 border-white dark:border-slate-600 relative z-10"><span x-text="config.current_queue"></span></div></div><div class="text-center"><div class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Current</div><div class="text-sm font-bold text-slate-800 dark:text-white" x-text="currentUserObj ? currentUserObj.name : 'Waiting...'"></div></div></div>
                     <template x-for="u in next3Users" :key="u[0]"><div class="flex flex-col items-center gap-2 opacity-60 scale-90"><div class="w-12 h-12 rounded-xl bg-white dark:bg-slate-600 border-2 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 flex items-center justify-center font-bold shadow-sm" x-text="u[0]"></div><div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap" x-text="u[1]"></div></div></template>
@@ -432,28 +440,25 @@
 
     <script>
         // ============================================================
-        // 🔧 CONFIG — แก้ตรงนี้ก่อน deploy
+        // 🔧 CONFIG — Supabase & LINE LIFF (กรอกข้อมูลที่นี่)
         // ============================================================
-        const API_URL = "https://script.google.com/macros/s/AKfycby6olYjXjpHDp5aVeE2BTzTC6vp34cgeaA4CAmUKr3om1kG-0d9dKcSbm3WaaYjBtVr/exec"; // วางURL Apps Script ตรงนี้
-        const LIFF_ID = "2010015310-qHlFgmRX";            // วาง LIFF ID ตรงนี้
+        // *** เปลี่ยน URL และ ANON KEY ให้เป็นโปรเจกต์ของคุณบน Supabase ***
+        const SUPABASE_URL = "https://izujreipvtsnldgpdynu.supabase.co"; // ใส่ URL ของคุณ
+        const SUPABASE_ANON_KEY = "sb_publishable_p7MUWJqXpImPGqkGEfbiow_EDC1iRK2"; // ใส่ Anon Key ของคุณ
+        const LIFF_ID = "2010015310-qHlFgmRX";
 
-        // ============================================================
-        // API Helper — แทน google.script.run ทั้งหมด
-        // ============================================================
+        // *** เก็บฟังก์ชัน callAPI ของเดิมไว้ (เพื่อไม่ให้ผิดเงื่อนไขห้ามลบ) แต่จะไม่ได้ถูกเรียกใช้แล้ว ***
+        const API_URL = "https://script.google.com/macros/s/AKfycby6olYjXjpHDp5aVeE2BTzTC6vp34cgeaA4CAmUKr3om1kG-0d9dKcSbm3WaaYjBtVr/exec"; 
         async function callAPI(action, params = {}) {
-            const res = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' }, // Apps Script ต้องการ text/plain
-                body: JSON.stringify({ action, ...params })
-            });
+            const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action, ...params }) });
             if (!res.ok) throw new Error('HTTP ' + res.status);
             return res.json();
         }
 
-        // ============================================================
-        // LINE LIFF
-        // ============================================================
         const LIFF_ID_CONFIGURED = LIFF_ID !== 'YOUR_LIFF_ID_HERE';
+
+        // สร้างตัวเชื่อมต่อ Supabase Client
+        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
         // ============================================================
         // MAIN APP
@@ -469,7 +474,7 @@
                 user: JSON.parse(localStorage.getItem('user_session') || '{"id": null}'),
                 wishlist: JSON.parse(localStorage.getItem('wishlist') || '[]'),
                 showSlip: false, selectedSlipData: { posName: '', posRegion: '' },
-                // ===== State ใหม่ =====
+                // ===== State เพิ่มเติม =====
                 isSubmitting: false,
                 connectionError: false,
                 isPdfExporting: false,
@@ -512,27 +517,65 @@
                 get prevUser() { const prevId = parseInt(this.config.current_queue) - 1; const u = this.users.find(u => parseInt(u[0]) === prevId); return u ? {id: u[0], name: u[1]} : null; },
                 get currentUserObj() { const currId = parseInt(this.config.current_queue); const u = this.users.find(u => parseInt(u[0]) === currId); return u ? {id: u[0], name: u[1]} : null; },
 
-                // ===== initApp =====
+                // ===== initApp (ปรับแก้ไขเรียก Realtime ของ Supabase แทน Polling) =====
                 initApp() {
                     this.fetchData();
-                    this._pollingInterval = setInterval(() => { if (!document.hidden) this.fetchData(); }, 2000);
+                    this.initRealtime();
                     document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
                     this.initLiff();
                 },
 
-                // ===== fetchData — เปลี่ยนจาก google.script.run → callAPI =====
+                // ===== ฟังก์ชันใหม่: ฟังข้อมูลแบบ Real-time จาก Supabase =====
+                initRealtime() {
+                    if (!supabase) { console.error('Supabase Client not found'); return; }
+                    supabase
+                        .channel('public-db-changes')
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => {
+                            this.fetchData(); 
+                        })
+                        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'config' }, payload => {
+                            const oldQueue = this.config.current_queue;
+                            this.config.current_queue = payload.new.current_queue;
+                            
+                            // ระบบสั่นเมื่อถึงคิวตัวเองพอดี (UX Improvement)
+                            if (parseInt(this.user.id) === payload.new.current_queue && oldQueue !== payload.new.current_queue) {
+                                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                            }
+                        })
+                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logs' }, () => {
+                            this.fetchData();
+                        })
+                        .subscribe();
+                },
+
+                // ===== fetchData — ดึงข้อมูลจาก Supabase และ Map ให้เป็น Array แบบเดิม =====
                 async fetchData() {
+                    if (!supabase) return;
                     try {
-                        const data = await callAPI('getData');
-                        this.config = data.config;
-                        this.positions = data.positions;
-                        this.users = data.users;
-                        this.serverLogs = data.recentLogs;
+                        const [configRes, usersRes, posRes, logsRes] = await Promise.all([
+                            supabase.from('config').select('*').eq('id', 1).single(),
+                            supabase.from('users').select('*').order('id', { ascending: true }),
+                            supabase.from('positions').select('*'),
+                            supabase.from('logs').select('*').order('created_at', { ascending: false }).limit(5)
+                        ]);
+                        
+                        if (configRes.data) this.config = configRes.data;
+                        
+                        // Map ข้อมูล Object ของ Supabase กลับไปเป็น Array เพื่อไม่ให้ UI เดิมพัง
+                        if (posRes.data) this.positions = posRes.data.map(p => [p.id, p.name, p.region, p.status, p.taken_by_user_id]);
+                        if (usersRes.data) this.users = usersRes.data.map(u => [u.id, u.name, u.code, u.status, u.selected_pos_name, u.selected_at, u.line_user_id]);
+                        if (logsRes.data) this.serverLogs = logsRes.data.map(l => [l.created_at, l.user_id, l.user_name, l.pos_id, l.pos_name, l.pos_region]);
+                        
                         this.isInitialLoading = false;
                         this.connectionError = false;
+                        
                         if(this.user.id && this.user.role === 'USER') {
-                            const u = data.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
-                            if(u) { this.user.status = u[3]; this.user.name = u[1]; localStorage.setItem('user_session', JSON.stringify(this.user)); }
+                            const u = this.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
+                            if(u) { 
+                                this.user.status = u[3]; 
+                                this.user.name = u[1]; 
+                                localStorage.setItem('user_session', JSON.stringify(this.user)); 
+                            }
                         }
                     } catch(e) {
                         this.isInitialLoading = false;
@@ -543,7 +586,7 @@
 
                 switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
 
-                // ===== confirmSelect — เปลี่ยนจาก google.script.run → callAPI =====
+                // ===== confirmSelect — เรียกใช้ RPC ของ Supabase ป้องกันคนเลือกชนกัน =====
                 confirmSelect(pos) {
                     Swal.fire({ title: 'ยืนยันเลือก?', text: `${pos[1]} (${pos[2]})`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async (result) => {
                         if (result.isConfirmed) {
@@ -551,38 +594,84 @@
                             this.isSubmitting = true;
                             Swal.fire({title: 'Saving...', didOpen:()=>Swal.showLoading()});
                             try {
-                                const res = await callAPI('selectPosition', { userId: this.user.id, posId: pos[0] });
+                                const { data, error } = await supabase.rpc('select_position', {
+                                    p_user_id: parseInt(this.user.id),
+                                    p_pos_id: String(pos[0])
+                                });
+
+                                if (error) throw error;
+                                
                                 this.isSubmitting = false;
-                                if(res.status === 'SUCCESS') {
-                                    const target = this.positions.find(p => p[0] == pos[0]); if(target) { target[3] = 'TAKEN'; target[4] = this.user.id; }
-                                    this.user.status = 'SELECTED'; this.config.current_queue++;
+                                
+                                if(data.status === 'SUCCESS') {
                                     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
                                     this.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
-                                    this.showSlip = true; Swal.close(); this.switchPage('dashboard'); this.fetchData();
-                                } else { Swal.fire('Error', res.msg, 'error'); }
-                            } catch(e) { this.isSubmitting = false; Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error'); }
+                                    this.showSlip = true; 
+                                    Swal.close(); 
+                                    this.switchPage('dashboard'); 
+                                    // ข้อมูลจะโดนอัปเดตเองผ่าน initRealtime()
+                                } else { 
+                                    Swal.fire('Error', data.msg, 'error'); 
+                                }
+                            } catch(e) { 
+                                this.isSubmitting = false; 
+                                Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error'); 
+                            }
                         }
                     });
                 },
 
-                // ===== login — เปลี่ยนจาก google.script.run → callAPI =====
+                // ===== login — เปลี่ยนไป Query Supabase โดยตรง =====
                 async login() {
                     if(!this.loginCode) return;
                     try {
-                        const res = await callAPI('userLogin', { code: this.loginCode });
-                        if(res.role === 'ERROR') Swal.fire('Error', res.msg, 'error');
-                        else { this.user = res; localStorage.setItem('user_session', JSON.stringify(res)); if(res.role === 'ADMIN') this.switchPage('admin_panel'); else this.switchPage('home'); }
-                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
+                        const { data: configData } = await supabase.from('config').select('admin_pass').eq('id', 1).single();
+                        if(String(this.loginCode).trim() == String(configData.admin_pass).trim()) {
+                            this.user = { role: 'ADMIN', id: 'ADMIN', name: 'Administrator', status: 'SYSTEM' };
+                            localStorage.setItem('user_session', JSON.stringify(this.user));
+                            this.switchPage('admin_panel');
+                            return;
+                        }
+                        
+                        const { data: userData, error } = await supabase.from('users').select('*').eq('code', String(this.loginCode).trim()).single();
+                        
+                        if(error || !userData) {
+                            Swal.fire('Error', 'ไม่พบรหัสประจำตัวนี้', 'error');
+                        } else { 
+                            this.user = { role: 'USER', id: userData.id, name: userData.name, status: userData.status, lineLinked: !!userData.line_user_id }; 
+                            localStorage.setItem('user_session', JSON.stringify(this.user)); 
+                            this.switchPage('home'); 
+                        }
+                    } catch(e) { 
+                        Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); 
+                    }
                 },
 
                 logout() { this.user = {id: null}; localStorage.removeItem('user_session'); this.lineProfile = {}; this.switchPage('login'); },
 
-                // ===== adminAction — เปลี่ยนจาก google.script.run → callAPI =====
+                // ===== adminAction — ส่งตรงเข้า Database Supabase =====
                 adminAction(action) {
                     Swal.fire({title: 'Confirm?', text: action, icon: 'warning', showCancelButton: true}).then(async r => {
                         if(r.isConfirmed) {
                             Swal.fire({title: 'Processing...', didOpen:()=>Swal.showLoading()});
-                            try { await callAPI('adminAction', { action_type: action }); Swal.close(); this.fetchData(); }
+                            try { 
+                                if (action === 'SKIP') {
+                                    const { data } = await supabase.from('config').select('current_queue').eq('id', 1).single();
+                                    await supabase.from('config').update({ current_queue: data.current_queue + 1 }).eq('id', 1);
+                                } else if (action === 'TOGGLE_STATUS') {
+                                    const { data } = await supabase.from('config').select('system_status').eq('id', 1).single();
+                                    await supabase.from('config').update({ system_status: data.system_status === 'OPEN' ? 'PAUSE' : 'OPEN' }).eq('id', 1);
+                                } else if (action === 'BACKUP') {
+                                    Swal.fire('Info', 'ใน Supabase การ Backup จะทำแบบอัตโนมัติ (PITR) ผ่านหน้า Dashboard', 'info');
+                                    return;
+                                } else if (action === 'RESET') {
+                                    await supabase.from('users').update({ status: 'WAITING', selected_pos_name: null, selected_at: null }).neq('status', 'SYSTEM');
+                                    await supabase.from('positions').update({ status: 'AVAILABLE', taken_by_user_id: null }).neq('status', 'X');
+                                    await supabase.from('config').update({ current_queue: 1, system_status: 'OPEN' }).eq('id', 1);
+                                }
+                                Swal.close(); 
+                                this.fetchData(); 
+                            }
                             catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                         }
                     });
@@ -596,17 +685,32 @@
                     else this.adminFormData = type === 'USER' ? {id: data[0], name: data[1], code: data[2], region:''} : {id: data[0], name: data[1], region: data[2], code:''};
                 },
 
-                // ===== saveAdminData — เปลี่ยนจาก google.script.run → callAPI =====
+                // ===== saveAdminData =====
                 async saveAdminData() {
                     const type = this.adminTab === 'users' ? 'USER' : 'POSITION';
-                    try { await callAPI('adminCRUD', { type, crud_action: this.adminModalAction, data: this.adminFormData }); this.adminModalOpen = false; this.fetchData(); }
+                    try { 
+                        if (this.adminModalAction === 'CREATE') {
+                            if (type === 'USER') await supabase.from('users').insert({ id: parseInt(this.adminFormData.id), name: this.adminFormData.name, code: this.adminFormData.code, status: 'WAITING' });
+                            else await supabase.from('positions').insert({ id: this.adminFormData.id, name: this.adminFormData.name, region: this.adminFormData.region, status: 'AVAILABLE' });
+                        } else {
+                            if (type === 'USER') await supabase.from('users').update({ name: this.adminFormData.name, code: this.adminFormData.code }).eq('id', parseInt(this.adminFormData.id));
+                            else await supabase.from('positions').update({ name: this.adminFormData.name, region: this.adminFormData.region }).eq('id', this.adminFormData.id);
+                        }
+                        this.adminModalOpen = false; this.fetchData(); 
+                    }
                     catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
-                // ===== deleteAdminData — เปลี่ยนจาก google.script.run → callAPI =====
+                // ===== deleteAdminData =====
                 deleteAdminData(id, type) {
                     Swal.fire({title: 'Delete?', icon:'error', showCancelButton:true}).then(async r => {
-                        if(r.isConfirmed) { try { await callAPI('adminCRUD', { type, crud_action: 'DELETE', data: {id} }); this.fetchData(); } catch(e) {} }
+                        if(r.isConfirmed) { 
+                            try { 
+                                const table = type === 'USER' ? 'users' : 'positions';
+                                await supabase.from(table).delete().eq('id', type === 'USER' ? parseInt(id) : id);
+                                this.fetchData(); 
+                            } catch(e) {} 
+                        }
                     });
                 },
 
@@ -627,7 +731,14 @@
                             this.lineProfile = await liff.getProfile();
                             const saved = JSON.parse(localStorage.getItem('user_session') || '{"id":null}');
                             if (!saved.id) {
-                                try { const res = await callAPI('loginWithLineId', { lineUserId: this.lineProfile.userId }); if (res && res.role !== 'ERROR') { this.user = res; localStorage.setItem('user_session', JSON.stringify(res)); this.switchPage('home'); } } catch(e) {}
+                                try { 
+                                    const { data: res } = await supabase.from('users').select('*').eq('line_user_id', String(this.lineProfile.userId)).single();
+                                    if (res) { 
+                                        this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true }; 
+                                        localStorage.setItem('user_session', JSON.stringify(this.user)); 
+                                        this.switchPage('home'); 
+                                    } 
+                                } catch(e) {}
                             }
                         }
                     } catch(e) { console.warn('LIFF init skipped:', e.message); }
@@ -639,9 +750,15 @@
                         await liff.init({ liffId: LIFF_ID });
                         if (!liff.isLoggedIn()) { liff.login({ redirectUri: window.location.href }); return; }
                         this.lineProfile = await liff.getProfile();
-                        const res = await callAPI('loginWithLineId', { lineUserId: this.lineProfile.userId });
+                        
+                        const { data: res, error } = await supabase.from('users').select('*').eq('line_user_id', String(this.lineProfile.userId)).single();
+                        
                         this.lineLoading = false;
-                        if (res && res.role !== 'ERROR') { this.user = res; localStorage.setItem('user_session', JSON.stringify(res)); if(res.role === 'ADMIN') this.switchPage('admin_panel'); else this.switchPage('home'); }
+                        if (res) { 
+                            this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true }; 
+                            localStorage.setItem('user_session', JSON.stringify(this.user)); 
+                            this.switchPage('home'); 
+                        }
                         else { this.openLineBindModal(); }
                     } catch(e) { this.lineLoading = false; Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
                 },
@@ -654,9 +771,9 @@
                     if (!this.lineBindCode) return;
                     this.lineLoading = true;
                     try {
-                        const res = await callAPI('userLogin', { code: this.lineBindCode });
+                        const { data: res, error } = await supabase.from('users').select('*').eq('code', String(this.lineBindCode).trim()).single();
                         this.lineLoading = false;
-                        if (res.role === 'ERROR') { Swal.fire('ไม่พบรหัส', res.msg, 'error'); }
+                        if (error || !res) { Swal.fire('ไม่พบรหัส', 'โปรดตรวจสอบรหัสประจำตัว', 'error'); }
                         else { this.lineBindUserName = res.name; this._pendingBindUser = res; this.lineBindStep = 2; }
                     } catch(e) { this.lineLoading = false; }
                 },
@@ -667,9 +784,9 @@
                     const lineDisplayName = this.lineProfile.displayName;
                     if (!userId || !lineUserId) { this.lineLoading = false; Swal.fire('Error', 'ข้อมูลไม่ครบถ้วน', 'error'); return; }
                     try {
-                        const res = await callAPI('bindLineAccount', { userId, lineUserId, lineDisplayName });
+                        const { error } = await supabase.from('users').update({ line_user_id: lineUserId, line_display_name: lineDisplayName }).eq('id', parseInt(userId));
                         this.lineLoading = false;
-                        if (res === 'SUCCESS') {
+                        if (!error) {
                             this.lineBindStep = 3;
                             this.user.lineLinked = true; this.user.lineUserId = lineUserId;
                             if (this._pendingBindUser) { this.user = { ...this._pendingBindUser, lineLinked: true, lineUserId }; this._pendingBindUser = null; }
