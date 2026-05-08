@@ -558,7 +558,6 @@
                 adminLoginMode: false,
                 isFetching: false,
                 
-                // Variables ใหม่สำหรับการจัดการความปลอดภัยของ API และการทำหน้า Fullscreen
                 _isFetchLocked: false, 
                 _fetchTimeout: null,
                 isDashboardFullscreen: false,
@@ -570,17 +569,20 @@
                 get prev3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) < cur).sort((a,b) => parseInt(b[0]) - parseInt(a[0])).slice(0, 3).reverse(); },
                 get next3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) > cur).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).slice(0, 3); },
                 get dashboardList() { return this.users.filter(u => String(u[3]).toUpperCase() === 'SELECTED').map(u => { const pos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim()); return { id: u[0], name: u[1], pos: u[4], region: pos ? pos[2] : '-', time: u[5] }; }).sort((a,b) => parseInt(a.id) - parseInt(b.id)); },
-                getRegionStats(region) { const items = this.positions.filter(p => p[2] === region); const total = items.length; const taken = items.filter(p => p[3] !== 'AVAILABLE').length; return { total, taken, percent: total ? (taken/total)*100 : 0 }; },
-                get regionDashboardStats() { const stats = {}; this.positions.forEach(p => { const r = p[2]; if(!stats[r]) stats[r] = { name: r, total: 0, taken: 0 }; stats[r].total++; if(p[3] !== 'AVAILABLE') stats[r].taken++; }); return Object.values(stats).map(s => ({...s, percent: (s.taken/s.total)*100})).sort((a,b) => a.name.localeCompare(b.name)); },
                 
-                get analyticsData() {
-                    const stats = this.regionDashboardStats.filter(s => s.total > 0);
-                    if(!stats.length) return { topFilled: '-', topRemaining: '-', mostAvailable: '-' };
-                    const topFilled = stats.reduce((p, c) => p.percent > c.percent ? p : c);
-                    const topRemaining = stats.reduce((p, c) => (c.total - c.taken) > (p.total - p.taken) ? c : p);
-                    const mostAvail = stats.reduce((p, c) => (c.total - c.taken) > (p.total - p.taken) ? c : p);
-                    return { topFilled: `${topFilled.name} (${topFilled.percent.toFixed(0)}%)`, topRemaining: `${topRemaining.name} (${topRemaining.total - topRemaining.taken} จาก ${topRemaining.total})`, mostAvailable: mostAvail.name };
+                // ปรับปรุงการทำงานของ getter ตัวนี้ให้คำนวณไวขึ้นมากๆ ลดการ Filter ซ้ำซ้อนแบบ O(N)
+                getRegionStats(region) { 
+                    let total = 0, taken = 0;
+                    for (let i = 0; i < this.positions.length; i++) {
+                        if (this.positions[i][2] === region) {
+                            total++;
+                            if (this.positions[i][3] !== 'AVAILABLE') taken++;
+                        }
+                    }
+                    return { total, taken, percent: total ? (taken/total)*100 : 0 }; 
                 },
+                
+                get regionDashboardStats() { const stats = {}; this.positions.forEach(p => { const r = p[2]; if(!stats[r]) stats[r] = { name: r, total: 0, taken: 0 }; stats[r].total++; if(p[3] !== 'AVAILABLE') stats[r].taken++; }); return Object.values(stats).map(s => ({...s, percent: (s.taken/s.total)*100})).sort((a,b) => a.name.localeCompare(b.name)); },
                 
                 isWishlist(id) { return this.wishlist.includes(id); },
                 toggleWishlist(id) { if (this.wishlist.includes(id)) this.wishlist = this.wishlist.filter(w => w !== id); else this.wishlist.push(id); localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); },
@@ -603,7 +605,6 @@
                 get prevUser() { const prevId = parseInt(this.config.current_queue) - 1; const u = this.users.find(u => parseInt(u[0]) === prevId); return u ? {id: u[0], name: u[1]} : null; },
                 get currentUserObj() { const currId = parseInt(this.config.current_queue); const u = this.users.find(u => parseInt(u[0]) === currId); return u ? {id: u[0], name: u[1]} : null; },
 
-                // ฟังก์ชันใหม่สำหรับการจัดแสดงหน้า Dashboard
                 toggleDashboardFullscreen() {
                     this.isDashboardFullscreen = !this.isDashboardFullscreen;
                     if (this.isDashboardFullscreen) document.body.classList.add('overflow-hidden');
@@ -633,14 +634,12 @@
                     this.initRealtime();
                     document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
                     this.initLiff();
-                    // ลดความถี่ Polling ลงเพื่อประหยัดโควต้า เนื่องจากมี Realtime ทำงานเป็นหลักแล้ว
                     setInterval(() => { if (!document.hidden) this.fetchData(); }, 60000);
                 },
 
                 initRealtime() {
                     if (!db) return;
                     
-                    // เพิ่มระบบ Debounce: หน่วงเวลารับ Event จาก Realtime เพื่อไม่ให้โหลดข้อมูลรัวเกินไป
                     const debouncedFetch = () => {
                         clearTimeout(this._fetchTimeout);
                         this._fetchTimeout = setTimeout(() => {
@@ -665,7 +664,6 @@
                 async fetchData() {
                     if (!db) return;
                     
-                    // ระบบป้องกันการยิง API ซ้ำ (Concurrency Control)
                     if (this._isFetchLocked) return; 
                     this._isFetchLocked = true;
                     this.isFetching = true;
@@ -694,7 +692,6 @@
                         this.isInitialLoading = false;
                         this.connectionError = true;
                     } finally {
-                        // ปลดล็อคเสมอแม้เกิดข้อผิดพลาด
                         this._isFetchLocked = false;
                         setTimeout(() => this.isFetching = false, 500); 
                     }
@@ -926,6 +923,7 @@
             }
         }
 
+        // ปรับปรุงคอขวด: กรองให้ MutationObserver ไม่สแกนพร่ำเพรื่อเมื่อแค่ตัวหนังสือเปลี่ยน
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) {
                 lucide.createIcons();
@@ -933,18 +931,27 @@
                 const observer = new MutationObserver((mutations) => {
                     let shouldUpdate = false;
                     for (let m of mutations) {
-                        if (m.addedNodes.length > 0) {
-                            shouldUpdate = true;
-                            break;
+                        if (m.type === 'childList') {
+                            for (let node of m.addedNodes) {
+                                // เช็คเฉพาะ Element Node และข้าม SVG ของ Lucide ไปเลย ป้องกันลูปไม่สิ้นสุด
+                                if (node.nodeType === 1 && node.tagName.toLowerCase() !== 'svg') {
+                                    if (node.hasAttribute('data-lucide') || node.querySelector('[data-lucide]')) {
+                                        shouldUpdate = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
+                        if (shouldUpdate) break;
                     }
                     if (shouldUpdate) {
                         clearTimeout(timeout);
+                        // หน่วงและใช้ requestAnimationFrame เพื่อคืนทรัพยากรให้ Browser วาดหน้าจอให้เสร็จก่อน
                         timeout = setTimeout(() => {
-                            if (document.querySelector('[data-lucide]')) {
+                            requestAnimationFrame(() => {
                                 lucide.createIcons();
-                            }
-                        }, 50);
+                            });
+                        }, 20);
                     }
                 });
                 observer.observe(document.body, { childList: true, subtree: true });
