@@ -17,11 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-    <!-- ===== [NEW] LINE LIFF SDK ===== -->
     <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
-
-    <!-- ===== [NEW] jsPDF + html2canvas for PDF Export ===== -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
@@ -29,11 +25,9 @@
         body { -webkit-tap-highlight-color: transparent; }
         [x-cloak] { display: none !important; }
         
-        /* Glass Header */
         .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
         .dark .glass-header { background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        /* Animations */
         .animate-enter { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -49,159 +43,51 @@
         .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Bureau Box Styles */
         .bureau-card { transition: all 0.2s ease; border: 2px solid transparent; }
         .bureau-card:hover { transform: translateY(-2px); }
         .bureau-card.active { border-color: #2563eb; background-color: #eff6ff; }
         .dark .bureau-card.active { border-color: #3b82f6; background-color: #1e293b; }
 
-        /* Marquee */
         .marquee-container { overflow: hidden; white-space: nowrap; }
         .marquee-content { display: inline-block; padding-left: 100%; animation: marquee 20s linear infinite; }
         @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
 
-        /* Timeline Connector */
         .timeline-line { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: #e2e8f0; z-index: 0; transform: translateY(-50%); }
         .dark .timeline-line { background: #334155; }
 
-        /* ===== [NEW] LINE Login Styles ===== */
-        .line-btn {
-            background: #06C755;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 14px 24px;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 1rem;
-            width: 100%;
-            transition: all 0.2s ease;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(6, 199, 85, 0.35);
-        }
+        .line-btn { background: #06C755; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; border-radius: 14px; font-weight: 700; font-size: 1rem; width: 100%; transition: all 0.2s ease; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(6, 199, 85, 0.35); }
         .line-btn:hover { background: #05b34b; transform: translateY(-1px); }
         .line-btn:active { transform: scale(0.98); }
         .line-btn svg { width: 24px; height: 24px; flex-shrink: 0; }
 
-        .line-linked-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #e8fdf0;
-            color: #059669;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            border: 1px solid #a7f3d0;
-        }
+        .line-linked-badge { display: inline-flex; align-items: center; gap: 6px; background: #e8fdf0; color: #059669; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #a7f3d0; }
         .dark .line-linked-badge { background: rgba(6,199,85,0.15); border-color: rgba(6,199,85,0.3); color: #34d399; }
 
-        /* ===== [NEW] PDF Export Styles ===== */
-        .pdf-export-btn {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(239,68,68,0.35);
-        }
+        .pdf-export-btn { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 0.875rem; transition: all 0.2s ease; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(239,68,68,0.35); }
         .pdf-export-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239,68,68,0.4); }
         .pdf-export-btn:active { transform: scale(0.98); }
         .pdf-export-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        /* ===== [NEW] Mobile Bottom Nav ===== */
-        .mobile-bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 60;
-            background: rgba(255,255,255,0.97);
-            backdrop-filter: blur(16px);
-            border-top: 1px solid rgba(0,0,0,0.06);
-            padding-bottom: env(safe-area-inset-bottom);
-            display: none;
-        }
+        .mobile-bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 60; background: rgba(255,255,255,0.97); backdrop-filter: blur(16px); border-top: 1px solid rgba(0,0,0,0.06); padding-bottom: env(safe-area-inset-bottom); display: none; }
         .dark .mobile-bottom-nav { background: rgba(15,23,42,0.97); border-top-color: rgba(255,255,255,0.07); }
         @media (max-width: 768px) { .mobile-bottom-nav { display: block; } }
 
-        .mobile-nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 4px 6px;
-            gap: 3px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            border: none;
-            background: none;
-            color: #94a3b8;
-            font-size: 9px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
+        .mobile-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; gap: 3px; cursor: pointer; transition: all 0.15s ease; border: none; background: none; color: #94a3b8; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
         .mobile-nav-item.active { color: #2563eb; }
         .dark .mobile-nav-item { color: #64748b; }
         .dark .mobile-nav-item.active { color: #60a5fa; }
         .mobile-nav-item i { font-size: 18px; transition: all 0.15s ease; }
         .mobile-nav-item.active i { transform: translateY(-2px); }
 
-        /* ===== [NEW] Dashboard Mobile Summary Cards ===== */
-        .summary-stat-card {
-            background: white;
-            border-radius: 20px;
-            padding: 16px;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            text-align: center;
-            transition: all 0.2s ease;
-        }
+        .summary-stat-card { background: white; border-radius: 20px; padding: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; transition: all 0.2s ease; }
         .dark .summary-stat-card { background: #1e293b; border-color: #334155; }
 
-        /* ===== [NEW] PDF Preview Printable Area ===== */
-        #pdf-preview-area {
-            background: white;
-            font-family: 'Sarabun', sans-serif;
-            color: #1e293b;
-        }
-
-        /* ===== [NEW] LINE Bind Modal ===== */
         .bind-step { transition: all 0.3s ease; }
 
-        @media print { body * { visibility: hidden; } #digital-slip-content, #digital-slip-content * { visibility: visible; } #digital-slip-content { position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-shadow: none !important; } .no-print { display: none !important; } }
-
-        /* ===== [NEW] Connection Error Banner ===== */
-        .connection-error-banner {
-            position: fixed;
-            bottom: 80px;
-            left: 16px;
-            right: 16px;
-            background: #ef4444;
-            color: white;
-            padding: 14px 16px;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(239,68,68,0.4);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .connection-error-banner { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #ef4444; color: white; padding: 14px 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(239,68,68,0.4); z-index: 100; display: flex; align-items: center; gap: 12px; }
         @media (min-width: 768px) { .connection-error-banner { bottom: 24px; left: auto; right: 24px; width: 360px; } }
+
+        @media print { body * { visibility: hidden; } #digital-slip-content, #digital-slip-content * { visibility: visible; } #digital-slip-content { position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-shadow: none !important; } .no-print { display: none !important; } }
     </style>
 </head>
 <body class="text-slate-800 dark:text-slate-100 bg-pattern min-h-screen pt-8 transition-colors duration-300" x-init="initApp()" x-cloak>
@@ -220,7 +106,6 @@
                 </div>
             </div>
 
-            <!-- Desktop Nav (unchanged) -->
             <div class="hidden md:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 mx-4">
                 <button @click="switchPage('home')" :class="currentPage === 'home' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"><i class="fa-solid fa-check-to-slot"></i> เลือกตำแหน่ง</button>
                 <button @click="switchPage('monitor')" :class="currentPage === 'monitor' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 relative"><i class="fa-solid fa-satellite-dish"></i> Live</button>
@@ -231,7 +116,6 @@
 
             <div class="flex items-center gap-3">
                 <button @click="toggleDarkMode" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 flex items-center justify-center transition border border-slate-200 dark:border-slate-700"><i class="fa-solid" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i></button>
-                <!-- [CHANGED] Removed old mobile inline nav — replaced by bottom nav bar below -->
                 <div class="md:hidden flex items-center gap-2">
                     <div x-show="user.id" class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 text-white flex items-center justify-center font-bold text-xs" x-text="user.id"></div>
                     <div x-show="!user.id" @click="switchPage('login')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center border border-slate-200 dark:border-slate-700 cursor-pointer"><i class="fa-solid fa-right-to-bracket text-xs"></i></div>
@@ -243,20 +127,14 @@
 
     <div class="h-24"></div>
 
-    <!-- ============================================================ -->
-    <!-- HOME PAGE (original, unchanged) -->
-    <!-- ============================================================ -->
+    <!-- HOME PAGE -->
     <div x-show="currentPage === 'home'" class="container mx-auto px-4 pb-28 md:pb-20 grid grid-cols-1 lg:grid-cols-12 gap-6 animate-enter safe-pb">
-        
         <div class="lg:col-span-4 space-y-4 order-1 lg:order-2">
              <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg p-5 border border-slate-100 dark:border-slate-700">
                 <div x-show="!user.id"><h2 class="font-bold text-slate-800 dark:text-slate-200 mb-3 text-sm flex items-center gap-2">เข้าสู่ระบบ</h2><div class="flex gap-2"><input x-model="loginCode" @keyup.enter="login" type="number" placeholder="Enter ID..." class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border-none rounded-xl px-4 py-3 font-bold text-center outline-none"><button @click="login" class="bg-slate-800 dark:bg-slate-600 text-white w-12 rounded-xl shadow-lg"><i class="fa-solid fa-arrow-right"></i></button></div></div>
                 <div x-show="user.id">
                     <div class="flex justify-between items-center mb-4"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-md" x-text="user.id"></div><div><div class="font-bold text-slate-800 dark:text-white text-sm" x-text="user.name"></div><div class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500 dark:text-slate-300" x-text="user.status"></div></div></div><button @click="logout" class="text-red-500 bg-red-50 dark:bg-red-900/30 w-8 h-8 rounded-full"><i class="fa-solid fa-power-off text-xs"></i></button></div>
-                    <!-- [NEW] LINE linked badge in sidebar -->
-                    <div x-show="user.lineLinked" class="mb-3">
-                        <span class="line-linked-badge"><i class="fa-solid fa-circle-check"></i> เชื่อมต่อ LINE แล้ว</span>
-                    </div>
+                    <div x-show="user.lineLinked" class="mb-3"><span class="line-linked-badge"><i class="fa-solid fa-circle-check"></i> เชื่อมต่อ LINE แล้ว</span></div>
                     <div x-show="isMyTurn" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-2xl text-center shadow-lg animate-pulse cursor-pointer" @click="window.scrollTo({top:0, behavior:'smooth'})">ถึงคิวของคุณแล้ว!</div>
                     <div x-show="!isMyTurn && user.status === 'WAITING'" class="bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl text-center"><p class="text-slate-500 dark:text-slate-300 font-bold text-xs">รออีก <span class="text-xl text-blue-600 dark:text-blue-400 mx-1" x-text="parseInt(user.id) - parseInt(config.current_queue)"></span> คิว</p></div>
                 </div>
@@ -266,18 +144,9 @@
                 <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-4 text-xs uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-stream text-blue-500"></i> ลำดับคิวปัจจุบัน</h3>
                 <div class="space-y-3 relative">
                     <div class="absolute left-[1.1rem] top-3 bottom-3 w-0.5 bg-slate-100 dark:bg-slate-700"></div>
-                    <div class="relative flex items-center gap-3 p-2 opacity-50">
-                        <div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center z-10 text-slate-400 font-bold text-xs"><i class="fa-solid fa-check"></i></div>
-                        <div><div class="text-[9px] uppercase font-bold text-slate-400">Previous</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="prevUser ? prevUser.name : '-'"></div></div>
-                    </div>
-                    <div class="relative flex items-center gap-3 bg-white dark:bg-slate-700 p-3 rounded-2xl shadow-md border-l-4 border-blue-500 z-10">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center font-bold text-base shadow-lg animate-pulse"><span x-text="config.current_queue || '?'"></span></div>
-                        <div><div class="text-[9px] uppercase font-bold text-blue-600 dark:text-blue-400">Now Selecting</div><div class="text-sm font-bold text-slate-800 dark:text-white leading-tight" x-text="currentUserObj ? currentUserObj.name : 'Waiting...'"></div></div>
-                    </div>
-                    <div class="relative flex items-center gap-3 p-2 opacity-60">
-                        <div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-green-200 dark:border-green-900 flex items-center justify-center z-10 text-green-600 dark:text-green-400 font-bold text-xs"><i class="fa-solid fa-arrow-down"></i></div>
-                        <div><div class="text-[9px] uppercase font-bold text-green-600 dark:text-green-400">Next</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="nextUser ? nextUser.name : '-'"></div></div>
-                    </div>
+                    <div class="relative flex items-center gap-3 p-2 opacity-50"><div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center z-10 text-slate-400 font-bold text-xs"><i class="fa-solid fa-check"></i></div><div><div class="text-[9px] uppercase font-bold text-slate-400">Previous</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="prevUser ? prevUser.name : '-'"></div></div></div>
+                    <div class="relative flex items-center gap-3 bg-white dark:bg-slate-700 p-3 rounded-2xl shadow-md border-l-4 border-blue-500 z-10"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center font-bold text-base shadow-lg animate-pulse"><span x-text="config.current_queue || '?'"></span></div><div><div class="text-[9px] uppercase font-bold text-blue-600 dark:text-blue-400">Now Selecting</div><div class="text-sm font-bold text-slate-800 dark:text-white leading-tight" x-text="currentUserObj ? currentUserObj.name : 'Waiting...'"></div></div></div>
+                    <div class="relative flex items-center gap-3 p-2 opacity-60"><div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-green-200 dark:border-green-900 flex items-center justify-center z-10 text-green-600 dark:text-green-400 font-bold text-xs"><i class="fa-solid fa-arrow-down"></i></div><div><div class="text-[9px] uppercase font-bold text-green-600 dark:text-green-400">Next</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="nextUser ? nextUser.name : '-'"></div></div></div>
                 </div>
             </div>
 
@@ -287,13 +156,7 @@
                     <template x-for="log in serverLogs.slice(0, 5)" :key="log[1]">
                         <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
                             <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-[10px]" x-text="log[1]"></div>
-                            <div class="flex-1 min-w-0">
-                                <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate" x-text="log[2]"></div>
-                                <div class="flex items-center gap-1.5">
-                                    <div class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" x-text="log[4]"></div>
-                                    <span class="text-[9px] bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-1.5 rounded" x-text="log[5]"></span>
-                                </div>
-                            </div>
+                            <div class="flex-1 min-w-0"><div class="text-[10px] text-slate-500 dark:text-slate-400 truncate" x-text="log[2]"></div><div class="flex items-center gap-1.5"><div class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" x-text="log[4]"></div><span class="text-[9px] bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-1.5 rounded" x-text="log[5]"></span></div></div>
                         </div>
                     </template>
                 </div>
@@ -323,10 +186,8 @@
                         <button @click="filterStatus = (filterStatus === 'AVAILABLE' ? 'ALL' : 'AVAILABLE')" :class="filterStatus === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i class="fa-solid fa-check-circle"></i> ว่าง</button>
                     </div>
                 </div>
-
                 <div class="min-h-[50vh]">
                     <div x-show="isInitialLoading" class="flex flex-col items-center justify-center py-20 text-slate-400 opacity-60"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-blue-500"></i><p class="text-xs">Loading...</p></div>
-                    
                     <div x-show="!isInitialLoading && viewMode === 'grid'" class="space-y-6">
                         <template x-for="group in groupedPositions" :key="group.name">
                             <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-200/50 dark:border-slate-700/50">
@@ -348,7 +209,7 @@
                         </template>
                     </div>
                     <div x-show="viewMode === 'list'" class="space-y-4">
-                         <template x-for="group in groupedPositions" :key="group.name">
+                        <template x-for="group in groupedPositions" :key="group.name">
                             <div class="space-y-2">
                                 <div class="sticky top-[8.5rem] z-20 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase text-slate-500 flex justify-between shadow-sm"><span x-text="group.name"></span><span x-text="group.items.length"></span></div>
                                 <template x-for="pos in group.items" :key="pos[0]">
@@ -360,29 +221,26 @@
                             </div>
                         </template>
                     </div>
-                     <div x-show="groupedPositions.length === 0" class="text-center py-10 text-slate-400">ไม่พบข้อมูลตามเงื่อนไข</div>
+                    <div x-show="groupedPositions.length === 0 && !isInitialLoading" class="text-center py-10 text-slate-400">ไม่พบข้อมูลตามเงื่อนไข</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- MONITOR PAGE (original, unchanged) -->
-    <!-- ============================================================ -->
+    <!-- MONITOR PAGE -->
     <div x-show="currentPage === 'monitor'" class="container mx-auto px-4 py-6 pb-28 md:pb-6 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-satellite-dish text-red-500"></i> Live Monitor</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-md border border-slate-100 dark:border-slate-700 mb-8 overflow-hidden relative">
             <div class="text-center mb-10"><div class="inline-block px-4 py-1 rounded-full bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 text-xs font-bold uppercase tracking-wider animate-pulse">Real-time Feed</div></div>
-            <div class="relative flex items-center justify-center min-w-[800px] md:min-w-0">
+            <div class="relative flex items-center justify-center overflow-x-auto">
                 <div class="timeline-line"></div>
-                <div class="flex items-center gap-4 z-10 w-full justify-center">
+                <div class="flex items-center gap-4 z-10 w-full justify-center min-w-max px-4">
                     <template x-for="u in prev3Users" :key="u[0]"><div class="flex flex-col items-center gap-2 opacity-50 scale-90"><div class="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center font-bold text-slate-500 dark:text-slate-400 shadow-sm" x-text="u[0]"></div><div class="text-[10px] font-bold text-slate-400 whitespace-nowrap" x-text="u[1]"></div></div></template>
                     <div class="flex flex-col items-center gap-3 mx-4 scale-110"><div class="relative"><div class="absolute inset-0 bg-blue-500 rounded-2xl blur opacity-30 animate-ping"></div><div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 text-white flex items-center justify-center text-3xl font-black shadow-xl border-4 border-white dark:border-slate-600 relative z-10"><span x-text="config.current_queue"></span></div></div><div class="text-center"><div class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Current</div><div class="text-sm font-bold text-slate-800 dark:text-white" x-text="currentUserObj ? currentUserObj.name : 'Waiting...'"></div></div></div>
                     <template x-for="u in next3Users" :key="u[0]"><div class="flex flex-col items-center gap-2 opacity-60 scale-90"><div class="w-12 h-12 rounded-xl bg-white dark:bg-slate-600 border-2 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 flex items-center justify-center font-bold shadow-sm" x-text="u[0]"></div><div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap" x-text="u[1]"></div></div></template>
                 </div>
             </div>
         </div>
-        
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
             <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800 dark:text-white">ประวัติการเลือกล่าสุด</h3><div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div></div>
             <div class="overflow-x-auto">
@@ -390,15 +248,7 @@
                     <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 uppercase text-xs font-bold"><tr><th class="p-4 rounded-l-xl">เวลา</th><th class="p-4">ลำดับ</th><th class="p-4">ชื่อ</th><th class="p-4 rounded-r-xl">ตำแหน่งที่เลือก</th></tr></thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
                         <template x-for="log in serverLogs" :key="log[1]">
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition">
-                                <td class="p-4 font-mono text-slate-400" x-text="formatTime(log[0])"></td>
-                                <td class="p-4"><span class="bg-slate-100 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-2 py-1 rounded font-bold text-xs" x-text="log[1]"></span></td>
-                                <td class="p-4 font-bold text-slate-700 dark:text-slate-200" x-text="log[2]"></td>
-                                <td class="p-4">
-                                    <span class="text-blue-600 dark:text-blue-400 font-bold" x-text="log[4]"></span>
-                                    <span class="text-xs text-slate-400 ml-2" x-text="log[5]"></span>
-                                </td>
-                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition"><td class="p-4 font-mono text-slate-400" x-text="formatTime(log[0])"></td><td class="p-4"><span class="bg-slate-100 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-2 py-1 rounded font-bold text-xs" x-text="log[1]"></span></td><td class="p-4 font-bold text-slate-700 dark:text-slate-200" x-text="log[2]"></td><td class="p-4"><span class="text-blue-600 dark:text-blue-400 font-bold" x-text="log[4]"></span><span class="text-xs text-slate-400 ml-2" x-text="log[5]"></span></td></tr>
                         </template>
                     </tbody>
                 </table>
@@ -406,133 +256,60 @@
         </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- DASHBOARD PAGE (enhanced with PDF export + mobile layout) -->
-    <!-- ============================================================ -->
+    <!-- DASHBOARD PAGE -->
     <div x-show="currentPage === 'dashboard'" class="container mx-auto px-4 py-6 pb-28 md:pb-6 animate-enter safe-pb">
-        <!-- [NEW] Header row with PDF export button -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
             <h2 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-500"></i> สรุปผลภาพรวม</h2>
-            <button @click="exportPDF()" :disabled="isPdfExporting" class="pdf-export-btn no-print">
-                <i class="fa-solid" :class="isPdfExporting ? 'fa-circle-notch fa-spin' : 'fa-file-pdf'"></i>
-                <span x-text="isPdfExporting ? 'กำลัง Export...' : 'Export PDF'"></span>
-            </button>
+            <button @click="exportPDF()" :disabled="isPdfExporting" class="pdf-export-btn no-print"><i class="fa-solid" :class="isPdfExporting ? 'fa-circle-notch fa-spin' : 'fa-file-pdf'"></i><span x-text="isPdfExporting ? 'กำลัง Export...' : 'Export PDF'"></span></button>
         </div>
-        
-        <!-- [NEW] ID pdf-report-root — wraps everything that goes into PDF -->
-        <div id="pdf-report-root">
-
-        <!-- Stat cards (original) -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="summary-stat-card"><div class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">Total</div><div class="text-3xl font-black text-slate-800 dark:text-white" x-text="positions.length"></div></div>
             <div class="summary-stat-card"><div class="text-[10px] text-green-600 dark:text-green-400 font-bold uppercase mb-1">Taken</div><div class="text-3xl font-black text-green-600 dark:text-green-400" x-text="positions.filter(p => p[3] !== 'AVAILABLE').length"></div></div>
             <div class="summary-stat-card"><div class="text-[10px] text-red-500 dark:text-red-400 font-bold uppercase mb-1">Left</div><div class="text-3xl font-black text-red-500 dark:text-red-400" x-text="positions.filter(p => p[3] === 'AVAILABLE').length"></div></div>
             <div class="bg-blue-600 text-white rounded-2xl p-4 shadow-lg text-center"><div class="text-[10px] text-blue-100 font-bold uppercase mb-1">Progress</div><div class="text-3xl font-black" x-text="Math.round(progressPercent) + '%'"></div></div>
         </div>
-
-        <!-- [NEW] Mobile-first progress bar for each region -->
         <div class="block lg:hidden mb-6">
             <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
                 <h3 class="font-bold text-base text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-map text-blue-500"></i> สรุปรายภาค</h3>
                 <div class="space-y-3">
                     <template x-for="stat in regionDashboardStats" :key="stat.name">
-                        <div class="flex items-center gap-3">
-                            <div class="w-14 text-xs font-black text-slate-700 dark:text-slate-300 shrink-0" x-text="stat.name"></div>
-                            <div class="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-4 overflow-hidden">
-                                <div class="h-full rounded-full transition-all duration-700 flex items-center justify-end pr-2"
-                                    :style="`width: ${stat.percent}%`"
-                                    :class="stat.percent === 100 ? 'bg-red-500' : 'bg-blue-500'">
-                                    <span x-show="stat.percent > 25" class="text-white text-[9px] font-bold" x-text="stat.taken"></span>
-                                </div>
-                            </div>
-                            <div class="text-[10px] font-bold text-slate-400 shrink-0 w-10 text-right" x-text="stat.taken + '/' + stat.total"></div>
-                        </div>
+                        <div class="flex items-center gap-3"><div class="w-14 text-xs font-black text-slate-700 dark:text-slate-300 shrink-0" x-text="stat.name"></div><div class="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-4 overflow-hidden"><div class="h-full rounded-full transition-all duration-700 flex items-center justify-end pr-2" :style="`width: ${stat.percent}%`" :class="stat.percent === 100 ? 'bg-red-500' : 'bg-blue-500'"><span x-show="stat.percent > 25" class="text-white text-[9px] font-bold" x-text="stat.taken"></span></div></div><div class="text-[10px] font-bold text-slate-400 shrink-0 w-10 text-right" x-text="stat.taken + '/' + stat.total"></div></div>
                     </template>
                 </div>
             </div>
         </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Region chart (desktop, original) -->
             <div class="hidden lg:block lg:col-span-1 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 h-max">
                 <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">สถานะรายภาค</h3>
                 <div class="space-y-4">
                     <template x-for="stat in regionDashboardStats" :key="stat.name">
-                        <div>
-                            <div class="flex justify-between items-end mb-1">
-                                <span class="font-bold text-sm text-slate-700 dark:text-slate-300" x-text="stat.name"></span>
-                                <span class="text-xs font-bold text-slate-400"><span class="text-blue-600 dark:text-blue-400" x-text="stat.taken"></span> / <span x-text="stat.total"></span></span>
-                            </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
-                                <div class="h-full rounded-full transition-all duration-1000" :style="`width: ${stat.percent}%`" :class="stat.percent === 100 ? 'bg-red-500' : 'bg-blue-500'"></div>
-                            </div>
-                        </div>
+                        <div><div class="flex justify-between items-end mb-1"><span class="font-bold text-sm text-slate-700 dark:text-slate-300" x-text="stat.name"></span><span class="text-xs font-bold text-slate-400"><span class="text-blue-600 dark:text-blue-400" x-text="stat.taken"></span> / <span x-text="stat.total"></span></span></div><div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden"><div class="h-full rounded-full transition-all duration-1000" :style="`width: ${stat.percent}%`" :class="stat.percent === 100 ? 'bg-red-500' : 'bg-blue-500'"></div></div></div>
                     </template>
                 </div>
             </div>
-
-            <!-- Selection table (original + mobile enhanced) -->
             <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-5">
-                <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg text-slate-800 dark:text-white">รายชื่อผู้เลือก</h3>
-                    <!-- [NEW] total badge -->
-                    <span class="bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-bold" x-text="dashboardList.length + ' คน'"></span>
-                </div>
-
-                <!-- [NEW] Mobile card view -->
+                <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg text-slate-800 dark:text-white">รายชื่อผู้เลือก</h3><span class="bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-bold" x-text="dashboardList.length + ' คน'"></span></div>
                 <div class="block md:hidden space-y-3 max-h-[60vh] overflow-y-auto">
                     <template x-for="u in dashboardList" :key="u.id">
-                        <div class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-3 border border-slate-100 dark:border-slate-600">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 text-white flex items-center justify-center font-bold text-sm shrink-0" x-text="u.id"></div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="font-bold text-slate-800 dark:text-slate-100 text-sm" x-text="u.name"></div>
-                                    <div class="text-blue-600 dark:text-blue-400 text-xs font-semibold truncate" x-text="u.pos"></div>
-                                </div>
-                                <div class="text-right shrink-0">
-                                    <div class="text-[10px] bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded font-bold" x-text="u.region"></div>
-                                    <div class="text-[10px] text-slate-400 mt-1 font-mono" x-text="formatTime(u.time)"></div>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-3 border border-slate-100 dark:border-slate-600"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 text-white flex items-center justify-center font-bold text-sm shrink-0" x-text="u.id"></div><div class="flex-1 min-w-0"><div class="font-bold text-slate-800 dark:text-slate-100 text-sm" x-text="u.name"></div><div class="text-blue-600 dark:text-blue-400 text-xs font-semibold truncate" x-text="u.pos"></div></div><div class="text-right shrink-0"><div class="text-[10px] bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded font-bold" x-text="u.region"></div><div class="text-[10px] text-slate-400 mt-1 font-mono" x-text="formatTime(u.time)"></div></div></div></div>
                     </template>
                     <div x-show="dashboardList.length === 0" class="text-center py-8 text-slate-400 text-sm">ยังไม่มีผู้เลือกตำแหน่ง</div>
                 </div>
-
-                <!-- Desktop table view (original) -->
                 <div class="hidden md:block overflow-x-auto max-h-[500px] overflow-y-auto">
                     <table class="w-full text-left min-w-[300px]">
-                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 uppercase text-[10px] font-bold sticky top-0 z-10">
-                            <tr>
-                                <th class="p-3">#</th>
-                                <th class="p-3">ชื่อ</th>
-                                <th class="p-3">ตำแหน่ง / ภาค</th>
-                                <th class="p-3 text-right">เวลา</th>
-                            </tr>
-                        </thead>
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 uppercase text-[10px] font-bold sticky top-0 z-10"><tr><th class="p-3">#</th><th class="p-3">ชื่อ</th><th class="p-3">ตำแหน่ง / ภาค</th><th class="p-3 text-right">เวลา</th></tr></thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
                             <template x-for="u in dashboardList" :key="u.id">
-                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
-                                    <td class="p-3"><div class="w-6 h-6 rounded bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-300 flex items-center justify-center font-bold font-mono text-[10px]" x-text="u.id"></div></td>
-                                    <td class="p-3 font-bold text-slate-700 dark:text-slate-200" x-text="u.name"></td>
-                                    <td class="p-3">
-                                        <div class="text-blue-600 dark:text-blue-400 font-bold" x-text="u.pos"></div>
-                                        <div class="text-[10px] text-slate-400" x-text="u.region"></div>
-                                    </td>
-                                    <td class="p-3 text-right font-mono text-slate-400" x-text="formatTime(u.time)"></td>
-                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3"><div class="w-6 h-6 rounded bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-300 flex items-center justify-center font-bold font-mono text-[10px]" x-text="u.id"></div></td><td class="p-3 font-bold text-slate-700 dark:text-slate-200" x-text="u.name"></td><td class="p-3"><div class="text-blue-600 dark:text-blue-400 font-bold" x-text="u.pos"></div><div class="text-[10px] text-slate-400" x-text="u.region"></div></td><td class="p-3 text-right font-mono text-slate-400" x-text="formatTime(u.time)"></td></tr>
                             </template>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-
-        </div><!-- end #pdf-report-root -->
     </div>
 
-    <!-- ============================================================ -->
-    <!-- ADMIN PAGE (original, unchanged) -->
-    <!-- ============================================================ -->
+    <!-- ADMIN PAGE -->
     <div x-show="currentPage === 'admin_panel'" class="container mx-auto px-4 py-6 pb-28 md:pb-6 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-cogs text-red-500"></i> Admin Panel</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
@@ -541,268 +318,149 @@
         </div>
         <div class="flex gap-2 mb-4 overflow-x-auto"><button @click="adminTab = 'users'" :class="adminTab === 'users' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400'" class="px-6 py-2 rounded-xl font-bold shadow-sm transition">Users</button><button @click="adminTab = 'positions'" :class="adminTab === 'positions' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400'" class="px-6 py-2 rounded-xl font-bold shadow-sm transition">Positions</button></div>
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 overflow-hidden">
-             <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg text-slate-800 dark:text-white" x-text="adminTab === 'users' ? 'จัดการรายชื่อ (Users)' : 'จัดการตำแหน่ง (Positions)'"></h3><button @click="openAdminModal('CREATE')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow"><i class="fa-solid fa-plus mr-1"></i> Add New</button></div>
-             <div x-show="adminTab === 'users'" class="overflow-x-auto"><table class="w-full text-left text-sm text-slate-600 dark:text-slate-300"><thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Code</th><th class="p-3">Action</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-slate-700"><template x-for="u in users" :key="u[0]"><tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3 font-mono" x-text="u[0]"></td><td class="p-3 font-bold" x-text="u[1]"></td><td class="p-3 font-mono text-xs" x-text="u[2]"></td><td class="p-3 flex gap-2"><button @click="openAdminModal('UPDATE', u, 'USER')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen"></i></button><button @click="deleteAdminData(u[0], 'USER')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td></tr></template></tbody></table></div>
-             <div x-show="adminTab === 'positions'" class="overflow-x-auto"><table class="w-full text-left text-sm text-slate-600 dark:text-slate-300"><thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Region</th><th class="p-3">Action</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-slate-700"><template x-for="p in positions" :key="p[0]"><tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3 font-mono" x-text="p[0]"></td><td class="p-3 font-bold" x-text="p[1]"></td><td class="p-3 text-xs" x-text="p[2]"></td><td class="p-3 flex gap-2"><button @click="openAdminModal('UPDATE', p, 'POSITION')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen"></i></button><button @click="deleteAdminData(p[0], 'POSITION')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td></tr></template></tbody></table></div>
+            <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg text-slate-800 dark:text-white" x-text="adminTab === 'users' ? 'จัดการรายชื่อ (Users)' : 'จัดการตำแหน่ง (Positions)'"></h3><button @click="openAdminModal('CREATE')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow"><i class="fa-solid fa-plus mr-1"></i> Add New</button></div>
+            <div x-show="adminTab === 'users'" class="overflow-x-auto"><table class="w-full text-left text-sm text-slate-600 dark:text-slate-300"><thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Code</th><th class="p-3">Action</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-slate-700"><template x-for="u in users" :key="u[0]"><tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3 font-mono" x-text="u[0]"></td><td class="p-3 font-bold" x-text="u[1]"></td><td class="p-3 font-mono text-xs" x-text="u[2]"></td><td class="p-3 flex gap-2"><button @click="openAdminModal('UPDATE', u, 'USER')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen"></i></button><button @click="deleteAdminData(u[0], 'USER')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td></tr></template></tbody></table></div>
+            <div x-show="adminTab === 'positions'" class="overflow-x-auto"><table class="w-full text-left text-sm text-slate-600 dark:text-slate-300"><thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Region</th><th class="p-3">Action</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-slate-700"><template x-for="p in positions" :key="p[0]"><tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3 font-mono" x-text="p[0]"></td><td class="p-3 font-bold" x-text="p[1]"></td><td class="p-3 text-xs" x-text="p[2]"></td><td class="p-3 flex gap-2"><button @click="openAdminModal('UPDATE', p, 'POSITION')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen"></i></button><button @click="deleteAdminData(p[0], 'POSITION')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td></tr></template></tbody></table></div>
         </div>
     </div>
-    
-    <!-- Admin Modal (original, unchanged) -->
+
+    <!-- Admin Modal -->
     <div x-show="adminModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-cloak><div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl animate-enter"><h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4" x-text="adminModalAction === 'CREATE' ? 'Add New' : 'Edit Data'"></h3><div class="space-y-4"><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">ID</label><input x-model="adminFormData.id" :disabled="adminModalAction === 'UPDATE'" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Name</label><input x-model="adminFormData.name" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'users'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Code</label><input x-model="adminFormData.code" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'positions'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Region</label><input x-model="adminFormData.region" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div></div><div class="flex gap-2 mt-6"><button @click="saveAdminData" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold text-sm">Save</button><button @click="adminModalOpen = false" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-2 rounded-lg font-bold text-sm">Cancel</button></div></div></div>
 
-    <!-- ============================================================ -->
-    <!-- LOGIN PAGE (enhanced with LINE login + bind flow) -->
-    <!-- ============================================================ -->
+    <!-- LOGIN PAGE -->
     <div x-show="currentPage === 'login'" class="container mx-auto px-4 py-6 pb-28 md:pb-6 animate-enter safe-pb flex flex-col items-center justify-center min-h-[70vh]">
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 w-full max-w-md overflow-hidden relative">
             <div class="h-2 bg-blue-600 w-full"></div>
             <div class="p-8">
-                <!-- ===== NOT LOGGED IN STATE ===== -->
                 <div x-show="!user.id" class="text-center">
                     <div class="w-20 h-20 bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner"><i class="fa-solid fa-user-lock"></i></div>
                     <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">เข้าสู่ระบบ</h2>
                     <p class="text-slate-400 text-sm mb-6">กรอกรหัสประจำตัว หรือเข้าผ่าน LINE</p>
-
-                    <!-- Manual code login (original) -->
                     <input x-model="loginCode" @keyup.enter="login" type="number" placeholder="รหัสประจำตัว (ID Code)" class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-4 font-bold text-center text-xl focus:ring-4 focus:ring-blue-500/20 outline-none transition mb-4">
                     <button @click="login" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg mb-4">เข้าสู่ระบบ</button>
-
-                    <!-- [NEW] Divider -->
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="flex-1 h-px bg-slate-200 dark:bg-slate-600"></div>
-                        <span class="text-xs text-slate-400 font-bold">หรือ</span>
-                        <div class="flex-1 h-px bg-slate-200 dark:bg-slate-600"></div>
-                    </div>
-
-                    <!-- [NEW] LINE Login button -->
+                    <div class="flex items-center gap-3 mb-4"><div class="flex-1 h-px bg-slate-200 dark:bg-slate-600"></div><span class="text-xs text-slate-400 font-bold">หรือ</span><div class="flex-1 h-px bg-slate-200 dark:bg-slate-600"></div></div>
                     <button @click="loginWithLine()" :disabled="lineLoading" class="line-btn">
-                        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.41-.101-.539-.29l-2.531-3.426v3.089c0 .345-.283.63-.63.63-.344 0-.627-.285-.627-.63V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .41.105.539.291l2.532 3.42V8.108c0-.345.282-.63.63-.63.346 0 .629.285.629.63v4.771zm-5.741 0c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-                        </svg>
+                        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.41-.101-.539-.29l-2.531-3.426v3.089c0 .345-.283.63-.63.63-.344 0-.627-.285-.627-.63V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .41.105.539.291l2.532 3.42V8.108c0-.345.282-.63.63-.63.346 0 .629.285.629.63v4.771zm-5.741 0c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
                         <span x-text="lineLoading ? 'กำลังเชื่อมต่อ LINE...' : 'เข้าสู่ระบบด้วย LINE'"></span>
                     </button>
-
                     <p class="text-[10px] text-slate-400 mt-3">LINE Login ต้องผูกรหัสก่อนใช้งานครั้งแรก</p>
                 </div>
-
-                <!-- ===== LOGGED IN STATE (original + LINE section) ===== -->
                 <div x-show="user.id" class="text-center">
-                     <div class="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl font-bold shadow-lg" x-text="user.id"></div>
-                     <h2 class="text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-2" x-text="user.name"></h2>
-                     <div class="inline-block px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs font-bold mb-4" x-text="user.status"></div>
-                     
-                     <!-- [NEW] LINE link status block -->
-                     <div class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
-                         <div class="flex items-center justify-between">
-                             <div class="text-left">
-                                 <div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">LINE Account</div>
-                                 <div x-show="user.lineLinked" class="line-linked-badge"><i class="fa-solid fa-circle-check"></i> เชื่อมต่อแล้ว</div>
-                                 <div x-show="!user.lineLinked" class="text-xs text-slate-400 font-semibold">ยังไม่เชื่อมต่อ</div>
-                             </div>
-                             <button x-show="!user.lineLinked" @click="openLineBindModal()" class="bg-[#06C755] text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-md">
-                                 <svg viewBox="0 0 24 24" fill="white" class="w-4 h-4"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
-                                 เชื่อมต่อ LINE
-                             </button>
-                         </div>
-                     </div>
-
-                     <!-- Queue wait info (original) -->
-                     <div x-show="user.status === 'WAITING' && !isMyTurn" class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
-                         <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-600 pb-2 mb-2">
-                             <span class="text-xs font-bold text-slate-500 dark:text-slate-400">คิวปัจจุบัน</span>
-                             <span class="text-lg font-black text-blue-600 dark:text-blue-400" x-text="config.current_queue"></span>
-                         </div>
-                         <div class="flex justify-between items-center">
-                             <span class="text-xs font-bold text-slate-500 dark:text-slate-400">ต้องรออีก</span>
-                             <div class="text-right">
-                                <span class="text-2xl font-black text-orange-500" x-text="parseInt(user.id) - parseInt(config.current_queue)"></span>
-                                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">คิว</span>
-                             </div>
-                         </div>
-                     </div>
-
-                     <button @click="logout" class="w-full bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-300 hover:bg-red-500 hover:text-white py-3 rounded-xl font-bold transition">ออกจากระบบ (Logout)</button>
-                     <button x-show="user.role === 'ADMIN'" @click="switchPage('admin_panel')" class="w-full mt-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-3 rounded-xl font-bold transition">Go to Admin Panel</button>
+                    <div class="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl font-bold shadow-lg" x-text="user.id"></div>
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-2" x-text="user.name"></h2>
+                    <div class="inline-block px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs font-bold mb-4" x-text="user.status"></div>
+                    <div class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
+                        <div class="flex items-center justify-between">
+                            <div class="text-left"><div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">LINE Account</div><div x-show="user.lineLinked" class="line-linked-badge"><i class="fa-solid fa-circle-check"></i> เชื่อมต่อแล้ว</div><div x-show="!user.lineLinked" class="text-xs text-slate-400 font-semibold">ยังไม่เชื่อมต่อ</div></div>
+                            <button x-show="!user.lineLinked" @click="openLineBindModal()" class="bg-[#06C755] text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-md"><svg viewBox="0 0 24 24" fill="white" class="w-4 h-4"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg> เชื่อมต่อ LINE</button>
+                        </div>
+                    </div>
+                    <div x-show="user.status === 'WAITING' && !isMyTurn" class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
+                        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-600 pb-2 mb-2"><span class="text-xs font-bold text-slate-500 dark:text-slate-400">คิวปัจจุบัน</span><span class="text-lg font-black text-blue-600 dark:text-blue-400" x-text="config.current_queue"></span></div>
+                        <div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-500 dark:text-slate-400">ต้องรออีก</span><div class="text-right"><span class="text-2xl font-black text-orange-500" x-text="parseInt(user.id) - parseInt(config.current_queue)"></span><span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">คิว</span></div></div>
+                    </div>
+                    <button @click="logout" class="w-full bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-300 hover:bg-red-500 hover:text-white py-3 rounded-xl font-bold transition">ออกจากระบบ (Logout)</button>
+                    <button x-show="user.role === 'ADMIN'" @click="switchPage('admin_panel')" class="w-full mt-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-3 rounded-xl font-bold transition">Go to Admin Panel</button>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- ============================================================ -->
-    <!-- DIGITAL SLIP MODAL (original + enhanced with region/time) -->
-    <!-- ============================================================ -->
+
+    <!-- SLIP MODAL -->
     <div x-show="showSlip" class="fixed inset-0 bg-slate-900/90 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" x-cloak>
         <div id="digital-slip-content" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden relative">
-            <div class="bg-blue-600 p-6 text-center text-white">
-                <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold mx-auto mb-3 shadow-lg"><i class="fa-solid fa-check"></i></div>
-                <h2 class="text-lg font-bold uppercase tracking-wider">Selection Success</h2>
-                <p class="text-blue-100 text-xs mt-1" x-text="new Date().toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'})"></p>
-            </div>
+            <div class="bg-blue-600 p-6 text-center text-white"><div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold mx-auto mb-3 shadow-lg"><i class="fa-solid fa-check"></i></div><h2 class="text-lg font-bold uppercase tracking-wider">Selection Success</h2><p class="text-blue-100 text-xs mt-1" x-text="new Date().toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'})"></p></div>
             <div class="p-6 space-y-3 bg-slate-50 dark:bg-slate-700 text-center">
-                <!-- [ENHANCED] Added ID, region, time -->
-                <div class="flex justify-around">
-                    <div><div class="text-[10px] text-slate-400 font-bold uppercase">ลำดับที่</div><div class="text-2xl font-black text-slate-700 dark:text-white" x-text="user.id"></div></div>
-                    <div class="w-px bg-slate-200 dark:bg-slate-600"></div>
-                    <div><div class="text-[10px] text-slate-400 font-bold uppercase">ภาค</div><div class="text-base font-black text-slate-700 dark:text-white" x-text="selectedSlipData.posRegion || '-'"></div></div>
-                </div>
-                <div class="pt-2 border-t border-slate-200 dark:border-slate-600">
-                    <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">ชื่อ-สกุล</div>
-                    <div class="text-sm font-bold text-slate-800 dark:text-white" x-text="user.name"></div>
-                </div>
-                <div class="bg-blue-50 dark:bg-blue-900/30 rounded-2xl p-4">
-                    <div class="text-[10px] text-blue-500 font-bold uppercase mb-1">ตำแหน่งที่เลือก</div>
-                    <div class="text-lg font-black text-blue-700 dark:text-blue-300 leading-tight" x-text="selectedSlipData.posName"></div>
-                </div>
+                <div class="flex justify-around"><div><div class="text-[10px] text-slate-400 font-bold uppercase">ลำดับที่</div><div class="text-2xl font-black text-slate-700 dark:text-white" x-text="user.id"></div></div><div class="w-px bg-slate-200 dark:bg-slate-600"></div><div><div class="text-[10px] text-slate-400 font-bold uppercase">ภาค</div><div class="text-base font-black text-slate-700 dark:text-white" x-text="selectedSlipData.posRegion || '-'"></div></div></div>
+                <div class="pt-2 border-t border-slate-200 dark:border-slate-600"><div class="text-[10px] text-slate-400 font-bold uppercase mb-1">ชื่อ-สกุล</div><div class="text-sm font-bold text-slate-800 dark:text-white" x-text="user.name"></div></div>
+                <div class="bg-blue-50 dark:bg-blue-900/30 rounded-2xl p-4"><div class="text-[10px] text-blue-500 font-bold uppercase mb-1">ตำแหน่งที่เลือก</div><div class="text-lg font-black text-blue-700 dark:text-blue-300 leading-tight" x-text="selectedSlipData.posName"></div></div>
             </div>
-            <div class="p-4 flex gap-2 no-print">
-                <button @click="window.print()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-print"></i> Print</button>
-                <button @click="showSlip = false" class="flex-1 bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-200 py-3 rounded-xl font-bold text-sm">Close</button>
-            </div>
+            <div class="p-4 flex gap-2 no-print"><button @click="window.print()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-print"></i> Print</button><button @click="showSlip = false" class="flex-1 bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-200 py-3 rounded-xl font-bold text-sm">Close</button></div>
         </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- [NEW] LINE BIND MODAL -->
-    <!-- ============================================================ -->
+    <!-- LINE BIND MODAL -->
     <div x-show="lineBindModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
         <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-enter">
-            <!-- Header -->
-            <div class="bg-[#06C755] p-6 text-center text-white">
-                <svg viewBox="0 0 24 24" fill="white" class="w-12 h-12 mx-auto mb-3">
-                    <path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-                </svg>
-                <h3 class="text-lg font-bold">เชื่อมต่อบัญชี LINE</h3>
-                <p class="text-green-100 text-xs mt-1">ผูก LINE กับรหัสประจำตัวของคุณ</p>
-            </div>
-
+            <div class="bg-[#06C755] p-6 text-center text-white"><svg viewBox="0 0 24 24" fill="white" class="w-12 h-12 mx-auto mb-3"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><h3 class="text-lg font-bold">เชื่อมต่อบัญชี LINE</h3><p class="text-green-100 text-xs mt-1">ผูก LINE กับรหัสประจำตัวของคุณ</p></div>
             <div class="p-6">
-                <!-- Step indicator -->
                 <div class="flex items-center justify-center gap-2 mb-6">
-                    <div class="flex items-center gap-1">
-                        <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" :class="lineBindStep >= 1 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">1</div>
-                        <span class="text-xs font-bold text-slate-500" :class="lineBindStep >= 1 ? 'text-green-600' : ''">ยืนยันตัวตน</span>
-                    </div>
-                    <div class="w-8 h-px" :class="lineBindStep >= 2 ? 'bg-green-500' : 'bg-slate-200 dark:bg-slate-600'"></div>
-                    <div class="flex items-center gap-1">
-                        <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" :class="lineBindStep >= 2 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">2</div>
-                        <span class="text-xs font-bold" :class="lineBindStep >= 2 ? 'text-green-600' : 'text-slate-400'">เชื่อมต่อ</span>
-                    </div>
-                    <div class="w-8 h-px" :class="lineBindStep >= 3 ? 'bg-green-500' : 'bg-slate-200 dark:bg-slate-600'"></div>
-                    <div class="flex items-center gap-1">
-                        <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" :class="lineBindStep >= 3 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">3</div>
-                        <span class="text-xs font-bold" :class="lineBindStep >= 3 ? 'text-green-600' : 'text-slate-400'">สำเร็จ</span>
-                    </div>
+                    <div class="flex items-center gap-1"><div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" :class="lineBindStep >= 1 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">1</div><span class="text-xs font-bold" :class="lineBindStep >= 1 ? 'text-green-600' : 'text-slate-400'">ยืนยัน</span></div>
+                    <div class="w-8 h-px" :class="lineBindStep >= 2 ? 'bg-green-500' : 'bg-slate-200'"></div>
+                    <div class="flex items-center gap-1"><div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" :class="lineBindStep >= 2 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">2</div><span class="text-xs font-bold" :class="lineBindStep >= 2 ? 'text-green-600' : 'text-slate-400'">เชื่อมต่อ</span></div>
+                    <div class="w-8 h-px" :class="lineBindStep >= 3 ? 'bg-green-500' : 'bg-slate-200'"></div>
+                    <div class="flex items-center gap-1"><div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" :class="lineBindStep >= 3 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">3</div><span class="text-xs font-bold" :class="lineBindStep >= 3 ? 'text-green-600' : 'text-slate-400'">สำเร็จ</span></div>
                 </div>
-
-                <!-- Step 1: Enter code (for non-logged in users coming from LINE) -->
-                <div x-show="lineBindStep === 1" class="bind-step space-y-4">
-                    <div class="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300">
-                        <i class="fa-solid fa-circle-info text-blue-500 mr-2"></i>
-                        กรอกรหัสประจำตัวของคุณเพื่อผูกกับบัญชี LINE
-                    </div>
-                    <input x-model="lineBindCode" type="number" placeholder="รหัสประจำตัว (เช่น 001)" class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-4 font-bold text-center text-xl focus:ring-4 focus:ring-green-500/20 outline-none transition">
-                    <button @click="proceedLineStep1()" :disabled="!lineBindCode || lineLoading" class="w-full bg-slate-800 dark:bg-slate-600 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2" :class="(!lineBindCode || lineLoading) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-900'">
-                        <i class="fa-solid" :class="lineLoading ? 'fa-circle-notch fa-spin' : 'fa-arrow-right'"></i>
-                        ยืนยัน
-                    </button>
+                <div x-show="lineBindStep === 1" class="space-y-4">
+                    <div class="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300"><i class="fa-solid fa-circle-info text-blue-500 mr-2"></i>กรอกรหัสประจำตัวเพื่อผูกกับบัญชี LINE</div>
+                    <input x-model="lineBindCode" type="number" placeholder="รหัสประจำตัว" class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-4 font-bold text-center text-xl focus:ring-4 focus:ring-green-500/20 outline-none transition">
+                    <button @click="proceedLineStep1()" :disabled="!lineBindCode || lineLoading" class="w-full bg-slate-800 dark:bg-slate-600 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2"><i class="fa-solid" :class="lineLoading ? 'fa-circle-notch fa-spin' : 'fa-arrow-right'"></i> ยืนยัน</button>
                 </div>
-
-                <!-- Step 2: Confirm LINE connection -->
-                <div x-show="lineBindStep === 2" class="bind-step space-y-4 text-center">
-                    <div class="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center mx-auto">
-                        <i class="fa-solid fa-link text-2xl text-green-600 dark:text-green-400"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold text-slate-800 dark:text-white text-lg" x-text="lineBindUserName"></div>
-                        <div class="text-slate-400 text-sm">พร้อมเชื่อมต่อกับบัญชี LINE</div>
-                    </div>
-                    <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-left">
-                        <div class="flex items-center gap-2 text-sm">
-                            <svg viewBox="0 0 24 24" fill="#06C755" class="w-5 h-5 shrink-0"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
-                            <span class="font-bold text-green-700 dark:text-green-400" x-text="lineProfile.displayName || 'LINE User'"></span>
-                        </div>
-                        <div class="text-xs text-slate-400 mt-1 ml-7" x-text="'LINE ID: ' + (lineProfile.userId || '-')"></div>
-                    </div>
-                    <button @click="confirmLineBind()" :disabled="lineLoading" class="w-full line-btn" :class="lineLoading ? 'opacity-70 cursor-not-allowed' : ''">
-                        <i class="fa-solid" :class="lineLoading ? 'fa-circle-notch fa-spin' : 'fa-check'"></i>
-                        <span x-text="lineLoading ? 'กำลังบันทึก...' : 'ยืนยันเชื่อมต่อ LINE'"></span>
-                    </button>
+                <div x-show="lineBindStep === 2" class="space-y-4 text-center">
+                    <div class="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center mx-auto"><i class="fa-solid fa-link text-2xl text-green-600 dark:text-green-400"></i></div>
+                    <div><div class="font-bold text-slate-800 dark:text-white text-lg" x-text="lineBindUserName"></div><div class="text-slate-400 text-sm">พร้อมเชื่อมต่อกับบัญชี LINE</div></div>
+                    <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-left"><div class="flex items-center gap-2 text-sm"><svg viewBox="0 0 24 24" fill="#06C755" class="w-5 h-5 shrink-0"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><span class="font-bold text-green-700 dark:text-green-400" x-text="lineProfile.displayName || 'LINE User'"></span></div><div class="text-xs text-slate-400 mt-1 ml-7" x-text="'LINE ID: ' + (lineProfile.userId || '-')"></div></div>
+                    <button @click="confirmLineBind()" :disabled="lineLoading" class="w-full line-btn"><i class="fa-solid" :class="lineLoading ? 'fa-circle-notch fa-spin' : 'fa-check'"></i><span x-text="lineLoading ? 'กำลังบันทึก...' : 'ยืนยันเชื่อมต่อ LINE'"></span></button>
                     <button @click="lineBindModalOpen = false" class="w-full text-slate-400 text-sm py-2">ยกเลิก</button>
                 </div>
-
-                <!-- Step 3: Success -->
-                <div x-show="lineBindStep === 3" class="bind-step space-y-4 text-center">
-                    <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-500/30">
-                        <i class="fa-solid fa-check text-white text-3xl"></i>
-                    </div>
-                    <div>
-                        <div class="text-xl font-black text-slate-800 dark:text-white">เชื่อมต่อสำเร็จ!</div>
-                        <div class="text-slate-400 text-sm mt-1">ครั้งต่อไปเข้าสู่ระบบผ่าน LINE ได้เลย</div>
-                    </div>
+                <div x-show="lineBindStep === 3" class="space-y-4 text-center">
+                    <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-500/30"><i class="fa-solid fa-check text-white text-3xl"></i></div>
+                    <div><div class="text-xl font-black text-slate-800 dark:text-white">เชื่อมต่อสำเร็จ!</div><div class="text-slate-400 text-sm mt-1">ครั้งต่อไปเข้าสู่ระบบผ่าน LINE ได้เลย</div></div>
                     <button @click="lineBindModalOpen = false; lineBindStep = 1;" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold">ปิด</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- [NEW] Mobile Bottom Navigation Bar -->
-    <!-- ============================================================ -->
+    <!-- Mobile Bottom Nav -->
     <nav class="mobile-bottom-nav">
         <div class="flex">
-            <button @click="switchPage('home')" class="mobile-nav-item" :class="currentPage === 'home' ? 'active' : ''">
-                <i class="fa-solid fa-list-check"></i>
-                <span>เลือก</span>
-            </button>
-            <button @click="switchPage('monitor')" class="mobile-nav-item relative" :class="currentPage === 'monitor' ? 'active' : ''">
-                <i class="fa-solid fa-satellite-dish"></i>
-                <span>Live</span>
-                <span class="absolute top-2 right-6 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
-            </button>
-            <button @click="switchPage('dashboard')" class="mobile-nav-item" :class="currentPage === 'dashboard' ? 'active' : ''">
-                <i class="fa-solid fa-chart-pie"></i>
-                <span>สรุป</span>
-            </button>
-            <button @click="switchPage('login')" class="mobile-nav-item relative" :class="currentPage === 'login' ? 'active' : ''">
-                <i class="fa-solid" :class="user.id ? 'fa-user' : 'fa-right-to-bracket'"></i>
-                <span x-text="user.id ? 'บัญชี' : 'Login'"></span>
-                <span x-show="user.id" class="absolute top-2 right-4 w-2 h-2 bg-green-500 rounded-full border border-white dark:border-slate-900"></span>
-            </button>
-            <button x-show="user.role === 'ADMIN'" @click="switchPage('admin_panel')" class="mobile-nav-item" :class="currentPage === 'admin_panel' ? 'active text-red-500' : 'text-red-400'">
-                <i class="fa-solid fa-cogs"></i>
-                <span>Admin</span>
-            </button>
+            <button @click="switchPage('home')" class="mobile-nav-item" :class="currentPage === 'home' ? 'active' : ''"><i class="fa-solid fa-list-check"></i><span>เลือก</span></button>
+            <button @click="switchPage('monitor')" class="mobile-nav-item relative" :class="currentPage === 'monitor' ? 'active' : ''"><i class="fa-solid fa-satellite-dish"></i><span>Live</span><span class="absolute top-2 right-6 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span></button>
+            <button @click="switchPage('dashboard')" class="mobile-nav-item" :class="currentPage === 'dashboard' ? 'active' : ''"><i class="fa-solid fa-chart-pie"></i><span>สรุป</span></button>
+            <button @click="switchPage('login')" class="mobile-nav-item relative" :class="currentPage === 'login' ? 'active' : ''"><i class="fa-solid" :class="user.id ? 'fa-user' : 'fa-right-to-bracket'"></i><span x-text="user.id ? 'บัญชี' : 'Login'"></span><span x-show="user.id" class="absolute top-2 right-4 w-2 h-2 bg-green-500 rounded-full border border-white dark:border-slate-900"></span></button>
+            <button x-show="user.role === 'ADMIN'" @click="switchPage('admin_panel')" class="mobile-nav-item" :class="currentPage === 'admin_panel' ? 'active text-red-500' : 'text-red-400'"><i class="fa-solid fa-cogs"></i><span>Admin</span></button>
         </div>
     </nav>
 
-    <!-- ============================================================ -->
-    <!-- [NEW] Connection Error Banner -->
-    <!-- ============================================================ -->
+    <!-- Connection Error Banner -->
     <div x-show="connectionError" class="connection-error-banner" x-cloak>
         <i class="fa-solid fa-wifi-slash text-xl shrink-0"></i>
-        <div class="flex-1">
-            <div class="font-bold text-sm">เชื่อมต่อไม่ได้</div>
-            <div class="text-xs text-red-100">กำลังลองใหม่อัตโนมัติ...</div>
-        </div>
+        <div class="flex-1"><div class="font-bold text-sm">เชื่อมต่อไม่ได้</div><div class="text-xs text-red-100">กำลังลองใหม่อัตโนมัติ...</div></div>
         <button @click="fetchData()" class="bg-white text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">ลองใหม่</button>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- SCRIPTS -->
-    <!-- ============================================================ -->
     <script>
         // ============================================================
-        // LINE LIFF Configuration
+        // 🔧 CONFIG — แก้ตรงนี้ก่อน deploy
         // ============================================================
-        // 🔧 ใส่ LIFF ID ของคุณตรงนี้ (สร้างได้ที่ LINE Developers Console)
-        const LIFF_ID = "2010015310-qHlFgmRX";
+        const API_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL"; // วางURL Apps Script ตรงนี้
+        const LIFF_ID = "YOUR_LIFF_ID_HERE";            // วาง LIFF ID ตรงนี้
 
         // ============================================================
-        // MAIN APP DATA (original + new features)
+        // API Helper — แทน google.script.run ทั้งหมด
+        // ============================================================
+        async function callAPI(action, params = {}) {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' }, // Apps Script ต้องการ text/plain
+                body: JSON.stringify({ action, ...params })
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }
+
+        // ============================================================
+        // LINE LIFF
+        // ============================================================
+        const LIFF_ID_CONFIGURED = LIFF_ID !== 'YOUR_LIFF_ID_HERE';
+
+        // ============================================================
+        // MAIN APP
         // ============================================================
         function appData() {
             return {
-                // ========== ORIGINAL STATE (unchanged) ==========
+                // ===== State (เดิมทั้งหมด) =====
                 darkMode: JSON.parse(localStorage.getItem('darkMode') || 'false'),
                 currentPage: 'home', viewMode: 'grid', config: {}, positions: [], users: [], serverLogs: [],
                 search: '', filterRegion: '', filterStatus: 'ALL',
@@ -811,22 +469,19 @@
                 user: JSON.parse(localStorage.getItem('user_session') || '{"id": null}'),
                 wishlist: JSON.parse(localStorage.getItem('wishlist') || '[]'),
                 showSlip: false, selectedSlipData: { posName: '', posRegion: '' },
-
-                // ========== [NEW] Additional State ==========
-                isSubmitting: false,         // double-submit guard
-                connectionError: false,       // network error state
-                isPdfExporting: false,        // PDF export loading state
-                _pollingInterval: null,       // interval ref for cleanup
-
-                // LINE state
+                // ===== State ใหม่ =====
+                isSubmitting: false,
+                connectionError: false,
+                isPdfExporting: false,
+                _pollingInterval: null,
                 lineLoading: false,
-                lineProfile: {},              // LINE profile from LIFF
+                lineProfile: {},
                 lineBindModalOpen: false,
-                lineBindStep: 1,             // 1=enter code, 2=confirm, 3=success
+                lineBindStep: 1,
                 lineBindCode: '',
                 lineBindUserName: '',
 
-                // ========== ORIGINAL GETTERS (unchanged) ==========
+                // ===== Getters (เดิมทั้งหมด) =====
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
                 get uniqueRegions() { return [...new Set(this.positions.map(p => p[2]))].sort(); },
                 get progressPercent() { return this.positions.length ? (this.positions.filter(p => p[3]!=='AVAILABLE').length/this.positions.length)*100 : 0; },
@@ -834,15 +489,8 @@
                 get prev3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) < cur).sort((a,b) => parseInt(b[0]) - parseInt(a[0])).slice(0, 3).reverse(); },
                 get next3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) > cur).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).slice(0, 3); },
                 get dashboardList() { return this.users.filter(u => String(u[3]).toUpperCase() === 'SELECTED').map(u => { const pos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim()); return { id: u[0], name: u[1], pos: u[4], region: pos ? pos[2] : '-', time: u[5] }; }).sort((a,b) => parseInt(a.id) - parseInt(b.id)); },
-                
-                getRegionStats(region) {
-                    const items = this.positions.filter(p => p[2] === region);
-                    const total = items.length;
-                    const taken = items.filter(p => p[3] !== 'AVAILABLE').length;
-                    return { total, taken, percent: total ? (taken/total)*100 : 0 };
-                },
+                getRegionStats(region) { const items = this.positions.filter(p => p[2] === region); const total = items.length; const taken = items.filter(p => p[3] !== 'AVAILABLE').length; return { total, taken, percent: total ? (taken/total)*100 : 0 }; },
                 get regionDashboardStats() { const stats = {}; this.positions.forEach(p => { const r = p[2]; if(!stats[r]) stats[r] = { name: r, total: 0, taken: 0 }; stats[r].total++; if(p[3] !== 'AVAILABLE') stats[r].taken++; }); return Object.values(stats).map(s => ({...s, percent: (s.taken/s.total)*100})).sort((a,b) => a.name.localeCompare(b.name)); },
-                
                 isWishlist(id) { return this.wishlist.includes(id); },
                 toggleWishlist(id) { if (this.wishlist.includes(id)) this.wishlist = this.wishlist.filter(w => w !== id); else this.wishlist.push(id); localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); },
                 get groupedPositions() {
@@ -855,12 +503,7 @@
                         if (this.filterStatus === 'WISHLIST') matchesStatus = this.wishlist.includes(p[0]);
                         return matchesSearch && matchesRegion && matchesStatus;
                     });
-                    filtered.sort((a, b) => {
-                        if (a[3] === 'AVAILABLE' && b[3] !== 'AVAILABLE') return -1;
-                        if (a[3] !== 'AVAILABLE' && b[3] === 'AVAILABLE') return 1;
-                        if (a[2] !== b[2]) return a[2].localeCompare(b[2]);
-                        return a[1].localeCompare(b[1]);
-                    });
+                    filtered.sort((a, b) => { if (a[3] === 'AVAILABLE' && b[3] !== 'AVAILABLE') return -1; if (a[3] !== 'AVAILABLE' && b[3] === 'AVAILABLE') return 1; if (a[2] !== b[2]) return a[2].localeCompare(b[2]); return a[1].localeCompare(b[1]); });
                     const groups = {}; filtered.forEach(p => { if (!groups[p[2]]) groups[p[2]] = []; groups[p[2]].push(p); });
                     return Object.keys(groups).sort().map(region => ({ name: region, items: groups[region] }));
                 },
@@ -869,276 +512,183 @@
                 get prevUser() { const prevId = parseInt(this.config.current_queue) - 1; const u = this.users.find(u => parseInt(u[0]) === prevId); return u ? {id: u[0], name: u[1]} : null; },
                 get currentUserObj() { const currId = parseInt(this.config.current_queue); const u = this.users.find(u => parseInt(u[0]) === currId); return u ? {id: u[0], name: u[1]} : null; },
 
-                // ========== ORIGINAL METHODS (unchanged) ==========
+                // ===== initApp =====
                 initApp() {
                     this.fetchData();
-                    // [NEW] store interval ref + stop polling when tab hidden
-                    this._pollingInterval = setInterval(() => {
-                        if (!document.hidden) this.fetchData();
-                    }, 2000);
-                    document.addEventListener('visibilitychange', () => {
-                        if (!document.hidden) this.fetchData();
-                    });
-                    // [NEW] init LIFF silently
+                    this._pollingInterval = setInterval(() => { if (!document.hidden) this.fetchData(); }, 2000);
+                    document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
                     this.initLiff();
                 },
 
-                fetchData() {
-                    google.script.run
-                        .withSuccessHandler(data => { 
-                            this.config = data.config;
-                            this.positions = data.positions;
-                            this.users = data.users;
-                            this.serverLogs = data.recentLogs;
-                            this.isInitialLoading = false;
-                            this.connectionError = false; // [NEW]
-                            if(this.user.id && this.user.role === 'USER') {
-                                const u = data.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
-                                if(u) { this.user.status = u[3]; this.user.name = u[1]; localStorage.setItem('user_session', JSON.stringify(this.user)); }
-                            }
-                        })
-                        .withFailureHandler(err => { // [NEW]
-                            this.isInitialLoading = false;
-                            this.connectionError = true;
-                            console.error('fetchData error:', err);
-                        })
-                        .getData();
+                // ===== fetchData — เปลี่ยนจาก google.script.run → callAPI =====
+                async fetchData() {
+                    try {
+                        const data = await callAPI('getData');
+                        this.config = data.config;
+                        this.positions = data.positions;
+                        this.users = data.users;
+                        this.serverLogs = data.recentLogs;
+                        this.isInitialLoading = false;
+                        this.connectionError = false;
+                        if(this.user.id && this.user.role === 'USER') {
+                            const u = data.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
+                            if(u) { this.user.status = u[3]; this.user.name = u[1]; localStorage.setItem('user_session', JSON.stringify(this.user)); }
+                        }
+                    } catch(e) {
+                        this.isInitialLoading = false;
+                        this.connectionError = true;
+                        console.error('fetchData error:', e);
+                    }
                 },
 
                 switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
 
+                // ===== confirmSelect — เปลี่ยนจาก google.script.run → callAPI =====
                 confirmSelect(pos) {
-                    Swal.fire({ title: 'ยืนยันเลือก?', text: `${pos[1]} (${pos[2]})`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then((result) => {
+                    Swal.fire({ title: 'ยืนยันเลือก?', text: `${pos[1]} (${pos[2]})`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async (result) => {
                         if (result.isConfirmed) {
-                            // [NEW] double-submit guard
                             if (this.isSubmitting) return;
                             this.isSubmitting = true;
-
                             Swal.fire({title: 'Saving...', didOpen:()=>Swal.showLoading()});
-                            google.script.run
-                                .withSuccessHandler(res => {
-                                    this.isSubmitting = false; // [NEW]
-                                    if(res.status === 'SUCCESS') {
-                                        const target = this.positions.find(p => p[0] == pos[0]); if(target) { target[3] = 'TAKEN'; target[4] = this.user.id; }
-                                        this.user.status = 'SELECTED'; this.config.current_queue++;
-                                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
-                                        this.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
-                                        this.showSlip = true; Swal.close(); this.switchPage('dashboard'); this.fetchData();
-                                    } else Swal.fire('Error', res.msg, 'error');
-                                })
-                                .withFailureHandler(err => { // [NEW]
-                                    this.isSubmitting = false;
-                                    Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
-                                })
-                                .selectPosition(this.user.id, pos[0]);
+                            try {
+                                const res = await callAPI('selectPosition', { userId: this.user.id, posId: pos[0] });
+                                this.isSubmitting = false;
+                                if(res.status === 'SUCCESS') {
+                                    const target = this.positions.find(p => p[0] == pos[0]); if(target) { target[3] = 'TAKEN'; target[4] = this.user.id; }
+                                    this.user.status = 'SELECTED'; this.config.current_queue++;
+                                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
+                                    this.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
+                                    this.showSlip = true; Swal.close(); this.switchPage('dashboard'); this.fetchData();
+                                } else { Swal.fire('Error', res.msg, 'error'); }
+                            } catch(e) { this.isSubmitting = false; Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error'); }
                         }
                     });
                 },
 
-                login() {
+                // ===== login — เปลี่ยนจาก google.script.run → callAPI =====
+                async login() {
                     if(!this.loginCode) return;
-                    google.script.run.withSuccessHandler(res => {
+                    try {
+                        const res = await callAPI('userLogin', { code: this.loginCode });
                         if(res.role === 'ERROR') Swal.fire('Error', res.msg, 'error');
-                        else {
-                            this.user = res;
-                            localStorage.setItem('user_session', JSON.stringify(res));
-                            if(res.role === 'ADMIN') this.switchPage('admin_panel');
-                            else this.switchPage('home');
-                        }
-                    }).userLogin(this.loginCode);
+                        else { this.user = res; localStorage.setItem('user_session', JSON.stringify(res)); if(res.role === 'ADMIN') this.switchPage('admin_panel'); else this.switchPage('home'); }
+                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
-                logout() {
-                    this.user = {id: null};
-                    localStorage.removeItem('user_session');
-                    this.lineProfile = {};
-                    this.switchPage('login');
-                },
+                logout() { this.user = {id: null}; localStorage.removeItem('user_session'); this.lineProfile = {}; this.switchPage('login'); },
 
-                adminAction(action) { 
-                    Swal.fire({title: 'Confirm?', text: action, icon: 'warning', showCancelButton: true}).then(r => { 
-                        if(r.isConfirmed) { 
+                // ===== adminAction — เปลี่ยนจาก google.script.run → callAPI =====
+                adminAction(action) {
+                    Swal.fire({title: 'Confirm?', text: action, icon: 'warning', showCancelButton: true}).then(async r => {
+                        if(r.isConfirmed) {
                             Swal.fire({title: 'Processing...', didOpen:()=>Swal.showLoading()});
-                            google.script.run.withSuccessHandler(()=>{ Swal.close(); this.fetchData(); }).adminAction(action); 
-                        } 
-                    }); 
+                            try { await callAPI('adminAction', { action_type: action }); Swal.close(); this.fetchData(); }
+                            catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
+                        }
+                    });
                 },
                 adminReset() { this.adminAction('RESET'); },
                 triggerBackup() { this.adminAction('BACKUP'); },
+
                 openAdminModal(action, data = null, type = 'USER') {
                     this.adminModalAction = action; this.adminModalOpen = true;
                     if(action === 'CREATE') this.adminFormData = {id:'', name:'', code:'', region:''};
                     else this.adminFormData = type === 'USER' ? {id: data[0], name: data[1], code: data[2], region:''} : {id: data[0], name: data[1], region: data[2], code:''};
                 },
-                saveAdminData() {
+
+                // ===== saveAdminData — เปลี่ยนจาก google.script.run → callAPI =====
+                async saveAdminData() {
                     const type = this.adminTab === 'users' ? 'USER' : 'POSITION';
-                    google.script.run.withSuccessHandler(()=>{ this.adminModalOpen = false; this.fetchData(); }).adminCRUD(type, this.adminModalAction, this.adminFormData);
-                },
-                deleteAdminData(id, type) {
-                    Swal.fire({title: 'Delete?', icon:'error', showCancelButton:true}).then(r=>{ if(r.isConfirmed) google.script.run.withSuccessHandler(()=>this.fetchData()).adminCRUD(type, 'DELETE', {id: id}); });
+                    try { await callAPI('adminCRUD', { type, crud_action: this.adminModalAction, data: this.adminFormData }); this.adminModalOpen = false; this.fetchData(); }
+                    catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
-                // UPDATED: Smarter Time Formatting (original + พ.ศ. fix)
-                formatTime(dateStr) { 
+                // ===== deleteAdminData — เปลี่ยนจาก google.script.run → callAPI =====
+                deleteAdminData(id, type) {
+                    Swal.fire({title: 'Delete?', icon:'error', showCancelButton:true}).then(async r => {
+                        if(r.isConfirmed) { try { await callAPI('adminCRUD', { type, crud_action: 'DELETE', data: {id} }); this.fetchData(); } catch(e) {} }
+                    });
+                },
+
+                formatTime(dateStr) {
                     if(!dateStr) return '-';
                     const s = String(dateStr).trim();
                     if(s.match(/^\d{1,2}:\d{2}/)) return s.substring(0, 5);
-                    // [NEW] แปลง พ.ศ. → ค.ศ.
                     const converted = s.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, (_, d, m, y) => `${m}/${d}/${parseInt(y) > 2400 ? parseInt(y) - 543 : y}`);
-                    try { 
-                        let d = new Date(converted);
-                        if (isNaN(d.getTime())) d = new Date(new Date().toDateString() + ' ' + s);
-                        return isNaN(d.getTime()) ? s : d.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}); 
-                    } catch(e) { return s; } 
+                    try { let d = new Date(converted); if (isNaN(d.getTime())) d = new Date(new Date().toDateString() + ' ' + s); return isNaN(d.getTime()) ? s : d.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}); } catch(e) { return s; }
                 },
 
-                // ========== [NEW] LINE LIFF Methods ==========
-
+                // ===== LINE Methods =====
                 async initLiff() {
-                    if (!LIFF_ID || LIFF_ID === 'YOUR_LIFF_ID_HERE') return; // skip if not configured
+                    if (!LIFF_ID_CONFIGURED) return;
                     try {
                         await liff.init({ liffId: LIFF_ID });
                         if (liff.isLoggedIn()) {
                             this.lineProfile = await liff.getProfile();
-                            // Auto-login if LINE is already bound
-                            const savedSession = JSON.parse(localStorage.getItem('user_session') || '{"id":null}');
-                            if (!savedSession.id) {
-                                // Try auto-login via LINE userId
-                                google.script.run
-                                    .withSuccessHandler(res => {
-                                        if (res && res.role !== 'ERROR') {
-                                            this.user = res;
-                                            localStorage.setItem('user_session', JSON.stringify(res));
-                                            this.switchPage('home');
-                                        }
-                                    })
-                                    .loginWithLineId(this.lineProfile.userId);
+                            const saved = JSON.parse(localStorage.getItem('user_session') || '{"id":null}');
+                            if (!saved.id) {
+                                try { const res = await callAPI('loginWithLineId', { lineUserId: this.lineProfile.userId }); if (res && res.role !== 'ERROR') { this.user = res; localStorage.setItem('user_session', JSON.stringify(res)); this.switchPage('home'); } } catch(e) {}
                             }
                         }
-                    } catch(e) {
-                        console.warn('LIFF init skipped:', e.message);
-                    }
+                    } catch(e) { console.warn('LIFF init skipped:', e.message); }
                 },
-
                 async loginWithLine() {
-                    if (!LIFF_ID || LIFF_ID === 'YOUR_LIFF_ID_HERE') {
-                        Swal.fire('แจ้งเตือน', 'กรุณาตั้งค่า LIFF_ID ก่อนใช้งาน LINE Login', 'warning');
-                        return;
-                    }
+                    if (!LIFF_ID_CONFIGURED) { Swal.fire('แจ้งเตือน', 'กรุณาตั้งค่า LIFF_ID ก่อนใช้งาน', 'warning'); return; }
                     this.lineLoading = true;
                     try {
                         await liff.init({ liffId: LIFF_ID });
-                        if (!liff.isLoggedIn()) {
-                            liff.login({ redirectUri: window.location.href });
-                            return;
-                        }
+                        if (!liff.isLoggedIn()) { liff.login({ redirectUri: window.location.href }); return; }
                         this.lineProfile = await liff.getProfile();
-                        // Check if this LINE ID is bound to any user
-                        google.script.run
-                            .withSuccessHandler(res => {
-                                this.lineLoading = false;
-                                if (res && res.role !== 'ERROR') {
-                                    // Already bound — log in directly
-                                    this.user = res;
-                                    localStorage.setItem('user_session', JSON.stringify(res));
-                                    if(res.role === 'ADMIN') this.switchPage('admin_panel');
-                                    else this.switchPage('home');
-                                } else {
-                                    // Not bound yet — open bind modal
-                                    this.openLineBindModal();
-                                }
-                            })
-                            .withFailureHandler(() => { this.lineLoading = false; })
-                            .loginWithLineId(this.lineProfile.userId);
-                    } catch(e) {
+                        const res = await callAPI('loginWithLineId', { lineUserId: this.lineProfile.userId });
                         this.lineLoading = false;
-                        Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้: ' + e.message, 'error');
-                    }
+                        if (res && res.role !== 'ERROR') { this.user = res; localStorage.setItem('user_session', JSON.stringify(res)); if(res.role === 'ADMIN') this.switchPage('admin_panel'); else this.switchPage('home'); }
+                        else { this.openLineBindModal(); }
+                    } catch(e) { this.lineLoading = false; Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
                 },
-
                 openLineBindModal() {
                     this.lineBindModalOpen = true;
-                    // If user is already logged in via code, skip to step 2 directly
-                    if (this.user.id && this.lineProfile.userId) {
-                        this.lineBindUserName = this.user.name;
-                        this.lineBindStep = 2;
-                    } else {
-                        this.lineBindStep = 1;
-                        this.lineBindCode = '';
-                    }
+                    if (this.user.id && this.lineProfile.userId) { this.lineBindUserName = this.user.name; this.lineBindStep = 2; }
+                    else { this.lineBindStep = 1; this.lineBindCode = ''; }
                 },
-
-                proceedLineStep1() {
+                async proceedLineStep1() {
                     if (!this.lineBindCode) return;
                     this.lineLoading = true;
-                    // Verify the code exists in the system
-                    google.script.run
-                        .withSuccessHandler(res => {
-                            this.lineLoading = false;
-                            if (res.role === 'ERROR') {
-                                Swal.fire('ไม่พบรหัส', res.msg, 'error');
-                            } else {
-                                this.lineBindUserName = res.name;
-                                // Temporarily store the verified user for binding
-                                this._pendingBindUser = res;
-                                this.lineBindStep = 2;
-                            }
-                        })
-                        .withFailureHandler(() => { this.lineLoading = false; })
-                        .userLogin(this.lineBindCode);
+                    try {
+                        const res = await callAPI('userLogin', { code: this.lineBindCode });
+                        this.lineLoading = false;
+                        if (res.role === 'ERROR') { Swal.fire('ไม่พบรหัส', res.msg, 'error'); }
+                        else { this.lineBindUserName = res.name; this._pendingBindUser = res; this.lineBindStep = 2; }
+                    } catch(e) { this.lineLoading = false; }
                 },
-
-                confirmLineBind() {
+                async confirmLineBind() {
                     this.lineLoading = true;
                     const userId = this.user.id || (this._pendingBindUser && this._pendingBindUser.id);
                     const lineUserId = this.lineProfile.userId;
                     const lineDisplayName = this.lineProfile.displayName;
-
-                    if (!userId || !lineUserId) {
+                    if (!userId || !lineUserId) { this.lineLoading = false; Swal.fire('Error', 'ข้อมูลไม่ครบถ้วน', 'error'); return; }
+                    try {
+                        const res = await callAPI('bindLineAccount', { userId, lineUserId, lineDisplayName });
                         this.lineLoading = false;
-                        Swal.fire('Error', 'ข้อมูลไม่ครบถ้วน', 'error');
-                        return;
-                    }
-
-                    google.script.run
-                        .withSuccessHandler(res => {
-                            this.lineLoading = false;
-                            if (res === 'SUCCESS') {
-                                this.lineBindStep = 3;
-                                // Update local user session to mark LINE as linked
-                                this.user.lineLinked = true;
-                                this.user.lineUserId = lineUserId;
-                                // If came from bind flow (not logged in), log them in
-                                if (this._pendingBindUser) {
-                                    this.user = { ...this._pendingBindUser, lineLinked: true, lineUserId };
-                                    this._pendingBindUser = null;
-                                }
-                                localStorage.setItem('user_session', JSON.stringify(this.user));
-                            } else {
-                                Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error');
-                            }
-                        })
-                        .withFailureHandler(() => {
-                            this.lineLoading = false;
-                            Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
-                        })
-                        .bindLineAccount(userId, lineUserId, lineDisplayName);
+                        if (res === 'SUCCESS') {
+                            this.lineBindStep = 3;
+                            this.user.lineLinked = true; this.user.lineUserId = lineUserId;
+                            if (this._pendingBindUser) { this.user = { ...this._pendingBindUser, lineLinked: true, lineUserId }; this._pendingBindUser = null; }
+                            localStorage.setItem('user_session', JSON.stringify(this.user));
+                        } else { Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
+                    } catch(e) { this.lineLoading = false; Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
-                // ========== [NEW] PDF Export Method ==========
+                // ===== PDF Export =====
                 async exportPDF() {
                     this.isPdfExporting = true;
                     try {
                         const { jsPDF } = window.jspdf;
-
-                        // A4 portrait
                         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
                         const pageW = 210, pageH = 297, margin = 14;
                         const now = new Date().toLocaleString('th-TH', { dateStyle: 'full', timeStyle: 'short' });
 
-                        // ---- Page 1: Summary overview ----
-                        // Header bar
-                        doc.setFillColor(37, 99, 235); // blue-600
+                        // Header
+                        doc.setFillColor(37, 99, 235);
                         doc.rect(0, 0, pageW, 28, 'F');
                         doc.setTextColor(255, 255, 255);
                         doc.setFont('helvetica', 'bold');
@@ -1153,162 +703,56 @@
                         const takenPos = this.positions.filter(p => p[3] !== 'AVAILABLE').length;
                         const leftPos = totalPos - takenPos;
                         const progress = totalPos ? Math.round((takenPos/totalPos)*100) : 0;
-
-                        const stats = [
-                            { label: 'ตำแหน่งทั้งหมด', value: String(totalPos), color: [71, 85, 105] },
-                            { label: 'เลือกแล้ว', value: String(takenPos), color: [22, 163, 74] },
-                            { label: 'คงเหลือ', value: String(leftPos), color: [239, 68, 68] },
-                            { label: 'ความคืบหน้า', value: progress + '%', color: [37, 99, 235] }
-                        ];
+                        const stats = [{ label: 'ตำแหน่งทั้งหมด', value: String(totalPos), color: [71, 85, 105] },{ label: 'เลือกแล้ว', value: String(takenPos), color: [22, 163, 74] },{ label: 'คงเหลือ', value: String(leftPos), color: [239, 68, 68] },{ label: 'ความคืบหน้า', value: progress + '%', color: [37, 99, 235] }];
                         const boxW = (pageW - margin*2 - 9) / 4;
-                        stats.forEach((s, i) => {
-                            const x = margin + i * (boxW + 3), y = 32;
-                            doc.setFillColor(...s.color);
-                            doc.roundedRect(x, y, boxW, 20, 3, 3, 'F');
-                            doc.setTextColor(255, 255, 255);
-                            doc.setFont('helvetica', 'bold');
-                            doc.setFontSize(16);
-                            doc.text(s.value, x + boxW/2, y + 10, { align: 'center' });
-                            doc.setFontSize(7);
-                            doc.setFont('helvetica', 'normal');
-                            doc.text(s.label, x + boxW/2, y + 16, { align: 'center' });
-                        });
+                        stats.forEach((s, i) => { const x = margin + i * (boxW + 3), y = 32; doc.setFillColor(...s.color); doc.roundedRect(x, y, boxW, 20, 3, 3, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text(s.value, x + boxW/2, y + 10, { align: 'center' }); doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.text(s.label, x + boxW/2, y + 16, { align: 'center' }); });
 
                         // Progress bar
                         let barY = 57;
-                        doc.setFillColor(226, 232, 240);
-                        doc.roundedRect(margin, barY, pageW - margin*2, 5, 2, 2, 'F');
-                        if (progress > 0) {
-                            doc.setFillColor(37, 99, 235);
-                            doc.roundedRect(margin, barY, (pageW - margin*2) * (progress/100), 5, 2, 2, 'F');
-                        }
+                        doc.setFillColor(226, 232, 240); doc.roundedRect(margin, barY, pageW - margin*2, 5, 2, 2, 'F');
+                        if (progress > 0) { doc.setFillColor(37, 99, 235); doc.roundedRect(margin, barY, (pageW - margin*2) * (progress/100), 5, 2, 2, 'F'); }
 
                         // Region breakdown
                         let secY = barY + 12;
-                        doc.setFillColor(248, 250, 252);
-                        doc.rect(margin, secY - 5, pageW - margin*2, 8, 'F');
-                        doc.setTextColor(37, 99, 235);
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(10);
-                        doc.text('สรุปรายภาค', margin + 2, secY);
-                        secY += 6;
-
+                        doc.setFillColor(248, 250, 252); doc.rect(margin, secY - 5, pageW - margin*2, 8, 'F');
+                        doc.setTextColor(37, 99, 235); doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
+                        doc.text('สรุปรายภาค', margin + 2, secY); secY += 6;
                         const regions = this.regionDashboardStats;
                         const colW = (pageW - margin*2 - 6) / 2;
-                        regions.forEach((r, i) => {
-                            const col = i % 2, row = Math.floor(i / 2);
-                            const rx = margin + col * (colW + 6);
-                            const ry = secY + row * 14;
-                            doc.setTextColor(51, 65, 85);
-                            doc.setFont('helvetica', 'bold');
-                            doc.setFontSize(8);
-                            doc.text(r.name, rx, ry);
-                            doc.setFont('helvetica', 'normal');
-                            doc.setTextColor(100, 116, 139);
-                            doc.text(`${r.taken}/${r.total}`, rx + colW - 10, ry, { align: 'right' });
-                            // mini bar
-                            doc.setFillColor(226, 232, 240);
-                            doc.roundedRect(rx, ry + 2, colW - 14, 3, 1, 1, 'F');
-                            if (r.percent > 0) {
-                                doc.setFillColor(r.percent >= 100 ? 239 : 59, r.percent >= 100 ? 68 : 130, r.percent >= 100 ? 68 : 246);
-                                doc.roundedRect(rx, ry + 2, (colW - 14) * (r.percent/100), 3, 1, 1, 'F');
-                            }
-                        });
+                        regions.forEach((r, i) => { const col = i % 2, row = Math.floor(i / 2); const rx = margin + col * (colW + 6); const ry = secY + row * 14; doc.setTextColor(51, 65, 85); doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text(r.name, rx, ry); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139); doc.text(`${r.taken}/${r.total}`, rx + colW - 10, ry, { align: 'right' }); doc.setFillColor(226, 232, 240); doc.roundedRect(rx, ry + 2, colW - 14, 3, 1, 1, 'F'); if (r.percent > 0) { doc.setFillColor(r.percent >= 100 ? 239 : 59, r.percent >= 100 ? 68 : 130, r.percent >= 100 ? 68 : 246); doc.roundedRect(rx, ry + 2, (colW - 14) * (r.percent/100), 3, 1, 1, 'F'); } });
 
-                        // ---- Page 2: Full selection list ----
+                        // Page 2: Full list
                         doc.addPage();
-
-                        // Header
-                        doc.setFillColor(37, 99, 235);
-                        doc.rect(0, 0, pageW, 20, 'F');
-                        doc.setTextColor(255,255,255);
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(13);
+                        doc.setFillColor(37, 99, 235); doc.rect(0, 0, pageW, 20, 'F');
+                        doc.setTextColor(255,255,255); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
                         doc.text('รายชื่อผู้เลือกตำแหน่ง', margin, 13);
 
-                        // Table header
                         let tableY = 26;
-                        const cols = [
-                            { label: '#', w: 12 },
-                            { label: 'ชื่อ-สกุล', w: 55 },
-                            { label: 'ตำแหน่งที่เลือก', w: 80 },
-                            { label: 'ภาค', w: 22 },
-                            { label: 'เวลา', w: 24 }
-                        ];
-                        doc.setFillColor(51, 65, 85);
-                        doc.rect(margin, tableY, pageW - margin*2, 7, 'F');
-                        doc.setTextColor(255,255,255);
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(7);
-                        let cx = margin;
-                        cols.forEach(c => { doc.text(c.label, cx + 2, tableY + 4.5); cx += c.w; });
-                        tableY += 8;
+                        const cols = [{ label: '#', w: 12 },{ label: 'ชื่อ-สกุล', w: 55 },{ label: 'ตำแหน่งที่เลือก', w: 80 },{ label: 'ภาค', w: 22 },{ label: 'เวลา', w: 24 }];
+                        doc.setFillColor(51, 65, 85); doc.rect(margin, tableY, pageW - margin*2, 7, 'F');
+                        doc.setTextColor(255,255,255); doc.setFont('helvetica', 'bold'); doc.setFontSize(7);
+                        let cx = margin; cols.forEach(c => { doc.text(c.label, cx + 2, tableY + 4.5); cx += c.w; }); tableY += 8;
 
-                        const list = this.dashboardList;
-                        list.forEach((u, idx) => {
-                            if (tableY > pageH - 20) {
-                                doc.addPage();
-                                tableY = 14;
-                            }
-                            const rowBg = idx % 2 === 0 ? [255,255,255] : [248,250,252];
-                            doc.setFillColor(...rowBg);
-                            doc.rect(margin, tableY - 1, pageW - margin*2, 7, 'F');
-                            doc.setTextColor(51, 65, 85);
-                            doc.setFont('helvetica', 'normal');
-                            doc.setFontSize(7);
+                        this.dashboardList.forEach((u, idx) => {
+                            if (tableY > pageH - 20) { doc.addPage(); tableY = 14; }
+                            doc.setFillColor(...(idx % 2 === 0 ? [255,255,255] : [248,250,252])); doc.rect(margin, tableY - 1, pageW - margin*2, 7, 'F');
+                            doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
                             const rowData = [String(u.id), u.name, u.pos, u.region, this.formatTime(u.time)];
                             cx = margin;
-                            cols.forEach((c, ci) => {
-                                let text = rowData[ci] || '-';
-                                // truncate if too long
-                                if (doc.getTextWidth(text) > c.w - 4) {
-                                    while(doc.getTextWidth(text + '…') > c.w - 4 && text.length > 0) text = text.slice(0, -1);
-                                    text += '…';
-                                }
-                                if (ci === 2) doc.setTextColor(37, 99, 235); // position in blue
-                                else doc.setTextColor(51, 65, 85);
-                                doc.text(text, cx + 2, tableY + 4);
-                                cx += c.w;
-                            });
-                            // row border
-                            doc.setDrawColor(226, 232, 240);
-                            doc.line(margin, tableY + 6, pageW - margin, tableY + 6);
-                            tableY += 7;
+                            cols.forEach((c, ci) => { let text = rowData[ci] || '-'; if (doc.getTextWidth(text) > c.w - 4) { while(doc.getTextWidth(text + '…') > c.w - 4 && text.length > 0) text = text.slice(0, -1); text += '…'; } doc.setTextColor(ci === 2 ? 37 : 51, ci === 2 ? 99 : 65, ci === 2 ? 235 : 85); doc.text(text, cx + 2, tableY + 4); cx += c.w; });
+                            doc.setDrawColor(226, 232, 240); doc.line(margin, tableY + 6, pageW - margin, tableY + 6); tableY += 7;
                         });
 
-                        if (list.length === 0) {
-                            doc.setTextColor(148, 163, 184);
-                            doc.setFontSize(10);
-                            doc.text('ยังไม่มีผู้เลือกตำแหน่ง', pageW/2, tableY + 20, { align: 'center' });
-                        }
-
-                        // Footer on all pages
+                        // Footer
                         const totalPages = doc.getNumberOfPages();
-                        for (let p = 1; p <= totalPages; p++) {
-                            doc.setPage(p);
-                            doc.setFillColor(248, 250, 252);
-                            doc.rect(0, pageH - 10, pageW, 10, 'F');
-                            doc.setTextColor(148, 163, 184);
-                            doc.setFont('helvetica', 'normal');
-                            doc.setFontSize(7);
-                            doc.text('RPCA79 - ระบบทดลองเลือกตำแหน่ง', margin, pageH - 4);
-                            doc.text(`หน้า ${p}/${totalPages}`, pageW - margin, pageH - 4, { align: 'right' });
-                        }
+                        for (let p = 1; p <= totalPages; p++) { doc.setPage(p); doc.setFillColor(248, 250, 252); doc.rect(0, pageH - 10, pageW, 10, 'F'); doc.setTextColor(148, 163, 184); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text('RPCA79 - ระบบทดลองเลือกตำแหน่ง', margin, pageH - 4); doc.text(`หน้า ${p}/${totalPages}`, pageW - margin, pageH - 4, { align: 'right' }); }
 
-                        // Save
-                        const filename = `RPCA79_ผลการเลือก_${new Date().toLocaleDateString('th-TH').replace(/\//g,'-')}.pdf`;
-                        doc.save(filename);
-
-                    } catch(e) {
-                        console.error('PDF export error:', e);
-                        Swal.fire('Error', 'ไม่สามารถสร้าง PDF ได้: ' + e.message, 'error');
-                    } finally {
-                        this.isPdfExporting = false;
-                    }
+                        doc.save(`RPCA79_ผลการเลือก_${new Date().toLocaleDateString('th-TH').replace(/\//g,'-')}.pdf`);
+                    } catch(e) { Swal.fire('Error', 'ไม่สามารถสร้าง PDF ได้: ' + e.message, 'error'); }
+                    finally { this.isPdfExporting = false; }
                 },
-
-            } // end return
-        } // end appData
+            }
+        }
     </script>
 </body>
 </html>
