@@ -15,9 +15,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- เพิ่ม Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -36,7 +37,7 @@
         @media (hover: hover) { .card-interaction:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); } }
         .card-interaction:active { transform: scale(0.98); }
 
-        .blink-dot { width: 6px; height: 6px; background-color: #22c55e; border-radius: 50%; display: inline-block; animation: blinker 1.5s infinite; }
+        .blink-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; animation: blinker 1.5s infinite; }
         @keyframes blinker { 50% { opacity: 0.3; } }
         
         .bg-pattern { background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px; }
@@ -78,8 +79,8 @@
         .mobile-nav-item.active { color: #2563eb; }
         .dark .mobile-nav-item { color: #64748b; }
         .dark .mobile-nav-item.active { color: #60a5fa; }
-        .mobile-nav-item i { font-size: 18px; transition: all 0.15s ease; }
-        .mobile-nav-item.active i { transform: translateY(-2px); }
+        .mobile-nav-item svg { width: 18px; height: 18px; transition: all 0.15s ease; }
+        .mobile-nav-item.active svg { transform: translateY(-2px); }
 
         .summary-stat-card { background: white; border-radius: 20px; padding: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; transition: all 0.2s ease; }
         .dark .summary-stat-card { background: #1e293b; border-color: #334155; }
@@ -100,27 +101,45 @@
 
     <header class="fixed top-8 left-0 right-0 z-50 glass-header shadow-sm transition-all duration-300">
         <div class="container mx-auto px-4 h-16 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30"><i class="fa-solid fa-shield-halved text-sm"></i></div>
+            <div class="flex items-center gap-3 md:w-1/4">
+                <div class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30"><i data-lucide="shield-half" class="w-5 h-5"></i></div>
                 <div>
-                    <h1 class="text-lg font-bold leading-none text-slate-800 dark:text-white hidden md:block">RPCA79 - ระบบทดลองเลือกตำแหน่ง</h1>
-                    <div class="flex items-center gap-1.5 mt-0.5"><span class="blink-dot"></span><span class="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase tracking-wide">Online</span></div>
+                    <h1 class="text-lg font-bold leading-none text-slate-800 dark:text-white hidden md:block">RPCA79</h1>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="blink-dot bg-green-500" :class="isFetching ? 'animate-ping' : ''"></span>
+                        <span class="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase tracking-wide">
+                            Online <span x-show="isFetching" class="ml-1 opacity-70 text-slate-500">(Syncing...)</span>
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <div class="hidden md:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 mx-4">
-                <button @click="switchPage('home')" :class="currentPage === 'home' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"><i class="fa-solid fa-check-to-slot"></i> เลือกตำแหน่ง</button>
-                <button @click="switchPage('monitor')" :class="currentPage === 'monitor' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 relative"><i class="fa-solid fa-satellite-dish"></i> Live</button>
-                <button @click="switchPage('dashboard')" :class="currentPage === 'dashboard' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"><i class="fa-solid fa-chart-pie"></i> สรุปผล</button>
-                <button @click="switchPage('login')" :class="currentPage === 'login' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"><i class="fa-solid" :class="user.id ? 'fa-user' : 'fa-right-to-bracket'"></i> <span x-text="user.id ? 'บัญชี' : 'เข้าสู่ระบบ'"></span></button>
-                <button x-show="user.role === 'ADMIN'" @click="switchPage('admin_panel')" :class="currentPage === 'admin_panel' ? 'bg-red-600 text-white shadow-sm' : 'text-red-500 hover:bg-red-50 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ml-2"><i class="fa-solid fa-cogs"></i> Admin</button>
+            <div class="hidden md:flex flex-1 justify-center w-2/4">
+                <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 flex gap-1">
+                    <button @click="switchPage('home')" :class="currentPage === 'home' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"><i data-lucide="check-square" class="w-4 h-4"></i> เลือกตำแหน่ง</button>
+                    <button @click="switchPage('monitor')" :class="currentPage === 'monitor' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 relative"><i data-lucide="radio" class="w-4 h-4"></i> Live</button>
+                    <button @click="switchPage('dashboard')" :class="currentPage === 'dashboard' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4"></i> สรุปผล</button>
+                    <button @click="switchPage('login')" :class="currentPage === 'login' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
+                        <span x-show="user.id"><i data-lucide="user" class="w-4 h-4 inline-block align-middle mr-1"></i>บัญชี</span>
+                        <span x-show="!user.id"><i data-lucide="log-in" class="w-4 h-4 inline-block align-middle mr-1"></i>เข้าสู่ระบบ</span>
+                    </button>
+                    <button x-show="user.role === 'ADMIN'" @click="switchPage('admin_panel')" :class="currentPage === 'admin_panel' ? 'bg-red-600 text-white shadow-sm' : 'text-red-500 hover:bg-red-50 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ml-2"><i data-lucide="settings" class="w-4 h-4"></i> Admin</button>
+                </div>
             </div>
 
-            <div class="flex items-center gap-3">
-                <button @click="toggleDarkMode" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 flex items-center justify-center transition border border-slate-200 dark:border-slate-700"><i class="fa-solid" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i></button>
+            <div class="flex items-center justify-end gap-3 md:w-1/4">
+                <button @click="toggleDarkMode" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 flex items-center justify-center transition border border-slate-200 dark:border-slate-700">
+                    <span x-show="darkMode"><i data-lucide="sun" class="w-4 h-4"></i></span>
+                    <span x-show="!darkMode"><i data-lucide="moon" class="w-4 h-4"></i></span>
+                </button>
                 <div class="md:hidden flex items-center gap-2">
-                    <div x-show="user.id" class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 text-white flex items-center justify-center font-bold text-xs" x-text="user.id"></div>
-                    <div x-show="!user.id" @click="switchPage('login')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center border border-slate-200 dark:border-slate-700 cursor-pointer"><i class="fa-solid fa-right-to-bracket text-xs"></i></div>
+                    <template x-if="user.pictureUrl">
+                        <img :src="user.pictureUrl" class="w-8 h-8 rounded-full border shadow-sm object-cover" @click="switchPage('login')">
+                    </template>
+                    <template x-if="user.id && !user.pictureUrl">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 text-white flex items-center justify-center font-bold text-xs" x-text="user.id" @click="switchPage('login')"></div>
+                    </template>
+                    <div x-show="!user.id" @click="switchPage('login')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center border border-slate-200 dark:border-slate-700 cursor-pointer"><i data-lucide="log-in" class="w-4 h-4"></i></div>
                 </div>
             </div>
         </div>
@@ -129,31 +148,50 @@
 
     <div class="h-24"></div>
 
-    <!-- HOME PAGE -->
     <div x-show="currentPage === 'home'" class="container mx-auto px-4 pb-28 md:pb-20 grid grid-cols-1 lg:grid-cols-12 gap-6 animate-enter safe-pb">
         <div class="lg:col-span-4 space-y-4 order-1 lg:order-2">
              <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg p-5 border border-slate-100 dark:border-slate-700">
-                <div x-show="!user.id"><h2 class="font-bold text-slate-800 dark:text-slate-200 mb-3 text-sm flex items-center gap-2">เข้าสู่ระบบ</h2><div class="flex gap-2"><input x-model="loginCode" @keyup.enter="login" type="number" placeholder="Enter ID..." class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border-none rounded-xl px-4 py-3 font-bold text-center outline-none"><button @click="login" class="bg-slate-800 dark:bg-slate-600 text-white w-12 rounded-xl shadow-lg"><i class="fa-solid fa-arrow-right"></i></button></div></div>
+                <div x-show="!user.id" class="text-center py-4">
+                    <i data-lucide="user-check" class="w-12 h-12 text-blue-500 mx-auto mb-2 opacity-50"></i>
+                    <p class="text-sm font-bold text-slate-500">กรุณาเข้าสู่ระบบผ่านเมนู Login</p>
+                    <button @click="switchPage('login')" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md">ไปหน้าเข้าสู่ระบบ</button>
+                </div>
                 <div x-show="user.id">
-                    <div class="flex justify-between items-center mb-4"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-md" x-text="user.id"></div><div><div class="font-bold text-slate-800 dark:text-white text-sm" x-text="user.name"></div><div class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500 dark:text-slate-300" x-text="user.status"></div></div></div><button @click="logout" class="text-red-500 bg-red-50 dark:bg-red-900/30 w-8 h-8 rounded-full"><i class="fa-solid fa-power-off text-xs"></i></button></div>
-                    <div x-show="user.lineLinked" class="mb-3"><span class="line-linked-badge"><i class="fa-solid fa-circle-check"></i> เชื่อมต่อ LINE แล้ว</span></div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-3">
+                            <template x-if="user.pictureUrl">
+                                <img :src="user.pictureUrl" class="w-12 h-12 rounded-full border-2 border-blue-500 object-cover shadow-sm">
+                            </template>
+                            <template x-if="!user.pictureUrl">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-md" x-text="user.id"></div>
+                            </template>
+                            <div>
+                                <div class="font-bold text-slate-800 dark:text-white text-sm" x-text="user.name"></div>
+                                <div class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500 dark:text-slate-300" x-text="user.status"></div>
+                            </div>
+                        </div>
+                        <button @click="logout" class="text-red-500 bg-red-50 dark:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center"><i data-lucide="power" class="w-4 h-4"></i></button>
+                    </div>
+                    <div x-show="user.lineLinked" class="mb-3">
+                        <span class="line-linked-badge"><i data-lucide="check-circle-2" class="w-3 h-3"></i> เชื่อมต่อ LINE: <span x-text="lineProfile?.displayName || 'สำเร็จ'"></span></span>
+                    </div>
                     <div x-show="isMyTurn" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-2xl text-center shadow-lg animate-pulse cursor-pointer" @click="window.scrollTo({top:0, behavior:'smooth'})">ถึงคิวของคุณแล้ว!</div>
                     <div x-show="!isMyTurn && user.status === 'WAITING'" class="bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl text-center"><p class="text-slate-500 dark:text-slate-300 font-bold text-xs">รออีก <span class="text-xl text-blue-600 dark:text-blue-400 mx-1" x-text="parseInt(user.id) - parseInt(config.current_queue)"></span> คิว</p></div>
                 </div>
             </div>
 
             <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
-                <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-4 text-xs uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-stream text-blue-500"></i> ลำดับคิวปัจจุบัน</h3>
+                <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-4 text-xs uppercase tracking-wider flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-blue-500"></i> ลำดับคิวปัจจุบัน</h3>
                 <div class="space-y-3 relative">
                     <div class="absolute left-[1.1rem] top-3 bottom-3 w-0.5 bg-slate-100 dark:bg-slate-700"></div>
-                    <div class="relative flex items-center gap-3 p-2 opacity-50"><div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center z-10 text-slate-400 font-bold text-xs"><i class="fa-solid fa-check"></i></div><div><div class="text-[9px] uppercase font-bold text-slate-400">Previous</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="prevUser ? prevUser.name : '-'"></div></div></div>
+                    <div class="relative flex items-center gap-3 p-2 opacity-50"><div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center z-10 text-slate-400 font-bold"><i data-lucide="check" class="w-4 h-4"></i></div><div><div class="text-[9px] uppercase font-bold text-slate-400">Previous</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="prevUser ? prevUser.name : '-'"></div></div></div>
                     <div class="relative flex items-center gap-3 bg-white dark:bg-slate-700 p-3 rounded-2xl shadow-md border-l-4 border-blue-500 z-10"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center font-bold text-base shadow-lg animate-pulse"><span x-text="config.current_queue || '?'"></span></div><div><div class="text-[9px] uppercase font-bold text-blue-600 dark:text-blue-400">Now Selecting</div><div class="text-sm font-bold text-slate-800 dark:text-white leading-tight" x-text="currentUserObj ? currentUserObj.name : 'Waiting...'"></div></div></div>
-                    <div class="relative flex items-center gap-3 p-2 opacity-60"><div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-green-200 dark:border-green-900 flex items-center justify-center z-10 text-green-600 dark:text-green-400 font-bold text-xs"><i class="fa-solid fa-arrow-down"></i></div><div><div class="text-[9px] uppercase font-bold text-green-600 dark:text-green-400">Next</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="nextUser ? nextUser.name : '-'"></div></div></div>
+                    <div class="relative flex items-center gap-3 p-2 opacity-60"><div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-green-200 dark:border-green-900 flex items-center justify-center z-10 text-green-600 dark:text-green-400 font-bold"><i data-lucide="arrow-down" class="w-4 h-4"></i></div><div><div class="text-[9px] uppercase font-bold text-green-600 dark:text-green-400">Next</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="nextUser ? nextUser.name : '-'"></div></div></div>
                 </div>
             </div>
 
             <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
-                <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-blue-500"></i> ล่าสุด (5 รายการ)</h3></div>
+                <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider flex items-center gap-2"><i data-lucide="history" class="w-4 h-4 text-blue-500"></i> ล่าสุด (5 รายการ)</h3></div>
                 <div class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
                     <template x-for="log in serverLogs.slice(0, 5)" :key="log[1]">
                         <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
@@ -168,8 +206,8 @@
         <div class="lg:col-span-8 space-y-6 order-2 lg:order-1">
             <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2"><i class="fa-solid fa-sitemap text-blue-600"></i> เลือกกองบัญชาการ (ภาค)</h3>
-                    <button x-show="filterRegion" class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/30 px-3 py-1.5 rounded-lg hover:bg-red-100 transition" @click="filterRegion=''">ล้างตัวกรอง <i class="fa-solid fa-times ml-1"></i></button>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2"><i data-lucide="network" class="w-5 h-5 text-blue-600"></i> เลือกกองบัญชาการ (ภาค)</h3>
+                    <button x-show="filterRegion" class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/30 px-3 py-1.5 rounded-lg hover:bg-red-100 transition flex items-center" @click="filterRegion=''">ล้างตัวกรอง <i data-lucide="x" class="w-3 h-3 ml-1"></i></button>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <template x-for="bureau in ['บช.น.', 'ภ.1', 'ภ.2', 'ภ.3', 'ภ.4', 'ภ.5', 'ภ.6', 'ภ.7', 'ภ.8', 'ภ.9']">
@@ -178,50 +216,77 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700 space-y-4">
+            <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 shadow-sm border border-slate-100 dark:border-slate-700 space-y-4">
                 <div class="flex flex-col md:flex-row gap-3">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                    <div class="relative flex-1 flex items-center">
+                        <i data-lucide="search" class="absolute left-3.5 text-slate-400 w-4 h-4"></i>
                         <input x-model="search" type="text" placeholder="ค้นหาหน่วยงาน..." class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-700 dark:text-white border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 outline-none text-sm font-medium">
-                        <button x-show="search.length > 0" @click="search = ''" class="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-times-circle"></i></button>
+                        <button x-show="search.length > 0" @click="search = ''" class="absolute right-3.5 text-slate-400 hover:text-slate-600"><i data-lucide="x-circle" class="w-4 h-4"></i></button>
                     </div>
-                    <div class="flex gap-2 overflow-x-auto no-scrollbar">
-                        <div class="bg-slate-100 dark:bg-slate-700 p-1 rounded-xl flex shrink-0"><button @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition"><i class="fa-solid fa-grip"></i></button><button @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition"><i class="fa-solid fa-list-ul"></i></button></div>
-                        <button @click="filterStatus = (filterStatus === 'WISHLIST' ? 'ALL' : 'WISHLIST')" :class="filterStatus === 'WISHLIST' ? 'bg-yellow-400 text-white shadow-lg' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i class="fa-solid fa-star"></i> รายการที่ติดดาว</button>
-                        <button @click="filterStatus = (filterStatus === 'TAKEN' ? 'ALL' : 'TAKEN')" :class="filterStatus === 'TAKEN' ? 'bg-slate-800 text-white dark:bg-slate-600' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i class="fa-solid fa-lock"></i> ที่เลือกแล้ว</button>
-                        <button @click="filterStatus = (filterStatus === 'AVAILABLE' ? 'ALL' : 'AVAILABLE')" :class="filterStatus === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i class="fa-solid fa-check-circle"></i> ว่าง</button>
+                    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                        <div class="bg-slate-100 dark:bg-slate-700 p-1 rounded-xl flex shrink-0"><button @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition flex items-center justify-center"><i data-lucide="layout-grid" class="w-4 h-4"></i></button><button @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition flex items-center justify-center"><i data-lucide="list" class="w-4 h-4"></i></button></div>
+                        <button @click="filterStatus = (filterStatus === 'WISHLIST' ? 'ALL' : 'WISHLIST')" :class="filterStatus === 'WISHLIST' ? 'bg-yellow-400 text-white shadow-lg' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> ที่ติดดาว</button>
+                        <button @click="filterStatus = (filterStatus === 'TAKEN' ? 'ALL' : 'TAKEN')" :class="filterStatus === 'TAKEN' ? 'bg-slate-800 text-white dark:bg-slate-600' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> เลือกแล้ว</button>
+                        <button @click="filterStatus = (filterStatus === 'AVAILABLE' ? 'ALL' : 'AVAILABLE')" :class="filterStatus === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> ว่าง</button>
                     </div>
                 </div>
+                
                 <div class="min-h-[50vh]">
-                    <div x-show="isInitialLoading" class="flex flex-col items-center justify-center py-20 text-slate-400 opacity-60"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-blue-500"></i><p class="text-xs">Loading...</p></div>
-                    <div x-show="!isInitialLoading && viewMode === 'grid'" class="space-y-6">
+                    <div x-show="isInitialLoading" class="flex flex-col items-center justify-center py-20 text-slate-400 opacity-60"><i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-3 text-blue-500"></i><p class="text-xs">Loading...</p></div>
+                    
+                    <div x-show="!isInitialLoading && viewMode === 'grid'" class="space-y-4">
                         <template x-for="group in groupedPositions" :key="group.name">
-                            <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-200/50 dark:border-slate-700/50">
-                                <div class="flex items-center gap-2 mb-3"><span class="w-1 h-5 rounded-full bg-blue-500"></span><h3 class="font-bold text-base text-slate-700 dark:text-slate-200" x-text="group.name"></h3><span class="ml-auto text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full" x-text="group.items.length"></span></div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                            <div class="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-200/50 dark:border-slate-700/50">
+                                <div class="flex items-center gap-2 mb-2"><span class="w-1 h-4 rounded-full bg-blue-500"></span><h3 class="font-bold text-sm text-slate-700 dark:text-slate-200" x-text="group.name"></h3><span class="ml-auto text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-2 rounded-full" x-text="group.items.length"></span></div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
                                     <template x-for="pos in group.items" :key="pos[0]">
-                                        <div class="rounded-xl p-4 border relative overflow-hidden card-interaction transition-colors" :class="pos[3] === 'AVAILABLE' ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm' : 'bg-slate-100 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 opacity-90'">
-                                            <button @click.stop="toggleWishlist(pos[0])" class="absolute top-2 right-2 text-lg z-20 hover:scale-110 transition" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i class="fa-solid fa-star"></i></button>
-                                            <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="absolute inset-0 border-2 border-blue-500 rounded-xl animate-pulse pointer-events-none z-10"></div>
-                                            <div class="flex justify-between items-start mb-2"><span class="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide flex items-center gap-1" :class="pos[3] === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'"><i class="fa-solid" :class="pos[3] === 'AVAILABLE' ? 'fa-check-circle' : 'fa-lock'"></i> <span x-text="pos[3] === 'AVAILABLE' ? 'ว่าง' : 'ถูกเลือก'"></span></span></div>
-                                            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight mb-3 pr-6" x-text="pos[1]"></h3>
-                                            <div class="mb-3 min-h-[1.5rem]"><template x-if="pos[3] === 'AVAILABLE'"><div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400"><i class="fa-solid fa-map-pin text-blue-500"></i> <span x-text="pos[2]"></span></div></template><template x-if="pos[3] !== 'AVAILABLE'"><div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-700/50 px-2 py-1.5 rounded w-full"><i class="fa-solid fa-user-lock text-slate-400"></i> <span class="truncate">คุณ <span x-text="getUserName(pos[4])"></span></span></div></template></div>
-                                            <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click="confirmSelect(pos)" :disabled="isSubmitting" :class="isSubmitting ? 'opacity-50 cursor-not-allowed' : ''" class="w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold text-sm shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2"><span x-text="isSubmitting ? 'กำลังบันทึก...' : 'เลือก'"></span> <i class="fa-solid" :class="isSubmitting ? 'fa-circle-notch fa-spin' : 'fa-arrow-right'"></i></button>
-                                            <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-50 dark:bg-slate-700 text-slate-400 py-2 rounded-xl text-xs font-bold border border-slate-100 dark:border-slate-600 cursor-not-allowed">รอคิว</button>
+                                        <div class="rounded-lg p-3 border relative overflow-hidden card-interaction transition-colors" :class="pos[3] === 'AVAILABLE' ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm' : 'bg-slate-100 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 opacity-90'">
+                                            <button @click.stop="toggleWishlist(pos[0])" class="absolute top-2 right-2 z-20 hover:scale-110 transition" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i data-lucide="star" class="w-4 h-4"></i></button>
+                                            <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="absolute inset-0 border-2 border-blue-500 rounded-lg animate-pulse pointer-events-none z-10"></div>
+                                            
+                                            <div class="flex justify-between items-start mb-1"><span class="text-[9px] font-bold px-1.5 rounded uppercase tracking-wide flex items-center gap-1" :class="pos[3] === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'"><span x-show="pos[3] === 'AVAILABLE'"><i data-lucide="check-circle-2" class="w-3 h-3 inline"></i></span><span x-show="pos[3] !== 'AVAILABLE'"><i data-lucide="lock" class="w-3 h-3 inline"></i></span> <span x-text="pos[3] === 'AVAILABLE' ? 'ว่าง' : 'ถูกเลือก'"></span></span></div>
+                                            
+                                            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight mb-2 pr-6 truncate" x-text="pos[1]" :title="pos[1]"></h3>
+                                            
+                                            <div class="mb-2 min-h-[1.2rem]">
+                                                <template x-if="pos[3] === 'AVAILABLE'"><div class="flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400"><i data-lucide="map-pin" class="w-3 h-3 text-blue-500"></i> <span x-text="pos[2]"></span></div></template>
+                                                <template x-if="pos[3] !== 'AVAILABLE'"><div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-700/50 px-1.5 py-1 rounded w-full"><i data-lucide="user-check" class="w-3 h-3 text-slate-400"></i> <span class="truncate" x-text="getUserName(pos[4])"></span></div></template>
+                                            </div>
+                                            
+                                            <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click="confirmSelect(pos)" :disabled="isSubmitting" :class="isSubmitting ? 'opacity-50 cursor-not-allowed' : ''" class="w-full bg-blue-600 text-white py-1.5 rounded-md font-bold text-xs shadow-sm active:scale-95 transition-transform flex items-center justify-center gap-1">
+                                                <span x-text="isSubmitting ? 'กำลังบันทึก...' : 'เลือก'"></span> 
+                                                <span x-show="isSubmitting"><i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i></span>
+                                                <span x-show="!isSubmitting"><i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+                                            </button>
+                                            <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-50 dark:bg-slate-700 text-slate-400 py-1.5 rounded-md text-[10px] font-bold border border-slate-100 dark:border-slate-600 cursor-not-allowed">รอคิว</button>
                                         </div>
                                     </template>
                                 </div>
                             </div>
                         </template>
                     </div>
-                    <div x-show="!isInitialLoading && viewMode === 'list'" class="space-y-4">
+                    
+                    <div x-show="!isInitialLoading && viewMode === 'list'" class="space-y-3">
                         <template x-for="group in groupedPositions" :key="group.name">
-                            <div class="space-y-2">
-                                <div class="sticky top-[8.5rem] z-20 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase text-slate-500 flex justify-between shadow-sm"><span x-text="group.name"></span><span x-text="group.items.length"></span></div>
+                            <div class="space-y-1.5">
+                                <div class="sticky top-[8.5rem] z-20 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur px-2 py-1 rounded text-[10px] font-bold uppercase text-slate-500 flex justify-between shadow-sm"><span x-text="group.name"></span><span x-text="group.items.length"></span></div>
                                 <template x-for="pos in group.items" :key="pos[0]">
-                                    <div class="bg-white dark:bg-slate-800 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-3 border border-slate-100 dark:border-slate-700 shadow-sm" :class="pos[3] !== 'AVAILABLE' ? 'opacity-75 bg-slate-50 dark:bg-slate-900' : ''">
-                                        <div class="flex-1 flex items-center gap-3"><div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0" :class="pos[3] === 'AVAILABLE' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'"><i class="fa-solid" :class="pos[3] === 'AVAILABLE' ? 'fa-building' : 'fa-building-lock'"></i></div><div class="min-w-0 flex-1"><div class="flex justify-between"><h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm truncate" x-text="pos[1]"></h4><button @click.stop="toggleWishlist(pos[0])" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700'"><i class="fa-solid fa-star"></i></button></div><div class="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5"><span class="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded" x-text="pos[2]"></span><span x-show="pos[3] !== 'AVAILABLE'" class="text-slate-500 dark:text-slate-400 flex items-center truncate"><i class="fa-solid fa-user-lock mr-1"></i> <span class="font-bold text-slate-700 dark:text-slate-300">คุณ <span x-text="getUserName(pos[4])"></span></span></span></div></div></div>
-                                        <div class="sm:w-24"><button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click="confirmSelect(pos)" :disabled="isSubmitting" class="w-full bg-blue-600 text-white py-2 rounded-lg text-xs font-bold shadow">เลือก</button><button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-100 dark:bg-slate-700 text-slate-400 py-2 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-600">รอ</button></div>
+                                    <div class="bg-white dark:bg-slate-800 rounded-lg p-2 flex items-center gap-2 border border-slate-100 dark:border-slate-700 shadow-sm" :class="pos[3] !== 'AVAILABLE' ? 'opacity-75 bg-slate-50 dark:bg-slate-900' : ''">
+                                        <div class="w-8 h-8 rounded flex items-center justify-center shrink-0" :class="pos[3] === 'AVAILABLE' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'"><i data-lucide="building" class="w-4 h-4"></i></div>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex justify-between items-center">
+                                                <h4 class="font-bold text-slate-800 dark:text-slate-100 text-xs truncate" x-text="pos[1]"></h4>
+                                                <button @click.stop="toggleWishlist(pos[0])" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700'"><i data-lucide="star" class="w-3 h-3"></i></button>
+                                            </div>
+                                            <div class="text-[9px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                                                <span class="bg-slate-100 dark:bg-slate-700 px-1 rounded" x-text="pos[2]"></span>
+                                                <span x-show="pos[3] !== 'AVAILABLE'" class="text-slate-500 dark:text-slate-400 flex items-center truncate"><i data-lucide="user-check" class="w-3 h-3 mr-0.5"></i> <span class="font-bold text-slate-700 dark:text-slate-300" x-text="getUserName(pos[4])"></span></span>
+                                            </div>
+                                        </div>
+                                        <div class="w-16 shrink-0">
+                                            <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click="confirmSelect(pos)" :disabled="isSubmitting" class="w-full bg-blue-600 text-white py-1.5 rounded text-[10px] font-bold shadow-sm">เลือก</button>
+                                            <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-100 dark:bg-slate-700 text-slate-400 py-1.5 rounded text-[10px] font-bold border border-slate-200 dark:border-slate-600">รอ</button>
+                                        </div>
                                     </div>
                                 </template>
                             </div>
@@ -233,9 +298,8 @@
         </div>
     </div>
 
-    <!-- MONITOR PAGE -->
     <div x-show="currentPage === 'monitor'" class="container mx-auto px-4 py-6 pb-28 md:pb-6 animate-enter safe-pb">
-        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-satellite-dish text-red-500"></i> Live Monitor</h2>
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="radio" class="w-6 h-6 text-red-500"></i> Live Monitor</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-md border border-slate-100 dark:border-slate-700 mb-8 overflow-hidden relative">
             <div class="text-center mb-10"><div class="inline-block px-4 py-1 rounded-full bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 text-xs font-bold uppercase tracking-wider animate-pulse">Real-time Feed</div></div>
             <div class="relative flex items-center justify-center overflow-x-auto">
@@ -262,21 +326,44 @@
         </div>
     </div>
 
-    <!-- DASHBOARD PAGE -->
     <div x-show="currentPage === 'dashboard'" class="container mx-auto px-4 py-6 pb-28 md:pb-6 animate-enter safe-pb">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-            <h2 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-500"></i> สรุปผลภาพรวม</h2>
-            <button @click="exportPDF()" :disabled="isPdfExporting" class="pdf-export-btn no-print"><i class="fa-solid" :class="isPdfExporting ? 'fa-circle-notch fa-spin' : 'fa-file-pdf'"></i><span x-text="isPdfExporting ? 'กำลัง Export...' : 'Export PDF'"></span></button>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="pie-chart" class="w-6 h-6 text-blue-500"></i> สรุปผลภาพรวม</h2>
+            <button @click="exportPDF()" :disabled="isPdfExporting" class="pdf-export-btn no-print">
+                <span x-show="isPdfExporting"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></span>
+                <span x-show="!isPdfExporting"><i data-lucide="file-text" class="w-4 h-4"></i></span>
+                <span x-text="isPdfExporting ? 'กำลัง Export...' : 'Export PDF'"></span>
+            </button>
         </div>
+        
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
+            <h3 class="font-bold text-sm text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="line-chart" class="w-4 h-4 text-purple-500"></i> วิเคราะห์ข้อมูล (Analytics)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800/30">
+                    <div class="text-[10px] text-purple-600 dark:text-purple-400 font-bold uppercase mb-1">ยอดนิยมสุด (เต็มไว)</div>
+                    <div class="text-lg font-black text-slate-800 dark:text-white" x-text="analyticsData.topFilled"></div>
+                </div>
+                <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+                    <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase mb-1">กองบัญชาการที่ว่างเยอะสุด</div>
+                    <div class="text-lg font-black text-slate-800 dark:text-white" x-text="analyticsData.topRemaining"></div>
+                </div>
+                <div class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-100 dark:border-orange-800/30">
+                    <div class="text-[10px] text-orange-600 dark:text-orange-400 font-bold uppercase mb-1">มีโอกาสเลือกลงมากที่สุด</div>
+                    <div class="text-lg font-black text-slate-800 dark:text-white" x-text="analyticsData.mostAvailable"></div>
+                </div>
+            </div>
+        </div>
+
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="summary-stat-card"><div class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">Total</div><div class="text-3xl font-black text-slate-800 dark:text-white" x-text="positions.length"></div></div>
             <div class="summary-stat-card"><div class="text-[10px] text-green-600 dark:text-green-400 font-bold uppercase mb-1">Taken</div><div class="text-3xl font-black text-green-600 dark:text-green-400" x-text="positions.filter(p => p[3] !== 'AVAILABLE').length"></div></div>
             <div class="summary-stat-card"><div class="text-[10px] text-red-500 dark:text-red-400 font-bold uppercase mb-1">Left</div><div class="text-3xl font-black text-red-500 dark:text-red-400" x-text="positions.filter(p => p[3] === 'AVAILABLE').length"></div></div>
-            <div class="bg-blue-600 text-white rounded-2xl p-4 shadow-lg text-center"><div class="text-[10px] text-blue-100 font-bold uppercase mb-1">Progress</div><div class="text-3xl font-black" x-text="Math.round(progressPercent) + '%'"></div></div>
+            <div class="bg-blue-600 text-white rounded-2xl p-4 shadow-lg text-center flex flex-col justify-center"><div class="text-[10px] text-blue-100 font-bold uppercase mb-1">Progress</div><div class="text-3xl font-black" x-text="Math.round(progressPercent) + '%'"></div></div>
         </div>
+        
         <div class="block lg:hidden mb-6">
             <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
-                <h3 class="font-bold text-base text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-map text-blue-500"></i> สรุปรายภาค</h3>
+                <h3 class="font-bold text-base text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="map" class="w-4 h-4 text-blue-500"></i> สรุปรายภาค</h3>
                 <div class="space-y-3">
                     <template x-for="stat in regionDashboardStats" :key="stat.name">
                         <div class="flex items-center gap-3"><div class="w-14 text-xs font-black text-slate-700 dark:text-slate-300 shrink-0" x-text="stat.name"></div><div class="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-4 overflow-hidden"><div class="h-full rounded-full transition-all duration-700 flex items-center justify-end pr-2" :style="`width: ${stat.percent}%`" :class="stat.percent === 100 ? 'bg-red-500' : 'bg-blue-500'"><span x-show="stat.percent > 25" class="text-white text-[9px] font-bold" x-text="stat.taken"></span></div></div><div class="text-[10px] font-bold text-slate-400 shrink-0 w-10 text-right" x-text="stat.taken + '/' + stat.total"></div></div>
@@ -315,52 +402,68 @@
         </div>
     </div>
 
-    <!-- ADMIN PAGE -->
     <div x-show="currentPage === 'admin_panel'" class="container mx-auto px-4 py-6 pb-28 md:pb-6 animate-enter safe-pb">
-        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-cogs text-red-500"></i> Admin Panel</h2>
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="settings" class="w-6 h-6 text-red-500"></i> Admin Panel</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
             <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">System Controls</h3>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4"><button @click="adminAction('SKIP')" class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 py-4 rounded-xl font-bold hover:bg-blue-200 transition">ข้ามคิว</button><button @click="adminAction('TOGGLE_STATUS')" class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 py-4 rounded-xl font-bold hover:bg-slate-200 transition">เปิด/ปิด</button><button @click="triggerBackup" class="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 py-4 rounded-xl font-bold hover:bg-green-200 transition">Backup</button><button @click="adminReset" class="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 py-4 rounded-xl font-bold hover:bg-red-200 transition">Reset</button></div>
         </div>
         <div class="flex gap-2 mb-4 overflow-x-auto"><button @click="adminTab = 'users'" :class="adminTab === 'users' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400'" class="px-6 py-2 rounded-xl font-bold shadow-sm transition">Users</button><button @click="adminTab = 'positions'" :class="adminTab === 'positions' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400'" class="px-6 py-2 rounded-xl font-bold shadow-sm transition">Positions</button></div>
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 overflow-hidden">
-            <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg text-slate-800 dark:text-white" x-text="adminTab === 'users' ? 'จัดการรายชื่อ (Users)' : 'จัดการตำแหน่ง (Positions)'"></h3><button @click="openAdminModal('CREATE')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow"><i class="fa-solid fa-plus mr-1"></i> Add New</button></div>
-            <div x-show="adminTab === 'users'" class="overflow-x-auto"><table class="w-full text-left text-sm text-slate-600 dark:text-slate-300"><thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Code</th><th class="p-3">Action</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-slate-700"><template x-for="u in users" :key="u[0]"><tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3 font-mono" x-text="u[0]"></td><td class="p-3 font-bold" x-text="u[1]"></td><td class="p-3 font-mono text-xs" x-text="u[2]"></td><td class="p-3 flex gap-2"><button @click="openAdminModal('UPDATE', u, 'USER')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen"></i></button><button @click="deleteAdminData(u[0], 'USER')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td></tr></template></tbody></table></div>
-            <div x-show="adminTab === 'positions'" class="overflow-x-auto"><table class="w-full text-left text-sm text-slate-600 dark:text-slate-300"><thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Region</th><th class="p-3">Action</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-slate-700"><template x-for="p in positions" :key="p[0]"><tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3 font-mono" x-text="p[0]"></td><td class="p-3 font-bold" x-text="p[1]"></td><td class="p-3 text-xs" x-text="p[2]"></td><td class="p-3 flex gap-2"><button @click="openAdminModal('UPDATE', p, 'POSITION')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen"></i></button><button @click="deleteAdminData(p[0], 'POSITION')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td></tr></template></tbody></table></div>
+            <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg text-slate-800 dark:text-white" x-text="adminTab === 'users' ? 'จัดการรายชื่อ (Users)' : 'จัดการตำแหน่ง (Positions)'"></h3><button @click="openAdminModal('CREATE')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow flex items-center gap-1"><i data-lucide="plus" class="w-4 h-4"></i> Add New</button></div>
+            <div x-show="adminTab === 'users'" class="overflow-x-auto"><table class="w-full text-left text-sm text-slate-600 dark:text-slate-300"><thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Code</th><th class="p-3">Action</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-slate-700"><template x-for="u in users" :key="u[0]"><tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3 font-mono" x-text="u[0]"></td><td class="p-3 font-bold" x-text="u[1]"></td><td class="p-3 font-mono text-xs" x-text="u[2]"></td><td class="p-3 flex gap-2"><button @click="openAdminModal('UPDATE', u, 'USER')" class="text-blue-500 hover:text-blue-700"><i data-lucide="edit" class="w-4 h-4"></i></button><button @click="deleteAdminData(u[0], 'USER')" class="text-red-500 hover:text-red-700"><i data-lucide="trash" class="w-4 h-4"></i></button></td></tr></template></tbody></table></div>
+            <div x-show="adminTab === 'positions'" class="overflow-x-auto"><table class="w-full text-left text-sm text-slate-600 dark:text-slate-300"><thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Region</th><th class="p-3">Action</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-slate-700"><template x-for="p in positions" :key="p[0]"><tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3 font-mono" x-text="p[0]"></td><td class="p-3 font-bold" x-text="p[1]"></td><td class="p-3 text-xs" x-text="p[2]"></td><td class="p-3 flex gap-2"><button @click="openAdminModal('UPDATE', p, 'POSITION')" class="text-blue-500 hover:text-blue-700"><i data-lucide="edit" class="w-4 h-4"></i></button><button @click="deleteAdminData(p[0], 'POSITION')" class="text-red-500 hover:text-red-700"><i data-lucide="trash" class="w-4 h-4"></i></button></td></tr></template></tbody></table></div>
         </div>
     </div>
 
-    <!-- Admin Modal -->
     <div x-show="adminModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-cloak><div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl animate-enter"><h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4" x-text="adminModalAction === 'CREATE' ? 'Add New' : 'Edit Data'"></h3><div class="space-y-4"><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">ID</label><input x-model="adminFormData.id" :disabled="adminModalAction === 'UPDATE'" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Name</label><input x-model="adminFormData.name" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'users'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Code</label><input x-model="adminFormData.code" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'positions'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Region</label><input x-model="adminFormData.region" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div></div><div class="flex gap-2 mt-6"><button @click="saveAdminData" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold text-sm">Save</button><button @click="adminModalOpen = false" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-2 rounded-lg font-bold text-sm">Cancel</button></div></div></div>
 
-    <!-- LOGIN PAGE -->
     <div x-show="currentPage === 'login'" class="container mx-auto px-4 py-6 pb-28 md:pb-6 animate-enter safe-pb flex flex-col items-center justify-center min-h-[70vh]">
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 w-full max-w-md overflow-hidden relative">
             <div class="h-2 bg-blue-600 w-full"></div>
             <div class="p-8">
                 <div x-show="!user.id" class="text-center">
-                    <div class="w-20 h-20 bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner"><i class="fa-solid fa-user-lock"></i></div>
-                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">เข้าสู่ระบบ</h2>
-                    <p class="text-slate-400 text-sm mb-6">กรอกรหัสประจำตัว หรือเข้าผ่าน LINE</p>
-                    <input x-model="loginCode" @keyup.enter="login" type="number" placeholder="รหัสประจำตัว (ID Code)" class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-4 font-bold text-center text-xl focus:ring-4 focus:ring-blue-500/20 outline-none transition mb-4">
-                    <button @click="login" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg mb-4">เข้าสู่ระบบ</button>
-                    <div class="flex items-center gap-3 mb-4"><div class="flex-1 h-px bg-slate-200 dark:bg-slate-600"></div><span class="text-xs text-slate-400 font-bold">หรือ</span><div class="flex-1 h-px bg-slate-200 dark:bg-slate-600"></div></div>
-                    <button @click="loginWithLine()" :disabled="lineLoading" class="line-btn">
-                        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.41-.101-.539-.29l-2.531-3.426v3.089c0 .345-.283.63-.63.63-.344 0-.627-.285-.627-.63V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .41.105.539.291l2.532 3.42V8.108c0-.345.282-.63.63-.63.346 0 .629.285.629.63v4.771zm-5.741 0c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
-                        <span x-text="lineLoading ? 'กำลังเชื่อมต่อ LINE...' : 'เข้าสู่ระบบด้วย LINE'"></span>
+                    <div class="w-20 h-20 bg-[#06C755]/10 text-[#06C755] rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner"><i data-lucide="message-circle" class="w-10 h-10"></i></div>
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">เข้าสู่ระบบด้วย LINE</h2>
+                    <p class="text-slate-400 text-sm mb-6">เพื่อความปลอดภัยและเชื่อมข้อมูลเข้ากับรหัสของคุณ</p>
+                    
+                    <button @click="loginWithLine()" :disabled="lineLoading" class="line-btn w-full mb-8 py-4 text-lg">
+                        <span x-show="lineLoading"><i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i></span>
+                        <span x-show="!lineLoading"><svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.41-.101-.539-.29l-2.531-3.426v3.089c0 .345-.283.63-.63.63-.344 0-.627-.285-.627-.63V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .41.105.539.291l2.532 3.42V8.108c0-.345.282-.63.63-.63.346 0 .629.285.629.63v4.771zm-5.741 0c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg></span>
+                        <span x-text="lineLoading ? 'กำลังเชื่อมต่อ...' : 'LINE Login'"></span>
                     </button>
-                    <p class="text-[10px] text-slate-400 mt-3">LINE Login ต้องผูกรหัสก่อนใช้งานครั้งแรก</p>
-                </div>
-                <div x-show="user.id" class="text-center">
-                    <div class="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl font-bold shadow-lg" x-text="user.id"></div>
-                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-2" x-text="user.name"></h2>
-                    <div class="inline-block px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs font-bold mb-4" x-text="user.status"></div>
-                    <div class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
-                        <div class="flex items-center justify-between">
-                            <div class="text-left"><div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">LINE Account</div><div x-show="user.lineLinked" class="line-linked-badge"><i class="fa-solid fa-circle-check"></i> เชื่อมต่อแล้ว</div><div x-show="!user.lineLinked" class="text-xs text-slate-400 font-semibold">ยังไม่เชื่อมต่อ</div></div>
-                            <button x-show="!user.lineLinked" @click="openLineBindModal()" class="bg-[#06C755] text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-md"><svg viewBox="0 0 24 24" fill="white" class="w-4 h-4"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg> เชื่อมต่อ LINE</button>
+                    
+                    <div class="border-t border-slate-100 dark:border-slate-700 pt-6">
+                        <button @click="adminLoginMode = !adminLoginMode" class="text-xs font-bold text-slate-400 dark:text-slate-500 hover:text-slate-600 transition">เข้าสู่ระบบสำหรับเจ้าหน้าที่ (Admin)</button>
+                        <div x-show="adminLoginMode" class="mt-4 flex gap-2 animate-enter">
+                            <input x-model="loginCode" @keyup.enter="login" type="password" placeholder="Admin PIN..." class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 font-bold text-center outline-none">
+                            <button @click="login" class="bg-slate-800 dark:bg-slate-600 text-white px-6 rounded-xl shadow"><i data-lucide="arrow-right" class="w-5 h-5"></i></button>
                         </div>
                     </div>
+                </div>
+
+                <div x-show="user.id" class="text-center">
+                    <template x-if="user.pictureUrl">
+                        <img :src="user.pictureUrl" class="w-24 h-24 rounded-full border-4 border-blue-500 mx-auto mb-4 object-cover shadow-lg">
+                    </template>
+                    <template x-if="!user.pictureUrl">
+                        <div class="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-bold shadow-lg" x-text="user.id"></div>
+                    </template>
+                    
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-1" x-text="user.name"></h2>
+                    <div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-4 flex items-center justify-center gap-1">
+                        <span x-show="user.lineLinked" class="text-[#06C755]"><i data-lucide="check-circle-2" class="w-3 h-3 inline"></i> เชื่อมต่อด้วย LINE</span>
+                    </div>
+
+                    <div class="inline-block px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs font-bold mb-4" x-text="user.status"></div>
+                    
+                    <div x-show="!user.lineLinked && user.role !== 'ADMIN'" class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
+                        <div class="flex items-center justify-between">
+                            <div class="text-left"><div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">LINE Account</div><div class="text-xs text-slate-400 font-semibold">ยังไม่เชื่อมต่อ</div></div>
+                            <button @click="openLineBindModal()" class="bg-[#06C755] text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-md">เชื่อมต่อ LINE</button>
+                        </div>
+                    </div>
+                    
                     <div x-show="user.status === 'WAITING' && !isMyTurn" class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
                         <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-600 pb-2 mb-2"><span class="text-xs font-bold text-slate-500 dark:text-slate-400">คิวปัจจุบัน</span><span class="text-lg font-black text-blue-600 dark:text-blue-400" x-text="config.current_queue"></span></div>
                         <div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-500 dark:text-slate-400">ต้องรออีก</span><div class="text-right"><span class="text-2xl font-black text-orange-500" x-text="parseInt(user.id) - parseInt(config.current_queue)"></span><span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">คิว</span></div></div>
@@ -372,20 +475,18 @@
         </div>
     </div>
 
-    <!-- SLIP MODAL -->
     <div x-show="showSlip" class="fixed inset-0 bg-slate-900/90 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" x-cloak>
         <div id="digital-slip-content" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden relative">
-            <div class="bg-blue-600 p-6 text-center text-white"><div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold mx-auto mb-3 shadow-lg"><i class="fa-solid fa-check"></i></div><h2 class="text-lg font-bold uppercase tracking-wider">Selection Success</h2><p class="text-blue-100 text-xs mt-1" x-text="new Date().toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'})"></p></div>
+            <div class="bg-blue-600 p-6 text-center text-white"><div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold mx-auto mb-3 shadow-lg"><i data-lucide="check" class="w-6 h-6"></i></div><h2 class="text-lg font-bold uppercase tracking-wider">Selection Success</h2><p class="text-blue-100 text-xs mt-1" x-text="new Date().toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'})"></p></div>
             <div class="p-6 space-y-3 bg-slate-50 dark:bg-slate-700 text-center">
                 <div class="flex justify-around"><div><div class="text-[10px] text-slate-400 font-bold uppercase">ลำดับที่</div><div class="text-2xl font-black text-slate-700 dark:text-white" x-text="user.id"></div></div><div class="w-px bg-slate-200 dark:bg-slate-600"></div><div><div class="text-[10px] text-slate-400 font-bold uppercase">ภาค</div><div class="text-base font-black text-slate-700 dark:text-white" x-text="selectedSlipData.posRegion || '-'"></div></div></div>
                 <div class="pt-2 border-t border-slate-200 dark:border-slate-600"><div class="text-[10px] text-slate-400 font-bold uppercase mb-1">ชื่อ-สกุล</div><div class="text-sm font-bold text-slate-800 dark:text-white" x-text="user.name"></div></div>
                 <div class="bg-blue-50 dark:bg-blue-900/30 rounded-2xl p-4"><div class="text-[10px] text-blue-500 font-bold uppercase mb-1">ตำแหน่งที่เลือก</div><div class="text-lg font-black text-blue-700 dark:text-blue-300 leading-tight" x-text="selectedSlipData.posName"></div></div>
             </div>
-            <div class="p-4 flex gap-2 no-print"><button @click="window.print()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-print"></i> Print</button><button @click="showSlip = false" class="flex-1 bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-200 py-3 rounded-xl font-bold text-sm">Close</button></div>
+            <div class="p-4 flex gap-2 no-print"><button @click="window.print()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i> Print</button><button @click="showSlip = false" class="flex-1 bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-200 py-3 rounded-xl font-bold text-sm">Close</button></div>
         </div>
     </div>
 
-    <!-- LINE BIND MODAL -->
     <div x-show="lineBindModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
         <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-enter">
             <div class="bg-[#06C755] p-6 text-center text-white"><svg viewBox="0 0 24 24" fill="white" class="w-12 h-12 mx-auto mb-3"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><h3 class="text-lg font-bold">เชื่อมต่อบัญชี LINE</h3><p class="text-green-100 text-xs mt-1">ผูก LINE กับรหัสประจำตัวของคุณ</p></div>
@@ -398,19 +499,26 @@
                     <div class="flex items-center gap-1"><div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" :class="lineBindStep >= 3 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">3</div><span class="text-xs font-bold" :class="lineBindStep >= 3 ? 'text-green-600' : 'text-slate-400'">สำเร็จ</span></div>
                 </div>
                 <div x-show="lineBindStep === 1" class="space-y-4">
-                    <div class="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300"><i class="fa-solid fa-circle-info text-blue-500 mr-2"></i>กรอกรหัสประจำตัวเพื่อผูกกับบัญชี LINE</div>
+                    <div class="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300"><i data-lucide="info" class="w-4 h-4 text-blue-500 inline mr-1"></i>กรอกรหัสประจำตัวเพื่อผูกกับบัญชี LINE</div>
                     <input x-model="lineBindCode" type="number" placeholder="รหัสประจำตัว" class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-4 font-bold text-center text-xl focus:ring-4 focus:ring-green-500/20 outline-none transition">
-                    <button @click="proceedLineStep1()" :disabled="!lineBindCode || lineLoading" class="w-full bg-slate-800 dark:bg-slate-600 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2"><i class="fa-solid" :class="lineLoading ? 'fa-circle-notch fa-spin' : 'fa-arrow-right'"></i> ยืนยัน</button>
+                    <button @click="proceedLineStep1()" :disabled="!lineBindCode || lineLoading" class="w-full bg-slate-800 dark:bg-slate-600 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2">
+                        <span x-show="lineLoading"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></span>
+                        <span x-show="!lineLoading"><i data-lucide="arrow-right" class="w-4 h-4"></i></span> ยืนยัน
+                    </button>
                 </div>
                 <div x-show="lineBindStep === 2" class="space-y-4 text-center">
-                    <div class="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center mx-auto"><i class="fa-solid fa-link text-2xl text-green-600 dark:text-green-400"></i></div>
+                    <div class="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center mx-auto"><i data-lucide="link" class="w-8 h-8 text-green-600 dark:text-green-400"></i></div>
                     <div><div class="font-bold text-slate-800 dark:text-white text-lg" x-text="lineBindUserName"></div><div class="text-slate-400 text-sm">พร้อมเชื่อมต่อกับบัญชี LINE</div></div>
-                    <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-left"><div class="flex items-center gap-2 text-sm"><svg viewBox="0 0 24 24" fill="#06C755" class="w-5 h-5 shrink-0"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><span class="font-bold text-green-700 dark:text-green-400" x-text="lineProfile.displayName || 'LINE User'"></span></div><div class="text-xs text-slate-400 mt-1 ml-7" x-text="'LINE ID: ' + (lineProfile.userId || '-')"></div></div>
-                    <button @click="confirmLineBind()" :disabled="lineLoading" class="w-full line-btn"><i class="fa-solid" :class="lineLoading ? 'fa-circle-notch fa-spin' : 'fa-check'"></i><span x-text="lineLoading ? 'กำลังบันทึก...' : 'ยืนยันเชื่อมต่อ LINE'"></span></button>
+                    <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-left"><div class="flex items-center gap-2 text-sm"><svg viewBox="0 0 24 24" fill="#06C755" class="w-5 h-5 shrink-0"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><span class="font-bold text-green-700 dark:text-green-400" x-text="lineProfile.displayName || 'LINE User'"></span></div></div>
+                    <button @click="confirmLineBind()" :disabled="lineLoading" class="w-full line-btn">
+                        <span x-show="lineLoading"><i data-lucide="loader-2" class="w-5 h-5 animate-spin text-white"></i></span>
+                        <span x-show="!lineLoading"><i data-lucide="check" class="w-5 h-5 text-white"></i></span>
+                        <span x-text="lineLoading ? 'กำลังบันทึก...' : 'ยืนยันเชื่อมต่อ LINE'"></span>
+                    </button>
                     <button @click="lineBindModalOpen = false" class="w-full text-slate-400 text-sm py-2">ยกเลิก</button>
                 </div>
                 <div x-show="lineBindStep === 3" class="space-y-4 text-center">
-                    <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-500/30"><i class="fa-solid fa-check text-white text-3xl"></i></div>
+                    <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-500/30"><i data-lucide="check" class="w-10 h-10 text-white"></i></div>
                     <div><div class="text-xl font-black text-slate-800 dark:text-white">เชื่อมต่อสำเร็จ!</div><div class="text-slate-400 text-sm mt-1">ครั้งต่อไปเข้าสู่ระบบผ่าน LINE ได้เลย</div></div>
                     <button @click="lineBindModalOpen = false; lineBindStep = 1;" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold">ปิด</button>
                 </div>
@@ -418,34 +526,33 @@
         </div>
     </div>
 
-    <!-- Mobile Bottom Nav -->
     <nav class="mobile-bottom-nav">
         <div class="flex">
-            <button @click="switchPage('home')" class="mobile-nav-item" :class="currentPage === 'home' ? 'active' : ''"><i class="fa-solid fa-list-check"></i><span>เลือก</span></button>
-            <button @click="switchPage('monitor')" class="mobile-nav-item relative" :class="currentPage === 'monitor' ? 'active' : ''"><i class="fa-solid fa-satellite-dish"></i><span>Live</span><span class="absolute top-2 right-6 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span></button>
-            <button @click="switchPage('dashboard')" class="mobile-nav-item" :class="currentPage === 'dashboard' ? 'active' : ''"><i class="fa-solid fa-chart-pie"></i><span>สรุป</span></button>
-            <button @click="switchPage('login')" class="mobile-nav-item relative" :class="currentPage === 'login' ? 'active' : ''"><i class="fa-solid" :class="user.id ? 'fa-user' : 'fa-right-to-bracket'"></i><span x-text="user.id ? 'บัญชี' : 'Login'"></span><span x-show="user.id" class="absolute top-2 right-4 w-2 h-2 bg-green-500 rounded-full border border-white dark:border-slate-900"></span></button>
-            <button x-show="user.role === 'ADMIN'" @click="switchPage('admin_panel')" class="mobile-nav-item" :class="currentPage === 'admin_panel' ? 'active text-red-500' : 'text-red-400'"><i class="fa-solid fa-cogs"></i><span>Admin</span></button>
+            <button @click="switchPage('home')" class="mobile-nav-item" :class="currentPage === 'home' ? 'active' : ''"><i data-lucide="list-todo"></i><span>เลือก</span></button>
+            <button @click="switchPage('monitor')" class="mobile-nav-item relative" :class="currentPage === 'monitor' ? 'active' : ''"><i data-lucide="radio"></i><span>Live</span><span class="absolute top-2 right-6 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span></button>
+            <button @click="switchPage('dashboard')" class="mobile-nav-item" :class="currentPage === 'dashboard' ? 'active' : ''"><i data-lucide="pie-chart"></i><span>สรุป</span></button>
+            <button @click="switchPage('login')" class="mobile-nav-item relative" :class="currentPage === 'login' ? 'active' : ''">
+                <span x-show="user.id"><i data-lucide="user"></i></span><span x-show="!user.id"><i data-lucide="log-in"></i></span>
+                <span x-text="user.id ? 'บัญชี' : 'Login'"></span><span x-show="user.id" class="absolute top-2 right-4 w-2 h-2 bg-green-500 rounded-full border border-white dark:border-slate-900"></span>
+            </button>
+            <button x-show="user.role === 'ADMIN'" @click="switchPage('admin_panel')" class="mobile-nav-item" :class="currentPage === 'admin_panel' ? 'active text-red-500' : 'text-red-400'"><i data-lucide="settings"></i><span>Admin</span></button>
         </div>
     </nav>
 
-    <!-- Connection Error Banner -->
     <div x-show="connectionError" class="connection-error-banner" x-cloak>
-        <i class="fa-solid fa-wifi-slash text-xl shrink-0"></i>
+        <i data-lucide="wifi-off" class="w-6 h-6 shrink-0"></i>
         <div class="flex-1"><div class="font-bold text-sm">เชื่อมต่อไม่ได้</div><div class="text-xs text-red-100">กำลังลองใหม่อัตโนมัติ...</div></div>
         <button @click="fetchData()" class="bg-white text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">ลองใหม่</button>
     </div>
 
     <script>
         // ============================================================
-        // 🔧 CONFIG — Supabase & LINE LIFF (กรอกข้อมูลที่นี่)
+        // 🔧 CONFIG — Supabase & LINE LIFF
         // ============================================================
-        // *** เปลี่ยน URL และ ANON KEY ให้เป็นโปรเจกต์ของคุณบน Supabase ***
-        const SUPABASE_URL = "https://izujreipvtsnldgpdynu.supabase.co"; // ใส่ URL ของคุณ
-        const SUPABASE_ANON_KEY = "sb_publishable_p7MUWJqXpImPGqkGEfbiow_EDC1iRK2"; // ใส่ Anon Key ของคุณ
+        const SUPABASE_URL = "https://izujreipvtsnldgpdynu.supabase.co"; 
+        const SUPABASE_ANON_KEY = "sb_publishable_p7MUWJqXpImPGqkGEfbiow_EDC1iRK2"; 
         const LIFF_ID = "2010015310-qHlFgmRX";
 
-        // *** เก็บฟังก์ชัน callAPI ของเดิมไว้ (เพื่อไม่ให้ผิดเงื่อนไขห้ามลบ) แต่จะไม่ได้ถูกเรียกใช้แล้ว ***
         const API_URL = "https://script.google.com/macros/s/AKfycby6olYjXjpHDp5aVeE2BTzTC6vp34cgeaA4CAmUKr3om1kG-0d9dKcSbm3WaaYjBtVr/exec"; 
         async function callAPI(action, params = {}) {
             const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action, ...params }) });
@@ -454,8 +561,6 @@
         }
 
         const LIFF_ID_CONFIGURED = LIFF_ID !== 'YOUR_LIFF_ID_HERE';
-
-        // สร้างตัวเชื่อมต่อ Supabase Client (เปลี่ยนตัวแปรเป็น db เพื่อไม่ให้ซ้ำกับของระบบ)
         const db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
         // ============================================================
@@ -463,16 +568,15 @@
         // ============================================================
         function appData() {
             return {
-                // ===== State (เดิมทั้งหมด) =====
                 darkMode: JSON.parse(localStorage.getItem('darkMode') || 'false'),
                 currentPage: 'home', viewMode: 'grid', config: {}, positions: [], users: [], serverLogs: [],
                 search: '', filterRegion: '', filterStatus: 'ALL',
                 adminTab: 'users', adminModalOpen: false, adminModalAction: 'CREATE', adminFormData: {id:'', name:'', code:'', region:''},
                 isInitialLoading: true, loginCode: '',
-                user: JSON.parse(localStorage.getItem('user_session') || '{"id": null}'),
+                user: JSON.parse(localStorage.getItem('user_session') || '{"id": null, "pictureUrl": ""}'),
                 wishlist: JSON.parse(localStorage.getItem('wishlist') || '[]'),
                 showSlip: false, selectedSlipData: { posName: '', posRegion: '' },
-                // ===== State เพิ่มเติม =====
+                
                 isSubmitting: false,
                 connectionError: false,
                 isPdfExporting: false,
@@ -483,8 +587,13 @@
                 lineBindStep: 1,
                 lineBindCode: '',
                 lineBindUserName: '',
+                
+                // สำหรับให้ Admin เข้าได้
+                adminLoginMode: false,
+                
+                // สำหรับแสดงไอคอนกะพริบตอน Auto-refresh
+                isFetching: false,
 
-                // ===== Getters (เดิมทั้งหมด) =====
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
                 get uniqueRegions() { return [...new Set(this.positions.map(p => p[2]))].sort(); },
                 get progressPercent() { return this.positions.length ? (this.positions.filter(p => p[3]!=='AVAILABLE').length/this.positions.length)*100 : 0; },
@@ -494,6 +603,23 @@
                 get dashboardList() { return this.users.filter(u => String(u[3]).toUpperCase() === 'SELECTED').map(u => { const pos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim()); return { id: u[0], name: u[1], pos: u[4], region: pos ? pos[2] : '-', time: u[5] }; }).sort((a,b) => parseInt(a.id) - parseInt(b.id)); },
                 getRegionStats(region) { const items = this.positions.filter(p => p[2] === region); const total = items.length; const taken = items.filter(p => p[3] !== 'AVAILABLE').length; return { total, taken, percent: total ? (taken/total)*100 : 0 }; },
                 get regionDashboardStats() { const stats = {}; this.positions.forEach(p => { const r = p[2]; if(!stats[r]) stats[r] = { name: r, total: 0, taken: 0 }; stats[r].total++; if(p[3] !== 'AVAILABLE') stats[r].taken++; }); return Object.values(stats).map(s => ({...s, percent: (s.taken/s.total)*100})).sort((a,b) => a.name.localeCompare(b.name)); },
+                
+                // คำนวณสรุปข้อมูลแบบวิเคราะห์สำหรับ Dashboard
+                get analyticsData() {
+                    const stats = this.regionDashboardStats.filter(s => s.total > 0);
+                    if(!stats.length) return { topFilled: '-', topRemaining: '-', mostAvailable: '-' };
+                    
+                    const topFilled = stats.reduce((p, c) => p.percent > c.percent ? p : c);
+                    const topRemaining = stats.reduce((p, c) => (c.total - c.taken) > (p.total - p.taken) ? c : p);
+                    const mostAvail = stats.reduce((p, c) => (c.total - c.taken) > (p.total - p.taken) ? c : p);
+                    
+                    return {
+                        topFilled: `${topFilled.name} (${topFilled.percent.toFixed(0)}%)`,
+                        topRemaining: `${topRemaining.name} (${topRemaining.total - topRemaining.taken} จาก ${topRemaining.total})`,
+                        mostAvailable: mostAvail.name
+                    };
+                },
+                
                 isWishlist(id) { return this.wishlist.includes(id); },
                 toggleWishlist(id) { if (this.wishlist.includes(id)) this.wishlist = this.wishlist.filter(w => w !== id); else this.wishlist.push(id); localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); },
                 get groupedPositions() {
@@ -515,17 +641,20 @@
                 get prevUser() { const prevId = parseInt(this.config.current_queue) - 1; const u = this.users.find(u => parseInt(u[0]) === prevId); return u ? {id: u[0], name: u[1]} : null; },
                 get currentUserObj() { const currId = parseInt(this.config.current_queue); const u = this.users.find(u => parseInt(u[0]) === currId); return u ? {id: u[0], name: u[1]} : null; },
 
-                // ===== initApp (ปรับแก้ไขเรียก Realtime ของ Supabase แทน Polling) =====
                 initApp() {
                     this.fetchData();
                     this.initRealtime();
                     document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
                     this.initLiff();
+                    
+                    // ตั้งเวลาอัปเดตอัตโนมัติทุกๆ 3 วินาที (Auto Refresh 3s)
+                    setInterval(() => {
+                        if (!document.hidden) this.fetchData();
+                    }, 3000);
                 },
 
-                // ===== ฟังก์ชันใหม่: ฟังข้อมูลแบบ Real-time จาก Supabase =====
                 initRealtime() {
-                    if (!db) { console.error('Supabase Client not found'); return; }
+                    if (!db) return;
                     db.channel('public-db-changes')
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => {
                             this.fetchData(); 
@@ -534,7 +663,6 @@
                             const oldQueue = this.config.current_queue;
                             this.config.current_queue = payload.new.current_queue;
                             
-                            // ระบบสั่นเมื่อถึงคิวตัวเองพอดี (UX Improvement)
                             if (parseInt(this.user.id) === payload.new.current_queue && oldQueue !== payload.new.current_queue) {
                                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                             }
@@ -545,9 +673,9 @@
                         .subscribe();
                 },
 
-                // ===== fetchData — ดึงข้อมูลจาก Supabase และ Map ให้เป็น Array แบบเดิม =====
                 async fetchData() {
                     if (!db) return;
+                    this.isFetching = true;
                     try {
                         const [configRes, usersRes, posRes, logsRes] = await Promise.all([
                             db.from('config').select('*').eq('id', 1).single(),
@@ -557,8 +685,6 @@
                         ]);
                         
                         if (configRes.data) this.config = configRes.data;
-                        
-                        // Map ข้อมูล Object ของ Supabase กลับไปเป็น Array เพื่อไม่ให้ UI เดิมพัง
                         if (posRes.data) this.positions = posRes.data.map(p => [p.id, p.name, p.region, p.status, p.taken_by_user_id]);
                         if (usersRes.data) this.users = usersRes.data.map(u => [u.id, u.name, u.code, u.status, u.selected_pos_name, u.selected_at, u.line_user_id]);
                         if (logsRes.data) this.serverLogs = logsRes.data.map(l => [l.created_at, l.user_id, l.user_name, l.pos_id, l.pos_name, l.pos_region]);
@@ -577,13 +703,13 @@
                     } catch(e) {
                         this.isInitialLoading = false;
                         this.connectionError = true;
-                        console.error('fetchData error:', e);
+                    } finally {
+                        setTimeout(() => this.isFetching = false, 500); // ให้กระพริบนิดนึง
                     }
                 },
 
                 switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
 
-                // ===== confirmSelect — เรียกใช้ RPC ของ Supabase ป้องกันคนเลือกชนกัน =====
                 confirmSelect(pos) {
                     Swal.fire({ title: 'ยืนยันเลือก?', text: `${pos[1]} (${pos[2]})`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async (result) => {
                         if (result.isConfirmed) {
@@ -601,12 +727,14 @@
                                 this.isSubmitting = false;
                                 
                                 if(data.status === 'SUCCESS') {
+                                    // บังคับอัปเดตสเตทเลยทันที (แก้ Delay)
+                                    this.config.current_queue = parseInt(this.config.current_queue) + 1;
                                     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
                                     this.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
                                     this.showSlip = true; 
                                     Swal.close(); 
                                     this.switchPage('dashboard'); 
-                                    // ข้อมูลจะโดนอัปเดตเองผ่าน initRealtime()
+                                    this.fetchData(); // สั่งรีเฟรชทันที
                                 } else { 
                                     Swal.fire('Error', data.msg, 'error'); 
                                 }
@@ -618,13 +746,12 @@
                     });
                 },
 
-                // ===== login — เปลี่ยนไป Query Supabase โดยตรง =====
                 async login() {
                     if(!this.loginCode) return;
                     try {
                         const { data: configData } = await db.from('config').select('admin_pass').eq('id', 1).single();
                         if(String(this.loginCode).trim() == String(configData.admin_pass).trim()) {
-                            this.user = { role: 'ADMIN', id: 'ADMIN', name: 'Administrator', status: 'SYSTEM' };
+                            this.user = { role: 'ADMIN', id: 'ADMIN', name: 'Administrator', status: 'SYSTEM', pictureUrl: null };
                             localStorage.setItem('user_session', JSON.stringify(this.user));
                             this.switchPage('admin_panel');
                             return;
@@ -635,7 +762,7 @@
                         if(error || !userData) {
                             Swal.fire('Error', 'ไม่พบรหัสประจำตัวนี้', 'error');
                         } else { 
-                            this.user = { role: 'USER', id: userData.id, name: userData.name, status: userData.status, lineLinked: !!userData.line_user_id }; 
+                            this.user = { role: 'USER', id: userData.id, name: userData.name, status: userData.status, lineLinked: !!userData.line_user_id, pictureUrl: null }; 
                             localStorage.setItem('user_session', JSON.stringify(this.user)); 
                             this.switchPage('home'); 
                         }
@@ -644,9 +771,8 @@
                     }
                 },
 
-                logout() { this.user = {id: null}; localStorage.removeItem('user_session'); this.lineProfile = {}; this.switchPage('login'); },
+                logout() { this.user = {id: null, pictureUrl: null}; localStorage.removeItem('user_session'); this.lineProfile = {}; this.switchPage('login'); },
 
-                // ===== adminAction — ส่งตรงเข้า Database Supabase =====
                 adminAction(action) {
                     Swal.fire({title: 'Confirm?', text: action, icon: 'warning', showCancelButton: true}).then(async r => {
                         if(r.isConfirmed) {
@@ -682,7 +808,6 @@
                     else this.adminFormData = type === 'USER' ? {id: data[0], name: data[1], code: data[2], region:''} : {id: data[0], name: data[1], region: data[2], code:''};
                 },
 
-                // ===== saveAdminData =====
                 async saveAdminData() {
                     const type = this.adminTab === 'users' ? 'USER' : 'POSITION';
                     try { 
@@ -698,7 +823,6 @@
                     catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
-                // ===== deleteAdminData =====
                 deleteAdminData(id, type) {
                     Swal.fire({title: 'Delete?', icon:'error', showCancelButton:true}).then(async r => {
                         if(r.isConfirmed) { 
@@ -731,7 +855,7 @@
                                 try { 
                                     const { data: res } = await db.from('users').select('*').eq('line_user_id', String(this.lineProfile.userId)).single();
                                     if (res) { 
-                                        this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true }; 
+                                        this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true, pictureUrl: this.lineProfile.pictureUrl }; 
                                         localStorage.setItem('user_session', JSON.stringify(this.user)); 
                                         this.switchPage('home'); 
                                     } 
@@ -752,7 +876,8 @@
                         
                         this.lineLoading = false;
                         if (res) { 
-                            this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true }; 
+                            // เก็บรูปภาพโปรไฟล์ LINE ด้วย
+                            this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true, pictureUrl: this.lineProfile.pictureUrl }; 
                             localStorage.setItem('user_session', JSON.stringify(this.user)); 
                             this.switchPage('home'); 
                         }
@@ -785,14 +910,13 @@
                         this.lineLoading = false;
                         if (!error) {
                             this.lineBindStep = 3;
-                            this.user.lineLinked = true; this.user.lineUserId = lineUserId;
-                            if (this._pendingBindUser) { this.user = { ...this._pendingBindUser, lineLinked: true, lineUserId }; this._pendingBindUser = null; }
+                            this.user.lineLinked = true; this.user.lineUserId = lineUserId; this.user.pictureUrl = this.lineProfile.pictureUrl;
+                            if (this._pendingBindUser) { this.user = { ...this._pendingBindUser, lineLinked: true, lineUserId, pictureUrl: this.lineProfile.pictureUrl }; this._pendingBindUser = null; }
                             localStorage.setItem('user_session', JSON.stringify(this.user));
                         } else { Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
                     } catch(e) { this.lineLoading = false; Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
-                // ===== PDF Export =====
                 async exportPDF() {
                     this.isPdfExporting = true;
                     try {
@@ -801,7 +925,6 @@
                         const pageW = 210, pageH = 297, margin = 14;
                         const now = new Date().toLocaleString('th-TH', { dateStyle: 'full', timeStyle: 'short' });
 
-                        // Header
                         doc.setFillColor(37, 99, 235);
                         doc.rect(0, 0, pageW, 28, 'F');
                         doc.setTextColor(255, 255, 255);
@@ -812,7 +935,6 @@
                         doc.setFont('helvetica', 'normal');
                         doc.text('พิมพ์เมื่อ: ' + now, margin, 21);
 
-                        // Stat boxes
                         const totalPos = this.positions.length;
                         const takenPos = this.positions.filter(p => p[3] !== 'AVAILABLE').length;
                         const leftPos = totalPos - takenPos;
@@ -821,12 +943,10 @@
                         const boxW = (pageW - margin*2 - 9) / 4;
                         stats.forEach((s, i) => { const x = margin + i * (boxW + 3), y = 32; doc.setFillColor(...s.color); doc.roundedRect(x, y, boxW, 20, 3, 3, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text(s.value, x + boxW/2, y + 10, { align: 'center' }); doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.text(s.label, x + boxW/2, y + 16, { align: 'center' }); });
 
-                        // Progress bar
                         let barY = 57;
                         doc.setFillColor(226, 232, 240); doc.roundedRect(margin, barY, pageW - margin*2, 5, 2, 2, 'F');
                         if (progress > 0) { doc.setFillColor(37, 99, 235); doc.roundedRect(margin, barY, (pageW - margin*2) * (progress/100), 5, 2, 2, 'F'); }
 
-                        // Region breakdown
                         let secY = barY + 12;
                         doc.setFillColor(248, 250, 252); doc.rect(margin, secY - 5, pageW - margin*2, 8, 'F');
                         doc.setTextColor(37, 99, 235); doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
@@ -835,7 +955,6 @@
                         const colW = (pageW - margin*2 - 6) / 2;
                         regions.forEach((r, i) => { const col = i % 2, row = Math.floor(i / 2); const rx = margin + col * (colW + 6); const ry = secY + row * 14; doc.setTextColor(51, 65, 85); doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text(r.name, rx, ry); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139); doc.text(`${r.taken}/${r.total}`, rx + colW - 10, ry, { align: 'right' }); doc.setFillColor(226, 232, 240); doc.roundedRect(rx, ry + 2, colW - 14, 3, 1, 1, 'F'); if (r.percent > 0) { doc.setFillColor(r.percent >= 100 ? 239 : 59, r.percent >= 100 ? 68 : 130, r.percent >= 100 ? 68 : 246); doc.roundedRect(rx, ry + 2, (colW - 14) * (r.percent/100), 3, 1, 1, 'F'); } });
 
-                        // Page 2: Full list
                         doc.addPage();
                         doc.setFillColor(37, 99, 235); doc.rect(0, 0, pageW, 20, 'F');
                         doc.setTextColor(255,255,255); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
@@ -857,7 +976,6 @@
                             doc.setDrawColor(226, 232, 240); doc.line(margin, tableY + 6, pageW - margin, tableY + 6); tableY += 7;
                         });
 
-                        // Footer
                         const totalPages = doc.getNumberOfPages();
                         for (let p = 1; p <= totalPages; p++) { doc.setPage(p); doc.setFillColor(248, 250, 252); doc.rect(0, pageH - 10, pageW, 10, 'F'); doc.setTextColor(148, 163, 184); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text('RPCA79 - ระบบทดลองเลือกตำแหน่ง', margin, pageH - 4); doc.text(`หน้า ${p}/${totalPages}`, pageW - margin, pageH - 4, { align: 'right' }); }
 
@@ -867,6 +985,17 @@
                 },
             }
         }
+
+        // MutationObserver เพื่อให้แน่ใจว่า Lucide Icons เรนเดอร์ได้อย่างถูกต้องเวลามีการเปลี่ยนแปลง DOM ใน Alpine
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                lucide.createIcons();
+                const observer = new MutationObserver((mutations) => {
+                    lucide.createIcons();
+                });
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
+        });
     </script>
 </body>
 </html>
