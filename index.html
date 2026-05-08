@@ -345,11 +345,11 @@
             </div>
         </div>
         
-        <div class="flex-1 overflow-x-auto overflow-y-hidden bg-slate-200/50 dark:bg-slate-800/50 p-2 md:p-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner flex flex-col">
-            <div class="flex gap-3 h-full min-w-max pb-2">
+        <div class="flex-1 overflow-y-auto bg-slate-200/50 dark:bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
                 
                 <template x-for="region in ['บช.น.', 'ภ.1', 'ภ.2', 'ภ.3', 'ภ.4', 'ภ.5', 'ภ.6', 'ภ.7', 'ภ.8', 'ภ.9']" :key="region">
-                    <div x-show="getRegionStats(region).total > 0" class="w-[260px] flex flex-col h-full bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm shrink-0">
+                    <div x-show="getRegionStats(region).total > 0" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm h-[450px]">
                         
                         <div class="py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0" :class="getRegionColorClass(region)">
                             <span x-text="region"></span>
@@ -362,9 +362,12 @@
                         <div class="flex-1 overflow-y-auto p-2 no-scrollbar bg-slate-50/50 dark:bg-slate-800/50">
                             <div class="grid grid-cols-2 gap-2">
                                 <template x-for="pos in getPositionsByRegion(region)" :key="pos[0]">
-                                    <div class="p-2 border-2 rounded-lg text-center text-[10px] font-bold flex items-center justify-center min-h-[50px] transition-all leading-tight shadow-sm"
+                                    <div @click="openPosDetail(pos)" class="cursor-pointer hover:scale-105 p-2 border-2 rounded-lg text-center text-[10px] font-bold flex flex-col items-center justify-center min-h-[55px] transition-all leading-tight shadow-sm relative overflow-hidden"
                                          :class="pos[3] === 'AVAILABLE' ? 'border-green-500 bg-white dark:bg-slate-800 text-green-600 dark:text-green-400' : 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'">
                                         <span x-text="pos[1]"></span>
+                                        <div x-show="pos[3] !== 'AVAILABLE'" class="mt-1 w-full bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 rounded px-1 py-0.5 text-[8.5px] truncate flex items-center justify-center gap-0.5">
+                                            <i data-lucide="user-check" class="w-2.5 h-2.5 shrink-0"></i> <span class="truncate" x-text="getUserName(pos[4])"></span>
+                                        </div>
                                     </div>
                                 </template>
                             </div>
@@ -380,7 +383,13 @@
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="settings" class="w-6 h-6 text-red-500"></i> Admin Panel</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
             <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">System Controls</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4"><button @click="adminAction('SKIP')" class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 py-4 rounded-xl font-bold hover:bg-blue-200 transition">ข้ามคิว</button><button @click="adminAction('TOGGLE_STATUS')" class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 py-4 rounded-xl font-bold hover:bg-slate-200 transition">เปิด/ปิด</button><button @click="triggerBackup" class="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 py-4 rounded-xl font-bold hover:bg-green-200 transition">Backup</button><button @click="adminReset" class="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 py-4 rounded-xl font-bold hover:bg-red-200 transition">Reset</button></div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <button @click="adminAction('SKIP')" class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 py-4 rounded-xl font-bold hover:bg-blue-200 transition">ข้ามคิว</button>
+                <button @click="adminAssignModalOpen = true" class="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 py-4 rounded-xl font-bold hover:bg-purple-200 transition">เลือกแทน</button>
+                <button @click="adminAction('TOGGLE_STATUS')" class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 py-4 rounded-xl font-bold hover:bg-slate-200 transition">เปิด/ปิด</button>
+                <button @click="triggerBackup" class="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 py-4 rounded-xl font-bold hover:bg-green-200 transition">Backup</button>
+                <button @click="adminReset" class="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 py-4 rounded-xl font-bold hover:bg-red-200 transition">Reset</button>
+            </div>
         </div>
         <div class="flex gap-2 mb-4 overflow-x-auto"><button @click="adminTab = 'users'" :class="adminTab === 'users' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400'" class="px-6 py-2 rounded-xl font-bold shadow-sm transition">Users</button><button @click="adminTab = 'positions'" :class="adminTab === 'positions' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400'" class="px-6 py-2 rounded-xl font-bold shadow-sm transition">Positions</button></div>
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 overflow-hidden">
@@ -391,6 +400,64 @@
     </div>
 
     <div x-show="adminModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-cloak><div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl animate-enter"><h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4" x-text="adminModalAction === 'CREATE' ? 'Add New' : 'Edit Data'"></h3><div class="space-y-4"><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">ID</label><input x-model="adminFormData.id" :disabled="adminModalAction === 'UPDATE'" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Name</label><input x-model="adminFormData.name" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'users'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Code</label><input x-model="adminFormData.code" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'positions'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Region</label><input x-model="adminFormData.region" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div></div><div class="flex gap-2 mt-6"><button @click="saveAdminData" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold text-sm">Save</button><button @click="adminModalOpen = false" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-2 rounded-lg font-bold text-sm">Cancel</button></div></div></div>
+
+    <div x-show="adminAssignModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl animate-enter">
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="user-plus" class="w-5 h-5 text-purple-500"></i> เลือกตำแหน่งแทนผู้ใช้</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 dark:text-slate-400">ผู้ใช้งาน (เฉพาะคนที่ยังไม่ได้เลือก)</label>
+                    <select x-model="adminAssignUserId" class="w-full mt-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-3 text-sm dark:text-white font-bold outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">-- เลือกผู้ใช้ --</option>
+                        <template x-for="u in users.filter(x => x[3] === 'WAITING')" :key="u[0]">
+                            <option :value="u[0]" x-text="'ลำดับ ' + u[0] + ' : ' + u[1]"></option>
+                        </template>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 dark:text-slate-400">ตำแหน่ง (เฉพาะที่ยังว่าง)</label>
+                    <select x-model="adminAssignPosId" class="w-full mt-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-3 text-sm dark:text-white font-bold outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">-- เลือกตำแหน่ง --</option>
+                        <template x-for="p in positions.filter(x => x[3] === 'AVAILABLE').sort((a,b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]))" :key="p[0]">
+                            <option :value="p[0]" x-text="p[1] + ' (' + p[2] + ')'"></option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-2 mt-6">
+                <button @click="submitAdminAssign" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"><i data-lucide="check" class="w-4 h-4"></i> ยืนยันการเลือก</button>
+                <button @click="adminAssignModalOpen = false" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-3 rounded-xl font-bold text-sm">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="posDetailModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
+        <div @click.away="posDetailModalOpen = false" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-enter relative text-center">
+            <button @click="posDetailModalOpen = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div x-show="selectedDetailPos">
+                <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 shadow-sm" :class="selectedDetailPos && selectedDetailPos[3] === 'AVAILABLE' ? 'bg-green-100 text-green-600 dark:bg-green-900/50 dark:text-green-400' : 'bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-400'">
+                    <i data-lucide="map-pin" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-xl font-black text-slate-800 dark:text-white mb-1 leading-tight" x-text="selectedDetailPos ? selectedDetailPos[1] : ''"></h3>
+                <div class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-5" x-text="selectedDetailPos ? selectedDetailPos[2] : ''"></div>
+                
+                <div class="bg-slate-50 dark:bg-slate-700 rounded-2xl p-4 mb-5 text-left border border-slate-100 dark:border-slate-600">
+                    <div class="text-xs text-slate-500 dark:text-slate-400 font-bold mb-1 uppercase tracking-wider">สถานะการเลือก</div>
+                    <div x-show="selectedDetailPos && selectedDetailPos[3] === 'AVAILABLE'" class="text-green-600 dark:text-green-400 font-black text-lg flex items-center gap-2"><i data-lucide="check-circle-2" class="w-5 h-5"></i> ว่าง (Available)</div>
+                    <div x-show="selectedDetailPos && selectedDetailPos[3] !== 'AVAILABLE'" class="text-red-600 dark:text-red-400 font-black text-lg flex items-center gap-2 mb-2"><i data-lucide="lock" class="w-5 h-5"></i> ถูกเลือกแล้ว</div>
+                    
+                    <div x-show="selectedDetailPos && selectedDetailPos[3] !== 'AVAILABLE'" class="border-t border-slate-200 dark:border-slate-600 pt-3 mt-3">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase mb-2">ข้อมูลผู้เลือก:</div>
+                        <div class="flex items-center gap-3 bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700">
+                            <div class="w-10 h-10 shrink-0 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-xs" x-text="selectedDetailPos ? selectedDetailPos[4] : ''"></div>
+                            <div class="font-bold text-slate-800 dark:text-white text-sm break-words flex-1" x-text="selectedDetailPos ? getUserName(selectedDetailPos[4]) : ''"></div>
+                        </div>
+                    </div>
+                </div>
+                <button @click="posDetailModalOpen = false" class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 py-3 rounded-xl font-bold transition">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
 
     <div x-show="currentPage === 'login'" class="container mx-auto px-4 py-6 pb-28 md:pb-6 animate-enter safe-pb flex flex-col items-center justify-center min-h-[70vh]">
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 w-full max-w-md overflow-hidden relative">
@@ -561,6 +628,15 @@
                 _isFetchLocked: false, 
                 _fetchTimeout: null,
                 isDashboardFullscreen: false,
+                
+                // ตัวแปรใหม่สำหรับฟีเจอร์ Admin "เลือกแทน"
+                adminAssignModalOpen: false,
+                adminAssignUserId: '',
+                adminAssignPosId: '',
+                
+                // ตัวแปรใหม่สำหรับป็อปอัปรายละเอียดในหน้า Dashboard
+                posDetailModalOpen: false,
+                selectedDetailPos: null,
 
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
                 get uniqueRegions() { return [...new Set(this.positions.map(p => p[2]))].sort(); },
@@ -570,7 +646,6 @@
                 get next3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) > cur).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).slice(0, 3); },
                 get dashboardList() { return this.users.filter(u => String(u[3]).toUpperCase() === 'SELECTED').map(u => { const pos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim()); return { id: u[0], name: u[1], pos: u[4], region: pos ? pos[2] : '-', time: u[5] }; }).sort((a,b) => parseInt(a.id) - parseInt(b.id)); },
                 
-                // ปรับปรุงการทำงานของ getter ตัวนี้ให้คำนวณไวขึ้นมากๆ ลดการ Filter ซ้ำซ้อนแบบ O(N)
                 getRegionStats(region) { 
                     let total = 0, taken = 0;
                     for (let i = 0; i < this.positions.length; i++) {
@@ -614,19 +689,43 @@
                     return this.positions.filter(p => p[2] === region).sort((a, b) => a[1].localeCompare(b[1]));
                 },
                 getRegionColorClass(region) {
-                    const map = {
-                        'บช.น.': 'bg-blue-600',
-                        'ภ.1': 'bg-red-600',
-                        'ภ.2': 'bg-orange-500',
-                        'ภ.3': 'bg-green-600',
-                        'ภ.4': 'bg-gradient-to-r from-purple-600 to-fuchsia-600',
-                        'ภ.5': 'bg-pink-600',
-                        'ภ.6': 'bg-teal-600',
-                        'ภ.7': 'bg-yellow-600',
-                        'ภ.8': 'bg-indigo-600',
-                        'ภ.9': 'bg-cyan-600',
-                    };
+                    const map = { 'บช.น.': 'bg-blue-600', 'ภ.1': 'bg-red-600', 'ภ.2': 'bg-orange-500', 'ภ.3': 'bg-green-600', 'ภ.4': 'bg-gradient-to-r from-purple-600 to-fuchsia-600', 'ภ.5': 'bg-pink-600', 'ภ.6': 'bg-teal-600', 'ภ.7': 'bg-yellow-600', 'ภ.8': 'bg-indigo-600', 'ภ.9': 'bg-cyan-600' };
                     return map[region] || 'bg-slate-600';
+                },
+                
+                // เปิดป็อปอัปแสดงรายละเอียดตำแหน่ง (ใช้ในหน้า Dashboard)
+                openPosDetail(pos) {
+                    this.selectedDetailPos = pos;
+                    this.posDetailModalOpen = true;
+                    // สร้างไอคอนใหม่สำหรับใน Modal โดยหน่วงเวลาเล็กน้อย
+                    setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 50);
+                },
+
+                // ฟังก์ชันสำหรับแอดมินใช้ยิงอัปเดตข้อมูลตรงๆ "เลือกแทน"
+                async submitAdminAssign() {
+                    if(!this.adminAssignUserId || !this.adminAssignPosId) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้ใช้งานและตำแหน่งให้ครบถ้วน', 'warning');
+                    
+                    Swal.fire({title: 'กำลังบันทึกข้อมูล...', didOpen:()=>Swal.showLoading()});
+                    try {
+                        const targetUser = this.users.find(u => u[0] == this.adminAssignUserId);
+                        const targetPos = this.positions.find(p => p[0] == this.adminAssignPosId);
+                        
+                        // บันทึกตรงไปที่ฐานข้อมูล (Bypass ข้อจำกัดเรื่องคิวปกติของ User)
+                        await db.from('positions').update({ status: 'TAKEN', taken_by_user_id: parseInt(this.adminAssignUserId) }).eq('id', this.adminAssignPosId);
+                        await db.from('users').update({ status: 'SELECTED', selected_pos_name: targetPos[1], selected_at: new Date().toISOString() }).eq('id', parseInt(this.adminAssignUserId));
+                        await db.from('logs').insert({ user_id: parseInt(this.adminAssignUserId), user_name: targetUser[1], pos_id: this.adminAssignPosId, pos_name: targetPos[1], pos_region: targetPos[2] });
+
+                        // ถ้าคนที่แอดมินเลือกให้ คือคนที่กำลังถึงคิวพอดี ให้ระบบขยับคิวไปคนต่อไปอัตโนมัติ
+                        if(parseInt(this.adminAssignUserId) === parseInt(this.config.current_queue)) {
+                             await db.from('config').update({ current_queue: parseInt(this.config.current_queue) + 1 }).eq('id', 1);
+                        }
+
+                        this.adminAssignModalOpen = false;
+                        this.adminAssignUserId = '';
+                        this.adminAssignPosId = '';
+                        Swal.fire('สำเร็จ', 'บันทึกการเลือกตำแหน่งแทนเรียบร้อยแล้ว', 'success');
+                        this.fetchData();
+                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error'); }
                 },
 
                 initApp() {
@@ -923,7 +1022,6 @@
             }
         }
 
-        // ปรับปรุงคอขวด: กรองให้ MutationObserver ไม่สแกนพร่ำเพรื่อเมื่อแค่ตัวหนังสือเปลี่ยน
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) {
                 lucide.createIcons();
@@ -933,7 +1031,6 @@
                     for (let m of mutations) {
                         if (m.type === 'childList') {
                             for (let node of m.addedNodes) {
-                                // เช็คเฉพาะ Element Node และข้าม SVG ของ Lucide ไปเลย ป้องกันลูปไม่สิ้นสุด
                                 if (node.nodeType === 1 && node.tagName.toLowerCase() !== 'svg') {
                                     if (node.hasAttribute('data-lucide') || node.querySelector('[data-lucide]')) {
                                         shouldUpdate = true;
@@ -946,7 +1043,6 @@
                     }
                     if (shouldUpdate) {
                         clearTimeout(timeout);
-                        // หน่วงและใช้ requestAnimationFrame เพื่อคืนทรัพยากรให้ Browser วาดหน้าจอให้เสร็จก่อน
                         timeout = setTimeout(() => {
                             requestAnimationFrame(() => {
                                 lucide.createIcons();
