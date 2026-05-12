@@ -82,11 +82,6 @@
         .mobile-nav-item svg { width: 18px; height: 18px; transition: all 0.15s ease; }
         .mobile-nav-item.active svg { transform: translateY(-2px); }
 
-        .summary-stat-card { background: white; border-radius: 20px; padding: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; transition: all 0.2s ease; }
-        .dark .summary-stat-card { background: #1e293b; border-color: #334155; }
-
-        .bind-step { transition: all 0.3s ease; }
-
         .connection-error-banner { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #ef4444; color: white; padding: 14px 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(239,68,68,0.4); z-index: 100; display: flex; align-items: center; gap: 12px; }
         @media (min-width: 768px) { .connection-error-banner { bottom: 24px; left: auto; right: 24px; width: 360px; } }
 
@@ -582,7 +577,7 @@
 
     <div x-show="connectionError" class="connection-error-banner" x-cloak>
         <i data-lucide="wifi-off" class="w-6 h-6 shrink-0"></i>
-        <div class="flex-1"><div class="font-bold text-sm">เชื่อมต่อไม่ได้</div><div class="text-xs text-red-100">กำลังลองใหม่อัตโนมัติ...</div></div>
+        <div class="flex-1"><div class="font-bold text-sm">เชื่อมต่อไม่ได้</div><div class="text-xs text-red-100">ตรวจสอบการตั้งค่าฐานข้อมูล</div></div>
         <button @click="fetchData()" class="bg-white text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">ลองใหม่</button>
     </div>
 
@@ -590,13 +585,6 @@
         const SUPABASE_URL = "https://izujreipvtsnldgpdynu.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_p7MUWJqXpImPGqkGEfbiow_EDC1iRK2"; 
         const LIFF_ID = "2010015310-qHlFgmRX";
-
-        const API_URL = "https://script.google.com/macros/s/AKfycby6olYjXjpHDp5aVeE2BTzTC6vp34cgeaA4CAmUKr3om1kG-0d9dKcSbm3WaaYjBtVr/exec"; 
-        async function callAPI(action, params = {}) {
-            const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action, ...params }) });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            return res.json();
-        }
 
         const LIFF_ID_CONFIGURED = LIFF_ID !== 'YOUR_LIFF_ID_HERE';
         const db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
@@ -624,10 +612,6 @@
                 
                 adminLoginMode: false,
                 isFetching: false,
-                
-                _isFetchLocked: false, 
-                _fetchTimeout: null,
-                _pendingFetch: false,
                 isDashboardFullscreen: false,
                 
                 adminAssignModalOpen: false,
@@ -643,7 +627,6 @@
                 getUserName(id) { const u = this.users.find(x => String(x[0]).trim() == String(id).trim()); return u ? u[1] : id; },
                 get prev3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) < cur).sort((a,b) => parseInt(b[0]) - parseInt(a[0])).slice(0, 3).reverse(); },
                 get next3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) > cur).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).slice(0, 3); },
-                get dashboardList() { return this.users.filter(u => String(u[3]).toUpperCase() === 'SELECTED').map(u => { const pos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim()); return { id: u[0], name: u[1], pos: u[4], region: pos ? pos[2] : '-', time: u[5] }; }).sort((a,b) => parseInt(a.id) - parseInt(b.id)); },
                 
                 getRegionStats(region) { 
                     let total = 0, taken = 0;
@@ -656,10 +639,9 @@
                     return { total, taken, percent: total ? (taken/total)*100 : 0 }; 
                 },
                 
-                get regionDashboardStats() { const stats = {}; this.positions.forEach(p => { const r = p[2]; if(!stats[r]) stats[r] = { name: r, total: 0, taken: 0 }; stats[r].total++; if(p[3] !== 'AVAILABLE') stats[r].taken++; }); return Object.values(stats).map(s => ({...s, percent: (s.taken/s.total)*100})).sort((a,b) => a.name.localeCompare(b.name)); },
-                
                 isWishlist(id) { return this.wishlist.includes(id); },
                 toggleWishlist(id) { if (this.wishlist.includes(id)) this.wishlist = this.wishlist.filter(w => w !== id); else this.wishlist.push(id); localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); },
+                
                 get groupedPositions() {
                     let filtered = this.positions.filter(p => {
                         const matchesSearch = p[1].toLowerCase().includes(this.search.toLowerCase()) || (p[2] && p[2].toLowerCase().includes(this.search.toLowerCase()));
@@ -677,9 +659,7 @@
 
                 get isMyTurn() { 
                     if (!this.user.id) return false;
-                    
                     if (this.user.role && this.user.role !== 'USER') return false;
-                    
                     if (this.config.current_queue === null || this.config.current_queue === undefined) return false;
                     
                     const myId = parseInt(this.user.id);
@@ -716,36 +696,11 @@
                     setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 50);
                 },
 
-                async submitAdminAssign() {
-                    if(!this.adminAssignUserId || !this.adminAssignPosId) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้ใช้งานและตำแหน่งให้ครบถ้วน', 'warning');
-                    
-                    Swal.fire({title: 'กำลังบันทึกข้อมูล...', didOpen:()=>Swal.showLoading()});
-                    try {
-                        const targetUser = this.users.find(u => u[0] == this.adminAssignUserId);
-                        const targetPos = this.positions.find(p => p[0] == this.adminAssignPosId);
-                        
-                        await db.from('positions').update({ status: 'TAKEN', taken_by_user_id: parseInt(this.adminAssignUserId) }).eq('id', this.adminAssignPosId);
-                        await db.from('users').update({ status: 'SELECTED', selected_pos_name: targetPos[1], selected_at: new Date().toISOString() }).eq('id', parseInt(this.adminAssignUserId));
-                        await db.from('logs').insert({ user_id: parseInt(this.adminAssignUserId), user_name: targetUser[1], pos_id: this.adminAssignPosId, pos_name: targetPos[1], pos_region: targetPos[2] });
-
-                        if(parseInt(this.adminAssignUserId) === parseInt(this.config.current_queue)) {
-                             await db.from('config').update({ current_queue: parseInt(this.config.current_queue) + 1 }).eq('id', 1);
-                        }
-
-                        this.adminAssignModalOpen = false;
-                        this.adminAssignUserId = '';
-                        this.adminAssignPosId = '';
-                        Swal.fire('สำเร็จ', 'บันทึกการเลือกตำแหน่งแทนเรียบร้อยแล้ว', 'success');
-                        this.fetchData();
-                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error'); }
-                },
-
                 initApp() {
                     this.fetchData();
                     this.initRealtime();
                     document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
                     this.initLiff();
-                    setInterval(() => { if (!document.hidden) this.fetchData(); }, 60000);
                 },
 
                 async initLiff() {
@@ -852,26 +807,21 @@
 
                 initRealtime() {
                     if (!db) return;
+                    let fetchTimeout = null;
                     
                     const debouncedFetch = () => {
-                        clearTimeout(this._fetchTimeout);
-                        this._fetchTimeout = setTimeout(() => {
+                        clearTimeout(fetchTimeout);
+                        fetchTimeout = setTimeout(() => {
                             this.fetchData();
-                        }, 300); 
+                        }, 1000); // ดีเลย์ 1 วินาที ป้องกันการโหลดรัวเกินไป
                     };
 
                     db.channel('public-db-changes')
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => { debouncedFetch(); })
                         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'config' }, payload => {
-                            const oldQueue = this.config.current_queue;
-
                             if (payload.new && payload.new.current_queue !== undefined) {
                                 this.config.current_queue = payload.new.current_queue;
                                 this.config.system_status = payload.new.system_status || this.config.system_status;
-                            }
-
-                            if (parseInt(this.user.id) === payload.new.current_queue && oldQueue !== payload.new.current_queue) {
-                                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                             }
                             debouncedFetch();
                         })
@@ -879,25 +829,14 @@
                         .subscribe();
                 },
 
-                // 👇 เอาโค้ดใหม่มาวางทับส่วนนี้ทั้งหมดเลยครับ 👇
                 async fetchData() {
                     if (!db) {
                         this.isInitialLoading = false;
                         this.connectionError = true;
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'การเชื่อมต่อล้มเหลว',
-                            text: 'ไม่สามารถโหลดระบบฐานข้อมูลได้ (Supabase Client เป็น null) กรุณาตรวจสอบอินเทอร์เน็ต หรือการบล็อกโฆษณาในเบราว์เซอร์'
-                        });
                         return;
                     }
                     
-                    if (this._isFetchLocked) {
-                        this._pendingFetch = true;
-                        return; 
-                    }
-                    this._isFetchLocked = true;
-                    this._pendingFetch = false;
+                    if (this.isFetching) return;
                     this.isFetching = true;
 
                     try {
@@ -909,8 +848,6 @@
                         ]);
                         
                         if (configRes.error) throw configRes.error;
-                        if (usersRes.error) throw usersRes.error;
-                        if (posRes.error) throw posRes.error;
                         
                         if (configRes.data) this.config = configRes.data;
                         if (posRes.data) this.positions = posRes.data.map(p => [p.id, p.name, p.region, p.status, p.taken_by_user_id]);
@@ -934,23 +871,10 @@
                         this.isInitialLoading = false;
                         this.connectionError = true;
                         console.error('[RPCA79] fetchData error:', e);
-                        
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'ดึงข้อมูลไม่สำเร็จ',
-                            html: `<div class="text-sm">รายละเอียด: <br><code class="text-red-500 bg-red-50 p-1 rounded mt-2 block break-words">${e.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ'}</code></div>`
-                        });
                     } finally {
-                        this._isFetchLocked = false;
-                        setTimeout(() => this.isFetching = false, 500); 
-                        
-                        if (this._pendingFetch) {
-                            this._pendingFetch = false;
-                            setTimeout(() => this.fetchData(), 100);
-                        }
+                        this.isFetching = false;
                     }
                 },
-                // 👆 สิ้นสุดโค้ดใหม่ 👆
 
                 switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
 
@@ -998,6 +922,30 @@
                             }
                         }
                     });
+                },
+
+                async submitAdminAssign() {
+                    if(!this.adminAssignUserId || !this.adminAssignPosId) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้ใช้งานและตำแหน่งให้ครบถ้วน', 'warning');
+                    
+                    Swal.fire({title: 'กำลังบันทึกข้อมูล...', didOpen:()=>Swal.showLoading()});
+                    try {
+                        const targetUser = this.users.find(u => u[0] == this.adminAssignUserId);
+                        const targetPos = this.positions.find(p => p[0] == this.adminAssignPosId);
+                        
+                        await db.from('positions').update({ status: 'TAKEN', taken_by_user_id: parseInt(this.adminAssignUserId) }).eq('id', this.adminAssignPosId);
+                        await db.from('users').update({ status: 'SELECTED', selected_pos_name: targetPos[1], selected_at: new Date().toISOString() }).eq('id', parseInt(this.adminAssignUserId));
+                        await db.from('logs').insert({ user_id: parseInt(this.adminAssignUserId), user_name: targetUser[1], pos_id: this.adminAssignPosId, pos_name: targetPos[1], pos_region: targetPos[2] });
+
+                        if(parseInt(this.adminAssignUserId) === parseInt(this.config.current_queue)) {
+                             await db.from('config').update({ current_queue: parseInt(this.config.current_queue) + 1 }).eq('id', 1);
+                        }
+
+                        this.adminAssignModalOpen = false;
+                        this.adminAssignUserId = '';
+                        this.adminAssignPosId = '';
+                        Swal.fire('สำเร็จ', 'บันทึกการเลือกตำแหน่งแทนเรียบร้อยแล้ว', 'success');
+                        this.fetchData();
+                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error'); }
                 },
 
                 async login() {
