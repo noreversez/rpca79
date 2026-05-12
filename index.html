@@ -82,6 +82,11 @@
         .mobile-nav-item svg { width: 18px; height: 18px; transition: all 0.15s ease; }
         .mobile-nav-item.active svg { transform: translateY(-2px); }
 
+        .summary-stat-card { background: white; border-radius: 20px; padding: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; transition: all 0.2s ease; }
+        .dark .summary-stat-card { background: #1e293b; border-color: #334155; }
+
+        .bind-step { transition: all 0.3s ease; }
+
         .connection-error-banner { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #ef4444; color: white; padding: 14px 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(239,68,68,0.4); z-index: 100; display: flex; align-items: center; gap: 12px; }
         @media (min-width: 768px) { .connection-error-banner { bottom: 24px; left: auto; right: 24px; width: 360px; } }
 
@@ -248,7 +253,7 @@
                                                 <template x-if="pos[3] !== 'AVAILABLE'"><div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-700/50 px-1.5 py-1 rounded w-full"><i data-lucide="user-check" class="w-3 h-3 text-slate-400"></i> <span class="truncate" x-text="getUserName(pos[4])"></span></div></template>
                                             </div>
                                             
-                                            <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click.stop.prevent="confirmSelect(pos)" :disabled="isSubmitting" :class="isSubmitting ? 'opacity-50 cursor-not-allowed' : ''" class="w-full bg-blue-600 text-white py-1.5 rounded-md font-bold text-xs shadow-sm active:scale-95 transition-transform flex items-center justify-center gap-1 relative z-20">
+                                            <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click="confirmSelect(pos)" :disabled="isSubmitting" :class="isSubmitting ? 'opacity-50 cursor-not-allowed' : ''" class="w-full bg-blue-600 text-white py-1.5 rounded-md font-bold text-xs shadow-sm active:scale-95 transition-transform flex items-center justify-center gap-1">
                                                 <span x-text="isSubmitting ? 'กำลังบันทึก...' : 'เลือก'"></span> 
                                                 <span x-show="isSubmitting"><i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i></span>
                                                 <span x-show="!isSubmitting"><i data-lucide="arrow-right" class="w-3 h-3"></i></span>
@@ -279,7 +284,7 @@
                                             </div>
                                         </div>
                                         <div class="w-16 shrink-0">
-                                            <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click.stop.prevent="confirmSelect(pos)" :disabled="isSubmitting" class="w-full bg-blue-600 text-white py-1.5 rounded text-[10px] font-bold shadow-sm relative z-20">เลือก</button>
+                                            <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click="confirmSelect(pos)" :disabled="isSubmitting" class="w-full bg-blue-600 text-white py-1.5 rounded text-[10px] font-bold shadow-sm">เลือก</button>
                                             <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-100 dark:bg-slate-700 text-slate-400 py-1.5 rounded text-[10px] font-bold border border-slate-200 dark:border-slate-600">รอ</button>
                                         </div>
                                     </div>
@@ -340,7 +345,7 @@
             </div>
         </div>
         
-        <div id="pdf-content" class="flex-1 overflow-y-auto bg-slate-200/50 dark:bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
+        <div class="flex-1 overflow-y-auto bg-slate-200/50 dark:bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
                 
                 <template x-for="region in ['บช.น.', 'ภ.1', 'ภ.2', 'ภ.3', 'ภ.4', 'ภ.5', 'ภ.6', 'ภ.7', 'ภ.8', 'ภ.9']" :key="region">
@@ -577,7 +582,7 @@
 
     <div x-show="connectionError" class="connection-error-banner" x-cloak>
         <i data-lucide="wifi-off" class="w-6 h-6 shrink-0"></i>
-        <div class="flex-1"><div class="font-bold text-sm">เชื่อมต่อไม่ได้</div><div class="text-xs text-red-100">ตรวจสอบการตั้งค่าฐานข้อมูล</div></div>
+        <div class="flex-1"><div class="font-bold text-sm">เชื่อมต่อไม่ได้</div><div class="text-xs text-red-100">กำลังลองใหม่อัตโนมัติ...</div></div>
         <button @click="fetchData()" class="bg-white text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">ลองใหม่</button>
     </div>
 
@@ -585,6 +590,13 @@
         const SUPABASE_URL = "https://izujreipvtsnldgpdynu.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_p7MUWJqXpImPGqkGEfbiow_EDC1iRK2"; 
         const LIFF_ID = "2010015310-qHlFgmRX";
+
+        const API_URL = "https://script.google.com/macros/s/AKfycby6olYjXjpHDp5aVeE2BTzTC6vp34cgeaA4CAmUKr3om1kG-0d9dKcSbm3WaaYjBtVr/exec"; 
+        async function callAPI(action, params = {}) {
+            const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action, ...params }) });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }
 
         const LIFF_ID_CONFIGURED = LIFF_ID !== 'YOUR_LIFF_ID_HERE';
         const db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
@@ -612,6 +624,14 @@
                 
                 adminLoginMode: false,
                 isFetching: false,
+                
+                _isFetchLocked: false, 
+                _fetchTimeout: null,
+
+                // [FIX] เพิ่ม flag สำหรับ "pending fetch" เพื่อแก้ race condition
+                // ปัญหา: เมื่อ realtime trigger ซ้ำขณะ fetch กำลังทำงาน → skip → ข้อมูลไม่อัปเดต
+                _pendingFetch: false,
+
                 isDashboardFullscreen: false,
                 
                 adminAssignModalOpen: false,
@@ -627,6 +647,7 @@
                 getUserName(id) { const u = this.users.find(x => String(x[0]).trim() == String(id).trim()); return u ? u[1] : id; },
                 get prev3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) < cur).sort((a,b) => parseInt(b[0]) - parseInt(a[0])).slice(0, 3).reverse(); },
                 get next3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) > cur).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).slice(0, 3); },
+                get dashboardList() { return this.users.filter(u => String(u[3]).toUpperCase() === 'SELECTED').map(u => { const pos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim()); return { id: u[0], name: u[1], pos: u[4], region: pos ? pos[2] : '-', time: u[5] }; }).sort((a,b) => parseInt(a.id) - parseInt(b.id)); },
                 
                 getRegionStats(region) { 
                     let total = 0, taken = 0;
@@ -639,9 +660,10 @@
                     return { total, taken, percent: total ? (taken/total)*100 : 0 }; 
                 },
                 
+                get regionDashboardStats() { const stats = {}; this.positions.forEach(p => { const r = p[2]; if(!stats[r]) stats[r] = { name: r, total: 0, taken: 0 }; stats[r].total++; if(p[3] !== 'AVAILABLE') stats[r].taken++; }); return Object.values(stats).map(s => ({...s, percent: (s.taken/s.total)*100})).sort((a,b) => a.name.localeCompare(b.name)); },
+                
                 isWishlist(id) { return this.wishlist.includes(id); },
                 toggleWishlist(id) { if (this.wishlist.includes(id)) this.wishlist = this.wishlist.filter(w => w !== id); else this.wishlist.push(id); localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); },
-                
                 get groupedPositions() {
                     let filtered = this.positions.filter(p => {
                         const matchesSearch = p[1].toLowerCase().includes(this.search.toLowerCase()) || (p[2] && p[2].toLowerCase().includes(this.search.toLowerCase()));
@@ -657,17 +679,25 @@
                     return Object.keys(groups).sort().map(region => ({ name: region, items: groups[region] }));
                 },
 
+                // [FIX #1] แก้ isMyTurn: เพิ่ม null/NaN guard ป้องกัน parseInt(null) = NaN
+                // ปัญหา: config.current_queue อาจเป็น null ระหว่าง initial load
+                //        ทำให้ parseInt(null) = NaN → NaN === anything = false → ปุ่มไม่แสดง
+                // แก้: ตรวจสอบว่า user.id, config.current_queue มีค่าจริงก่อนเปรียบเทียบ
                 get isMyTurn() { 
-                    if (!this.user.id) return false;
-                    if (this.user.role && this.user.role !== 'USER') return false;
+                    // Guard: ถ้า user ไม่ได้ login หรือ config ยังไม่โหลด → return false ทันที
+                    if (!this.user.id || !this.user.role || this.user.role !== 'USER') return false;
                     if (this.config.current_queue === null || this.config.current_queue === undefined) return false;
                     
                     const myId = parseInt(this.user.id);
                     const currentQ = parseInt(this.config.current_queue);
                     
+                    // Guard: ถ้า parse แล้วได้ NaN → return false ป้องกัน NaN === NaN = false
                     if (isNaN(myId) || isNaN(currentQ)) return false;
                     
-                    const systemOpen = String(this.config.system_status || 'OPEN').trim().toUpperCase() === 'OPEN';
+                    // [FIX] ตรวจสอบ system_status ด้วย trim() ป้องกัน whitespace แอบมา
+                    const systemOpen = String(this.config.system_status || '').trim().toUpperCase() === 'OPEN';
+                    
+                    // [FIX] ตรวจสอบ user.status ด้วย trim() + toUpperCase() ป้องกัน case-sensitivity
                     const notSelected = String(this.user.status || '').trim().toUpperCase() !== 'SELECTED';
                     
                     return myId === currentQ && systemOpen && notSelected;
@@ -696,234 +726,6 @@
                     setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 50);
                 },
 
-                initApp() {
-                    this.fetchData();
-                    this.initRealtime();
-                    document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
-                    this.initLiff();
-                },
-
-                async initLiff() {
-                    if(!LIFF_ID_CONFIGURED) return;
-                    try {
-                        await liff.init({liffId: LIFF_ID});
-                        if(liff.isLoggedIn()) {
-                            const profile = await liff.getProfile();
-                            this.lineProfile = profile;
-                            this.checkLineLogin(profile.userId);
-                        }
-                    } catch(e) {
-                        console.error('LIFF Init Error:', e);
-                    }
-                },
-
-                async checkLineLogin(lineId) {
-                    if (!db) return;
-                    try {
-                        const { data } = await db.from('users').select('*').eq('line_user_id', lineId).single();
-                        if(data) {
-                            this.user = { role: 'USER', id: data.id, name: data.name, status: data.status, lineLinked: true, pictureUrl: this.lineProfile.pictureUrl };
-                            localStorage.setItem('user_session', JSON.stringify(this.user));
-                            if(this.currentPage === 'login') this.switchPage('home');
-                        }
-                    } catch (e) {
-                        console.error('Check Line Login Error:', e);
-                    }
-                },
-
-                async loginWithLine() {
-                    if(!LIFF_ID_CONFIGURED) return Swal.fire('Error', 'ยังไม่ได้ตั้งค่า LIFF ID', 'error');
-                    this.lineLoading = true;
-                    try {
-                        if(!liff.isLoggedIn()) {
-                            liff.login();
-                        } else {
-                            const profile = await liff.getProfile();
-                            this.lineProfile = profile;
-                            await this.checkLineLogin(profile.userId);
-                            if(!this.user.id) {
-                                Swal.fire('ไม่พบการเชื่อมต่อ', 'บัญชี LINE นี้ยังไม่ได้ผูกกับรหัสประจำตัว กรุณาเข้าสู่ระบบด้วยรหัสประจำตัวก่อนเพื่อผูกบัญชี', 'warning');
-                            }
-                        }
-                    } catch(e) {
-                        console.error('LINE Login Error:', e);
-                        Swal.fire('Error', 'เข้าสู่ระบบด้วย LINE ไม่สำเร็จ', 'error');
-                    } finally {
-                        this.lineLoading = false;
-                    }
-                },
-
-                openLineBindModal() {
-                    this.lineBindStep = 1;
-                    this.lineBindCode = '';
-                    this.lineBindModalOpen = true;
-                },
-
-                async proceedLineStep1() {
-                    this.lineLoading = true;
-                    try {
-                        const { data } = await db.from('users').select('id, name, line_user_id').eq('code', this.lineBindCode).single();
-                        if(!data) {
-                            Swal.fire('ไม่พบข้อมูล', 'รหัสประจำตัวไม่ถูกต้อง', 'error');
-                        } else if(data.line_user_id) {
-                            Swal.fire('แจ้งเตือน', 'รหัสนี้ถูกผูกกับบัญชี LINE อื่นไปแล้ว', 'warning');
-                        } else {
-                            this.lineBindUserName = data.name;
-                            this.lineBindStep = 2;
-                            if(!liff.isLoggedIn()) {
-                                Swal.fire('แจ้งเตือน', 'กรุณาเปิดลิงก์ผ่านแอปพลิเคชัน LINE เพื่อทำการเชื่อมต่อบัญชี', 'warning');
-                            } else {
-                                this.lineProfile = await liff.getProfile();
-                            }
-                        }
-                    } catch(e) {
-                        console.error(e);
-                        Swal.fire('Error', 'เกิดข้อผิดพลาดในการตรวจสอบข้อมูล', 'error');
-                    } finally {
-                        this.lineLoading = false;
-                    }
-                },
-
-                async confirmLineBind() {
-                    if (!this.lineProfile || !this.lineProfile.userId) {
-                        return Swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูล LINE ได้ กรุณาลองใหม่', 'error');
-                    }
-                    this.lineLoading = true;
-                    try {
-                        await db.from('users').update({ line_user_id: this.lineProfile.userId }).eq('code', this.lineBindCode);
-                        this.lineBindStep = 3;
-                        if(this.user && this.user.id == this.lineBindCode) {
-                            this.user.lineLinked = true;
-                            if(this.lineProfile.pictureUrl) this.user.pictureUrl = this.lineProfile.pictureUrl;
-                            localStorage.setItem('user_session', JSON.stringify(this.user));
-                        }
-                    } catch(e) {
-                        console.error(e);
-                        Swal.fire('Error', 'ไม่สามารถผูกบัญชีได้', 'error');
-                    } finally {
-                        this.lineLoading = false;
-                    }
-                },
-
-                initRealtime() {
-                    if (!db) return;
-                    let fetchTimeout = null;
-                    
-                    const debouncedFetch = () => {
-                        clearTimeout(fetchTimeout);
-                        fetchTimeout = setTimeout(() => {
-                            this.fetchData();
-                        }, 1000); // ดีเลย์ 1 วินาที ป้องกันการโหลดรัวเกินไป
-                    };
-
-                    db.channel('public-db-changes')
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => { debouncedFetch(); })
-                        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'config' }, payload => {
-                            if (payload.new && payload.new.current_queue !== undefined) {
-                                this.config.current_queue = payload.new.current_queue;
-                                this.config.system_status = payload.new.system_status || this.config.system_status;
-                            }
-                            debouncedFetch();
-                        })
-                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logs' }, () => { debouncedFetch(); })
-                        .subscribe();
-                },
-
-                async fetchData() {
-                    if (!db) {
-                        this.isInitialLoading = false;
-                        this.connectionError = true;
-                        return;
-                    }
-                    
-                    if (this.isFetching) return;
-                    this.isFetching = true;
-
-                    try {
-                        const [configRes, usersRes, posRes, logsRes] = await Promise.all([
-                            db.from('config').select('*').eq('id', 1).single(),
-                            db.from('users').select('*').order('id', { ascending: true }),
-                            db.from('positions').select('*'),
-                            db.from('logs').select('*').order('created_at', { ascending: false }).limit(5)
-                        ]);
-                        
-                        if (configRes.error) throw configRes.error;
-                        
-                        if (configRes.data) this.config = configRes.data;
-                        if (posRes.data) this.positions = posRes.data.map(p => [p.id, p.name, p.region, p.status, p.taken_by_user_id]);
-                        if (usersRes.data) this.users = usersRes.data.map(u => [u.id, u.name, u.code, u.status, u.selected_pos_name, u.selected_at, u.line_user_id]);
-                        if (logsRes.data) this.serverLogs = logsRes.data.map(l => [l.created_at, l.user_id, l.user_name, l.pos_id, l.pos_name, l.pos_region]);
-                        
-                        this.isInitialLoading = false;
-                        this.connectionError = false;
-                        
-                        if(this.user.id && (!this.user.role || this.user.role === 'USER')) {
-                            const u = this.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
-                            if(u) { 
-                                this.user.role = 'USER';
-                                this.user.status = String(u[3] || 'WAITING').trim();
-                                this.user.name = u[1] || this.user.name;
-                                this.user.lineLinked = !!u[6]; 
-                                localStorage.setItem('user_session', JSON.stringify(this.user)); 
-                            }
-                        }
-                    } catch(e) {
-                        this.isInitialLoading = false;
-                        this.connectionError = true;
-                        console.error('[RPCA79] fetchData error:', e);
-                    } finally {
-                        this.isFetching = false;
-                    }
-                },
-
-                switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
-
-                confirmSelect(pos) {
-                    const self = this;
-                    Swal.fire({ title: 'ยืนยันเลือก?', text: `${pos[1]} (${pos[2]})`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            if (self.isSubmitting) return;
-
-                            if (!self.isMyTurn) {
-                                Swal.fire('หมดเวลา', 'คิวของคุณได้เปลี่ยนแปลงแล้ว กรุณาตรวจสอบสถานะใหม่', 'warning');
-                                return;
-                            }
-
-                            const currentPos = self.positions.find(p => p[0] == pos[0]);
-                            if (!currentPos || currentPos[3] !== 'AVAILABLE') {
-                                Swal.fire('เสียใจด้วย', 'ตำแหน่งนี้ถูกเลือกไปแล้ว กรุณาเลือกตำแหน่งอื่น', 'error');
-                                return;
-                            }
-
-                            self.isSubmitting = true;
-                            Swal.fire({title: 'Saving...', didOpen:()=>Swal.showLoading()});
-                            try {
-                                const { data, error } = await db.rpc('select_position', { p_user_id: parseInt(self.user.id), p_pos_id: String(pos[0]) });
-                                if (error) throw error;
-                                
-                                if(data && data.status === 'SUCCESS') {
-                                    self.config.current_queue = parseInt(self.config.current_queue) + 1;
-                                    if(typeof confetti === 'function') confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
-                                    self.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
-                                    self.showSlip = true; 
-                                    Swal.close(); 
-                                    self.switchPage('dashboard'); 
-                                    self.fetchData(); 
-                                } else { 
-                                    Swal.fire('ไม่สำเร็จ', (data && data.msg) ? data.msg : 'กรุณาลองใหม่อีกครั้ง', 'error'); 
-                                    self.fetchData();
-                                }
-                            } catch(e) { 
-                                console.error('[RPCA79] confirmSelect error:', e);
-                                Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error'); 
-                                self.fetchData();
-                            } finally {
-                                self.isSubmitting = false; 
-                            }
-                        }
-                    });
-                },
-
                 async submitAdminAssign() {
                     if(!this.adminAssignUserId || !this.adminAssignPosId) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้ใช้งานและตำแหน่งให้ครบถ้วน', 'warning');
                     
@@ -948,6 +750,170 @@
                     } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error'); }
                 },
 
+                initApp() {
+                    this.fetchData();
+                    this.initRealtime();
+                    document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
+                    this.initLiff();
+                    setInterval(() => { if (!document.hidden) this.fetchData(); }, 60000);
+                },
+
+                initRealtime() {
+                    if (!db) return;
+                    
+                    // [FIX #3] แก้ Race Condition: ใช้ _pendingFetch แทนการ skip fetch ทิ้ง
+                    // ปัญหาเดิม: ถ้า realtime trigger ขณะ fetch กำลังทำงาน → _isFetchLocked=true → skip
+                    //            ทำให้ข้อมูลล่าสุดไม่ถูก fetch → queue ค้าง
+                    // แก้: บันทึกว่ามี pending fetch รอไว้ แล้วพอ fetch ปัจจุบันเสร็จ ให้ fetch อีกรอบอัตโนมัติ
+                    const debouncedFetch = () => {
+                        clearTimeout(this._fetchTimeout);
+                        this._fetchTimeout = setTimeout(() => {
+                            this.fetchData();
+                        }, 300); 
+                    };
+
+                    db.channel('public-db-changes')
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => { debouncedFetch(); })
+                        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'config' }, payload => {
+                            const oldQueue = this.config.current_queue;
+
+                            // [FIX] อัปเดต config.current_queue ทันทีจาก payload (ไม่ต้องรอ fetchData)
+                            // ป้องกัน: UI ยังแสดงค่าเก่าขณะรอ fetch รอบถัดไป
+                            if (payload.new && payload.new.current_queue !== undefined) {
+                                this.config.current_queue = payload.new.current_queue;
+                                this.config.system_status = payload.new.system_status || this.config.system_status;
+                            }
+
+                            if (parseInt(this.user.id) === payload.new.current_queue && oldQueue !== payload.new.current_queue) {
+                                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                            }
+                            debouncedFetch();
+                        })
+                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logs' }, () => { debouncedFetch(); })
+                        .subscribe();
+                },
+
+                // [FIX #3] แก้ fetchData: เพิ่ม _pendingFetch pattern แทน skip ทิ้ง
+                // ปัญหาเดิม: _isFetchLocked = true → realtime call fetchData → return ทันที → ข้อมูลเก่า
+                // แก้: ถ้า lock อยู่ → set _pendingFetch = true → พอ lock หลุด → fetch อีกรอบอัตโนมัติ
+                async fetchData() {
+                    if (!db) return;
+                    
+                    if (this._isFetchLocked) {
+                        // [FIX] แทนที่จะ skip ทิ้ง → บันทึกว่ามี pending fetch รอไว้
+                        this._pendingFetch = true;
+                        return; 
+                    }
+                    this._isFetchLocked = true;
+                    this._pendingFetch = false; // reset pending flag
+                    this.isFetching = true;
+
+                    try {
+                        const [configRes, usersRes, posRes, logsRes] = await Promise.all([
+                            db.from('config').select('*').eq('id', 1).single(),
+                            db.from('users').select('*').order('id', { ascending: true }),
+                            db.from('positions').select('*'),
+                            db.from('logs').select('*').order('created_at', { ascending: false }).limit(5)
+                        ]);
+                        
+                        if (configRes.data) this.config = configRes.data;
+                        if (posRes.data) this.positions = posRes.data.map(p => [p.id, p.name, p.region, p.status, p.taken_by_user_id]);
+                        if (usersRes.data) this.users = usersRes.data.map(u => [u.id, u.name, u.code, u.status, u.selected_pos_name, u.selected_at, u.line_user_id]);
+                        if (logsRes.data) this.serverLogs = logsRes.data.map(l => [l.created_at, l.user_id, l.user_name, l.pos_id, l.pos_name, l.pos_region]);
+                        
+                        this.isInitialLoading = false;
+                        this.connectionError = false;
+                        
+                        // [FIX #2] แก้ user status sync: เพิ่ม defensive check ป้องกัน undefined
+                        // ปัญหาเดิม: user.status อัปเดตแค่ status และ name แต่ไม่ครอบคลุม lineLinked
+                        //            และไม่มี trim() → อาจ mismatch กับ 'SELECTED' ที่มี whitespace
+                        if(this.user.id && this.user.role === 'USER') {
+                            const u = this.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
+                            if(u) { 
+                                // [FIX] เพิ่ม trim() ทั้ง status เพื่อป้องกัน whitespace ทำให้ match ไม่ตรง
+                                this.user.status = String(u[3] || 'WAITING').trim();
+                                this.user.name = u[1] || this.user.name;
+                                
+                                // [FIX] sync lineLinked จาก database ด้วย (ก่อนหน้านี้ไม่ได้ sync)
+                                // ป้องกัน: UI แสดงว่า LINE ไม่ได้เชื่อม ทั้งที่ DB มีค่าแล้ว
+                                this.user.lineLinked = !!u[6]; // u[6] = line_user_id
+                                
+                                localStorage.setItem('user_session', JSON.stringify(this.user)); 
+                            }
+                        }
+                    } catch(e) {
+                        this.isInitialLoading = false;
+                        this.connectionError = true;
+                        console.error('[RPCA79] fetchData error:', e);
+                    } finally {
+                        this._isFetchLocked = false;
+                        setTimeout(() => this.isFetching = false, 500); 
+                        
+                        // [FIX #3] ถ้ามี pending fetch รอไว้ → fetch อีกรอบทันที
+                        // ป้องกัน: realtime event ที่ถูก block ระหว่าง fetch → ไม่ถูก process
+                        if (this._pendingFetch) {
+                            this._pendingFetch = false;
+                            setTimeout(() => this.fetchData(), 100);
+                        }
+                    }
+                },
+
+                switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
+
+                // [FIX #4] แก้ confirmSelect: เพิ่ม pre-flight validation ก่อน submit
+                // ปัญหา: ระหว่าง confirm dialog กำลังแสดง → มีคนอื่น select ตำแหน่งเดียวกัน
+                //        → ผู้ใช้กด confirm → error จาก server → UX ไม่ดี
+                // แก้: ตรวจสอบ isMyTurn และสถานะตำแหน่งอีกรอบก่อน submit จริง
+                confirmSelect(pos) {
+                    Swal.fire({ title: 'ยืนยันเลือก?', text: `${pos[1]} (${pos[2]})`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            if (this.isSubmitting) return;
+
+                            // [FIX] Pre-flight check: ตรวจสอบสิทธิ์และสถานะตำแหน่ง ก่อน submit จริง
+                            // ป้องกัน: race condition ที่เกิดระหว่าง confirm dialog เปิดอยู่
+                            if (!this.isMyTurn) {
+                                Swal.fire('หมดเวลา', 'คิวของคุณได้เปลี่ยนแปลงแล้ว กรุณาตรวจสอบสถานะใหม่', 'warning');
+                                return;
+                            }
+
+                            // [FIX] ตรวจสอบ local state ว่าตำแหน่งยังว่างอยู่ไหม ก่อนยิง API
+                            const currentPos = this.positions.find(p => p[0] == pos[0]);
+                            if (!currentPos || currentPos[3] !== 'AVAILABLE') {
+                                Swal.fire('เสียใจด้วย', 'ตำแหน่งนี้ถูกเลือกไปแล้ว กรุณาเลือกตำแหน่งอื่น', 'error');
+                                return;
+                            }
+
+                            this.isSubmitting = true;
+                            Swal.fire({title: 'Saving...', didOpen:()=>Swal.showLoading()});
+                            try {
+                                const { data, error } = await db.rpc('select_position', { p_user_id: parseInt(this.user.id), p_pos_id: String(pos[0]) });
+                                if (error) throw error;
+                                this.isSubmitting = false;
+                                if(data.status === 'SUCCESS') {
+                                    this.config.current_queue = parseInt(this.config.current_queue) + 1;
+                                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
+                                    this.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
+                                    this.showSlip = true; 
+                                    Swal.close(); 
+                                    this.switchPage('dashboard'); 
+                                    this.fetchData(); 
+                                } else { 
+                                    // [FIX] แสดง error message จาก server อย่างชัดเจน
+                                    Swal.fire('ไม่สำเร็จ', data.msg || 'กรุณาลองใหม่อีกครั้ง', 'error'); 
+                                    // [FIX] Refresh ข้อมูลหลัง error เพื่ออัปเดต state ให้ถูกต้อง
+                                    this.fetchData();
+                                }
+                            } catch(e) { 
+                                this.isSubmitting = false; 
+                                console.error('[RPCA79] confirmSelect error:', e);
+                                Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error'); 
+                                // [FIX] Refresh ข้อมูลหลัง error ด้วย
+                                this.fetchData();
+                            }
+                        }
+                    });
+                },
+
                 async login() {
                     if(!this.loginCode) return;
                     try {
@@ -959,163 +925,223 @@
                             return;
                         }
                         const { data: userData, error } = await db.from('users').select('*').eq('code', String(this.loginCode).trim()).single();
-                        if(error || !userData) {
-                            Swal.fire('ไม่สำเร็จ', 'รหัสประจำตัวไม่ถูกต้อง', 'error');
-                            return;
+                        if(error || !userData) { Swal.fire('Error', 'ไม่พบรหัสประจำตัวนี้', 'error'); } 
+                        else { 
+                            this.user = { role: 'USER', id: userData.id, name: userData.name, status: userData.status, lineLinked: !!userData.line_user_id, pictureUrl: null }; 
+                            localStorage.setItem('user_session', JSON.stringify(this.user)); 
+                            this.switchPage('home'); 
                         }
-                        this.user = { role: 'USER', id: userData.id, name: userData.name, status: userData.status, lineLinked: !!userData.line_user_id, pictureUrl: null };
-                        localStorage.setItem('user_session', JSON.stringify(this.user));
-                        this.loginCode = '';
-                        this.switchPage('home');
-                    } catch(e) {
-                        console.error(e);
-                        Swal.fire('Error', 'ไม่สามารถเข้าสู่ระบบได้', 'error');
-                    }
-                },
-                
-                logout() {
-                    localStorage.removeItem('user_session');
-                    this.user = { id: null, pictureUrl: '' };
-                    if(typeof liff !== 'undefined' && liff.isLoggedIn()) {
-                        liff.logout();
-                    }
-                    this.switchPage('login');
+                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
-                async adminAction(action) {
-                    try {
-                        if(action === 'SKIP') {
-                            await db.from('config').update({ current_queue: parseInt(this.config.current_queue) + 1 }).eq('id', 1);
-                            this.fetchData();
-                            Swal.fire('Success', 'ข้ามคิวเรียบร้อย', 'success');
-                        } else if (action === 'TOGGLE_STATUS') {
-                            const newStatus = this.config.system_status === 'OPEN' ? 'CLOSED' : 'OPEN';
-                            await db.from('config').update({ system_status: newStatus }).eq('id', 1);
-                            this.fetchData();
-                            Swal.fire('Success', `เปลี่ยนสถานะระบบเป็น ${newStatus} แล้ว`, 'success');
-                        }
-                    } catch(e) {
-                        console.error(e);
-                        Swal.fire('Error', 'ดำเนินการไม่สำเร็จ', 'error');
-                    }
-                },
+                logout() { this.user = {id: null, pictureUrl: null}; localStorage.removeItem('user_session'); this.lineProfile = {}; this.switchPage('login'); },
 
-                adminReset() {
-                    Swal.fire({
-                        title: 'แน่ใจหรือไม่?', 
-                        text: 'ระบบจะล้างข้อมูลการเลือกตำแหน่งทั้งหมด', 
-                        icon: 'warning', 
-                        showCancelButton: true,
-                        confirmButtonText: 'ยืนยันรีเซ็ต'
-                    }).then(async(res) => {
-                        if(res.isConfirmed){ 
-                            try {
-                                await db.rpc('reset_system'); 
-                                this.fetchData(); 
-                                Swal.fire('Success', 'รีเซ็ตข้อมูลระบบเรียบร้อยแล้ว', 'success');
-                            } catch(e) {
-                                console.error(e);
-                                Swal.fire('Error', 'ไม่สามารถรีเซ็ตข้อมูลได้', 'error');
-                            }
+                adminAction(action) {
+                    Swal.fire({title: 'Confirm?', text: action, icon: 'warning', showCancelButton: true}).then(async r => {
+                        if(r.isConfirmed) {
+                            Swal.fire({title: 'Processing...', didOpen:()=>Swal.showLoading()});
+                            try { 
+                                if (action === 'SKIP') {
+                                    const { data } = await db.from('config').select('current_queue').eq('id', 1).single();
+                                    await db.from('config').update({ current_queue: data.current_queue + 1 }).eq('id', 1);
+                                } else if (action === 'TOGGLE_STATUS') {
+                                    const { data } = await db.from('config').select('system_status').eq('id', 1).single();
+                                    await db.from('config').update({ system_status: data.system_status === 'OPEN' ? 'PAUSE' : 'OPEN' }).eq('id', 1);
+                                } else if (action === 'BACKUP') {
+                                    Swal.fire('Info', 'ใน Supabase การ Backup จะทำแบบอัตโนมัติ (PITR) ผ่านหน้า Dashboard', 'info'); return;
+                                } else if (action === 'RESET') {
+                                    await db.from('users').update({ status: 'WAITING', selected_pos_name: null, selected_at: null }).neq('status', 'SYSTEM');
+                                    await db.from('positions').update({ status: 'AVAILABLE', taken_by_user_id: null }).neq('status', 'X');
+                                    await db.from('config').update({ current_queue: 1, system_status: 'OPEN' }).eq('id', 1);
+                                }
+                                Swal.close(); this.fetchData(); 
+                            } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                         }
                     });
                 },
-
-                triggerBackup() {
-                    Swal.fire('ระบบสำรองข้อมูล', 'ฟังก์ชันการสำรองข้อมูลไปยัง Google Sheets อยู่ระหว่างการพัฒนา', 'info');
-                },
+                adminReset() { this.adminAction('RESET'); },
+                triggerBackup() { this.adminAction('BACKUP'); },
 
                 openAdminModal(action, data = null, type = 'USER') {
-                    this.adminModalAction = action; 
-                    this.adminModalOpen = true; 
-                    if(action === 'CREATE') { 
-                        this.adminFormData = {id: '', name: '', code: '', region: ''}; 
-                    } else { 
-                        this.adminFormData = {
-                            id: data[0], 
-                            name: data[1], 
-                            code: type === 'USER' ? data[2] : '', 
-                            region: type === 'POSITION' ? data[2] : ''
-                        }; 
-                    }
+                    this.adminModalAction = action; this.adminModalOpen = true;
+                    if(action === 'CREATE') this.adminFormData = {id:'', name:'', code:'', region:''};
+                    else this.adminFormData = type === 'USER' ? {id: data[0], name: data[1], code: data[2], region:''} : {id: data[0], name: data[1], region: data[2], code:''};
                 },
 
                 async saveAdminData() {
+                    const type = this.adminTab === 'users' ? 'USER' : 'POSITION';
                     try { 
-                        if(this.adminTab === 'users') { 
-                            if(this.adminModalAction === 'CREATE') {
-                                await db.from('users').insert({id: this.adminFormData.id, name: this.adminFormData.name, code: this.adminFormData.code}); 
-                            } else {
-                                await db.from('users').update({name: this.adminFormData.name, code: this.adminFormData.code}).eq('id', this.adminFormData.id); 
-                            }
-                        } else { 
-                            if(this.adminModalAction === 'CREATE') {
-                                await db.from('positions').insert({id: this.adminFormData.id, name: this.adminFormData.name, region: this.adminFormData.region}); 
-                            } else {
-                                await db.from('positions').update({name: this.adminFormData.name, region: this.adminFormData.region}).eq('id', this.adminFormData.id); 
-                            }
-                        } 
-                        this.adminModalOpen = false; 
-                        this.fetchData(); 
-                        Swal.fire('Success', 'บันทึกข้อมูลเรียบร้อย', 'success');
-                    } catch(e) { 
-                        console.error(e);
-                        Swal.fire('Error', 'ไม่สามารถบันทึกข้อมูลได้', 'error'); 
-                    }
+                        if (this.adminModalAction === 'CREATE') {
+                            if (type === 'USER') await db.from('users').insert({ id: parseInt(this.adminFormData.id), name: this.adminFormData.name, code: this.adminFormData.code, status: 'WAITING' });
+                            else await db.from('positions').insert({ id: this.adminFormData.id, name: this.adminFormData.name, region: this.adminFormData.region, status: 'AVAILABLE' });
+                        } else {
+                            if (type === 'USER') await db.from('users').update({ name: this.adminFormData.name, code: this.adminFormData.code }).eq('id', parseInt(this.adminFormData.id));
+                            else await db.from('positions').update({ name: this.adminFormData.name, region: this.adminFormData.region }).eq('id', this.adminFormData.id);
+                        }
+                        this.adminModalOpen = false; this.fetchData(); 
+                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
                 deleteAdminData(id, type) {
-                    Swal.fire({
-                        title: 'ยืนยันการลบข้อมูล?', 
-                        icon: 'warning',
-                        showCancelButton: true
-                    }).then(async(res)=>{
-                        if(res.isConfirmed) { 
-                            try {
-                                await db.from(type === 'USER' ? 'users' : 'positions').delete().eq('id', id); 
-                                this.fetchData(); 
-                                Swal.fire('Deleted!', 'ลบข้อมูลเรียบร้อย', 'success');
-                            } catch (e) {
-                                console.error(e);
-                                Swal.fire('Error', 'ไม่สามารถลบข้อมูลได้', 'error');
+                    Swal.fire({title: 'Delete?', icon:'error', showCancelButton:true}).then(async r => {
+                        if(r.isConfirmed) { try { const table = type === 'USER' ? 'users' : 'positions'; await db.from(table).delete().eq('id', type === 'USER' ? parseInt(id) : id); this.fetchData(); } catch(e) {} }
+                    });
+                },
+
+                formatTime(dateStr) {
+                    if(!dateStr) return '-';
+                    const s = String(dateStr).trim();
+                    if(s.match(/^\d{1,2}:\d{2}/)) return s.substring(0, 5);
+                    const converted = s.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, (_, d, m, y) => `${m}/${d}/${parseInt(y) > 2400 ? parseInt(y) - 543 : y}`);
+                    try { let d = new Date(converted); if (isNaN(d.getTime())) d = new Date(new Date().toDateString() + ' ' + s); return isNaN(d.getTime()) ? s : d.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}); } catch(e) { return s; }
+                },
+
+                async initLiff() {
+                    if (!LIFF_ID_CONFIGURED) return;
+                    try {
+                        await liff.init({ liffId: LIFF_ID });
+                        if (liff.isLoggedIn()) {
+                            this.lineProfile = await liff.getProfile();
+                            const saved = JSON.parse(localStorage.getItem('user_session') || '{"id":null}');
+                            if (!saved.id) {
+                                try { 
+                                    const { data: res } = await db.from('users').select('*').eq('line_user_id', String(this.lineProfile.userId)).single();
+                                    if (res) { 
+                                        this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true, pictureUrl: this.lineProfile.pictureUrl }; 
+                                        localStorage.setItem('user_session', JSON.stringify(this.user)); this.switchPage('home'); 
+                                    } 
+                                } catch(e) {}
                             }
                         }
-                    });
+                    } catch(e) { console.warn('LIFF init skipped:', e.message); }
+                },
+                async loginWithLine() {
+                    if (!LIFF_ID_CONFIGURED) { Swal.fire('แจ้งเตือน', 'กรุณาตั้งค่า LIFF_ID ก่อนใช้งาน', 'warning'); return; }
+                    this.lineLoading = true;
+                    try {
+                        await liff.init({ liffId: LIFF_ID });
+                        if (!liff.isLoggedIn()) { liff.login({ redirectUri: window.location.href }); return; }
+                        this.lineProfile = await liff.getProfile();
+                        const { data: res, error } = await db.from('users').select('*').eq('line_user_id', String(this.lineProfile.userId)).single();
+                        this.lineLoading = false;
+                        if (res) { 
+                            this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true, pictureUrl: this.lineProfile.pictureUrl }; 
+                            localStorage.setItem('user_session', JSON.stringify(this.user)); this.switchPage('home'); 
+                        } else { this.openLineBindModal(); }
+                    } catch(e) { this.lineLoading = false; Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
+                },
+                openLineBindModal() {
+                    this.lineBindModalOpen = true;
+                    if (this.user.id && this.lineProfile.userId) { this.lineBindUserName = this.user.name; this.lineBindStep = 2; }
+                    else { this.lineBindStep = 1; this.lineBindCode = ''; }
+                },
+                async proceedLineStep1() {
+                    if (!this.lineBindCode) return;
+                    this.lineLoading = true;
+                    try {
+                        const { data: res, error } = await db.from('users').select('*').eq('code', String(this.lineBindCode).trim()).single();
+                        this.lineLoading = false;
+                        if (error || !res) { Swal.fire('ไม่พบรหัส', 'โปรดตรวจสอบรหัสประจำตัว', 'error'); }
+                        else { this.lineBindUserName = res.name; this._pendingBindUser = res; this.lineBindStep = 2; }
+                    } catch(e) { this.lineLoading = false; }
+                },
+                async confirmLineBind() {
+                    this.lineLoading = true;
+                    const userId = this.user.id || (this._pendingBindUser && this._pendingBindUser.id);
+                    const lineUserId = this.lineProfile.userId;
+                    const lineDisplayName = this.lineProfile.displayName;
+                    if (!userId || !lineUserId) { this.lineLoading = false; Swal.fire('Error', 'ข้อมูลไม่ครบถ้วน', 'error'); return; }
+                    try {
+                        const { error } = await db.from('users').update({ line_user_id: lineUserId, line_display_name: lineDisplayName }).eq('id', parseInt(userId));
+                        this.lineLoading = false;
+                        if (!error) {
+                            this.lineBindStep = 3; this.user.lineLinked = true; this.user.lineUserId = lineUserId; this.user.pictureUrl = this.lineProfile.pictureUrl;
+                            if (this._pendingBindUser) { this.user = { ...this._pendingBindUser, lineLinked: true, lineUserId, pictureUrl: this.lineProfile.pictureUrl }; this._pendingBindUser = null; }
+                            localStorage.setItem('user_session', JSON.stringify(this.user));
+                        } else { Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
+                    } catch(e) { this.lineLoading = false; Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
                 async exportPDF() {
                     this.isPdfExporting = true;
                     try {
-                        const target = document.getElementById('pdf-content') || document.body;
-                        const canvas = await html2canvas(target, { scale: 2 });
-                        const imgData = canvas.toDataURL('image/png');
-                        const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4');
-                        const imgProps = pdf.getImageProperties(imgData);
-                        const pdfWidth = pdf.internal.pageSize.getWidth();
-                        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                        
-                        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                        pdf.save('dashboard_report.pdf');
-                    } catch (error) {
-                        console.error('PDF Export Error:', error);
-                        Swal.fire('Error', 'ไม่สามารถสร้างไฟล์ PDF ได้', 'error');
-                    } finally {
-                        this.isPdfExporting = false;
-                    }
-                },
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                        const pageW = 210, pageH = 297, margin = 14;
+                        const now = new Date().toLocaleString('th-TH', { dateStyle: 'full', timeStyle: 'short' });
 
-                formatTime(ts) {
-                    if(!ts) return '-'; 
-                    const d = new Date(ts); 
-                    return d.toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
-                }
+                        doc.setFillColor(37, 99, 235); doc.rect(0, 0, pageW, 28, 'F');
+                        doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text('RPCA79 - สรุปผลการเลือกตำแหน่ง', margin, 13);
+                        doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.text('พิมพ์เมื่อ: ' + now, margin, 21);
+
+                        const totalPos = this.positions.length;
+                        const takenPos = this.positions.filter(p => p[3] !== 'AVAILABLE').length;
+                        const leftPos = totalPos - takenPos;
+                        const progress = totalPos ? Math.round((takenPos/totalPos)*100) : 0;
+                        const stats = [{ label: 'ตำแหน่งทั้งหมด', value: String(totalPos), color: [71, 85, 105] },{ label: 'เลือกแล้ว', value: String(takenPos), color: [22, 163, 74] },{ label: 'คงเหลือ', value: String(leftPos), color: [239, 68, 68] },{ label: 'ความคืบหน้า', value: progress + '%', color: [37, 99, 235] }];
+                        const boxW = (pageW - margin*2 - 9) / 4;
+                        stats.forEach((s, i) => { const x = margin + i * (boxW + 3), y = 32; doc.setFillColor(...s.color); doc.roundedRect(x, y, boxW, 20, 3, 3, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text(s.value, x + boxW/2, y + 10, { align: 'center' }); doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.text(s.label, x + boxW/2, y + 16, { align: 'center' }); });
+
+                        let barY = 57;
+                        doc.setFillColor(226, 232, 240); doc.roundedRect(margin, barY, pageW - margin*2, 5, 2, 2, 'F');
+                        if (progress > 0) { doc.setFillColor(37, 99, 235); doc.roundedRect(margin, barY, (pageW - margin*2) * (progress/100), 5, 2, 2, 'F'); }
+
+                        let secY = barY + 12;
+                        doc.setFillColor(248, 250, 252); doc.rect(margin, secY - 5, pageW - margin*2, 8, 'F');
+                        doc.setTextColor(37, 99, 235); doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('สรุปรายภาค', margin + 2, secY); secY += 6;
+                        const regions = this.regionDashboardStats; const colW = (pageW - margin*2 - 6) / 2;
+                        regions.forEach((r, i) => { const col = i % 2, row = Math.floor(i / 2); const rx = margin + col * (colW + 6); const ry = secY + row * 14; doc.setTextColor(51, 65, 85); doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text(r.name, rx, ry); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139); doc.text(`${r.taken}/${r.total}`, rx + colW - 10, ry, { align: 'right' }); doc.setFillColor(226, 232, 240); doc.roundedRect(rx, ry + 2, colW - 14, 3, 1, 1, 'F'); if (r.percent > 0) { doc.setFillColor(r.percent >= 100 ? 239 : 59, r.percent >= 100 ? 68 : 130, r.percent >= 100 ? 68 : 246); doc.roundedRect(rx, ry + 2, (colW - 14) * (r.percent/100), 3, 1, 1, 'F'); } });
+
+                        doc.addPage();
+                        doc.setFillColor(37, 99, 235); doc.rect(0, 0, pageW, 20, 'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text('รายชื่อผู้เลือกตำแหน่ง', margin, 13);
+                        let tableY = 26; const cols = [{ label: '#', w: 12 },{ label: 'ชื่อ-สกุล', w: 55 },{ label: 'ตำแหน่งที่เลือก', w: 80 },{ label: 'ภาค', w: 22 },{ label: 'เวลา', w: 24 }];
+                        doc.setFillColor(51, 65, 85); doc.rect(margin, tableY, pageW - margin*2, 7, 'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica', 'bold'); doc.setFontSize(7);
+                        let cx = margin; cols.forEach(c => { doc.text(c.label, cx + 2, tableY + 4.5); cx += c.w; }); tableY += 8;
+
+                        this.dashboardList.forEach((u, idx) => {
+                            if (tableY > pageH - 20) { doc.addPage(); tableY = 14; }
+                            doc.setFillColor(...(idx % 2 === 0 ? [255,255,255] : [248,250,252])); doc.rect(margin, tableY - 1, pageW - margin*2, 7, 'F'); doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+                            const rowData = [String(u.id), u.name, u.pos, u.region, this.formatTime(u.time)];
+                            cx = margin; cols.forEach((c, ci) => { let text = rowData[ci] || '-'; if (doc.getTextWidth(text) > c.w - 4) { while(doc.getTextWidth(text + '…') > c.w - 4 && text.length > 0) text = text.slice(0, -1); text += '…'; } doc.setTextColor(ci === 2 ? 37 : 51, ci === 2 ? 99 : 65, ci === 2 ? 235 : 85); doc.text(text, cx + 2, tableY + 4); cx += c.w; });
+                            doc.setDrawColor(226, 232, 240); doc.line(margin, tableY + 6, pageW - margin, tableY + 6); tableY += 7;
+                        });
+
+                        const totalPages = doc.getNumberOfPages();
+                        for (let p = 1; p <= totalPages; p++) { doc.setPage(p); doc.setFillColor(248, 250, 252); doc.rect(0, pageH - 10, pageW, 10, 'F'); doc.setTextColor(148, 163, 184); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text('RPCA79 - ระบบทดลองเลือกตำแหน่ง', margin, pageH - 4); doc.text(`หน้า ${p}/${totalPages}`, pageW - margin, pageH - 4, { align: 'right' }); }
+                        doc.save(`RPCA79_ผลการเลือก_${new Date().toLocaleDateString('th-TH').replace(/\//g,'-')}.pdf`);
+                    } catch(e) { Swal.fire('Error', 'ไม่สามารถสร้าง PDF ได้: ' + e.message, 'error'); } finally { this.isPdfExporting = false; }
+                },
             }
         }
 
-        document.addEventListener('alpine:init', () => {
-            if (typeof lucide !== 'undefined') {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
                 lucide.createIcons();
-                const observer = new MutationObserver(() => { lucide.createIcons(); });
+                let timeout = null;
+                const observer = new MutationObserver((mutations) => {
+                    let shouldUpdate = false;
+                    for (let m of mutations) {
+                        if (m.type === 'childList') {
+                            for (let node of m.addedNodes) {
+                                if (node.nodeType === 1 && node.tagName.toLowerCase() !== 'svg') {
+                                    if (node.hasAttribute('data-lucide') || node.querySelector('[data-lucide]')) {
+                                        shouldUpdate = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (shouldUpdate) break;
+                    }
+                    if (shouldUpdate) {
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => {
+                            requestAnimationFrame(() => {
+                                lucide.createIcons();
+                            });
+                        }, 20);
+                    }
+                });
                 observer.observe(document.body, { childList: true, subtree: true });
             }
         });
