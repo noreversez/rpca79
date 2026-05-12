@@ -879,8 +879,18 @@
                         .subscribe();
                 },
 
+                // 👇 เอาโค้ดใหม่มาวางทับส่วนนี้ทั้งหมดเลยครับ 👇
                 async fetchData() {
-                    if (!db) return;
+                    if (!db) {
+                        this.isInitialLoading = false;
+                        this.connectionError = true;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'การเชื่อมต่อล้มเหลว',
+                            text: 'ไม่สามารถโหลดระบบฐานข้อมูลได้ (Supabase Client เป็น null) กรุณาตรวจสอบอินเทอร์เน็ต หรือการบล็อกโฆษณาในเบราว์เซอร์'
+                        });
+                        return;
+                    }
                     
                     if (this._isFetchLocked) {
                         this._pendingFetch = true;
@@ -897,6 +907,10 @@
                             db.from('positions').select('*'),
                             db.from('logs').select('*').order('created_at', { ascending: false }).limit(5)
                         ]);
+                        
+                        if (configRes.error) throw configRes.error;
+                        if (usersRes.error) throw usersRes.error;
+                        if (posRes.error) throw posRes.error;
                         
                         if (configRes.data) this.config = configRes.data;
                         if (posRes.data) this.positions = posRes.data.map(p => [p.id, p.name, p.region, p.status, p.taken_by_user_id]);
@@ -920,6 +934,12 @@
                         this.isInitialLoading = false;
                         this.connectionError = true;
                         console.error('[RPCA79] fetchData error:', e);
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ดึงข้อมูลไม่สำเร็จ',
+                            html: `<div class="text-sm">รายละเอียด: <br><code class="text-red-500 bg-red-50 p-1 rounded mt-2 block break-words">${e.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ'}</code></div>`
+                        });
                     } finally {
                         this._isFetchLocked = false;
                         setTimeout(() => this.isFetching = false, 500); 
@@ -930,6 +950,7 @@
                         }
                     }
                 },
+                // 👆 สิ้นสุดโค้ดใหม่ 👆
 
                 switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
 
