@@ -627,14 +627,17 @@
                 
                 _isFetchLocked: false, 
                 _fetchTimeout: null,
+
+                // [FIX] เพิ่ม flag สำหรับ "pending fetch" เพื่อแก้ race condition
+                // ปัญหา: เมื่อ realtime trigger ซ้ำขณะ fetch กำลังทำงาน → skip → ข้อมูลไม่อัปเดต
+                _pendingFetch: false,
+
                 isDashboardFullscreen: false,
                 
-                // ตัวแปรใหม่สำหรับฟีเจอร์ Admin "เลือกแทน"
                 adminAssignModalOpen: false,
                 adminAssignUserId: '',
                 adminAssignPosId: '',
                 
-                // ตัวแปรใหม่สำหรับป็อปอัปรายละเอียดในหน้า Dashboard
                 posDetailModalOpen: false,
                 selectedDetailPos: null,
 
@@ -675,7 +678,31 @@
                     const groups = {}; filtered.forEach(p => { if (!groups[p[2]]) groups[p[2]] = []; groups[p[2]].push(p); });
                     return Object.keys(groups).sort().map(region => ({ name: region, items: groups[region] }));
                 },
-                get isMyTurn() { return this.user.role==='USER' && parseInt(this.user.id)===parseInt(this.config.current_queue) && this.config.system_status==='OPEN' && this.user.status!=='SELECTED'; },
+
+                // [FIX #1] แก้ isMyTurn: เพิ่ม null/NaN guard ป้องกัน parseInt(null) = NaN
+                // ปัญหา: config.current_queue อาจเป็น null ระหว่าง initial load
+                //        ทำให้ parseInt(null) = NaN → NaN === anything = false → ปุ่มไม่แสดง
+                // แก้: ตรวจสอบว่า user.id, config.current_queue มีค่าจริงก่อนเปรียบเทียบ
+                get isMyTurn() { 
+                    // Guard: ถ้า user ไม่ได้ login หรือ config ยังไม่โหลด → return false ทันที
+                    if (!this.user.id || !this.user.role || this.user.role !== 'USER') return false;
+                    if (this.config.current_queue === null || this.config.current_queue === undefined) return false;
+                    
+                    const myId = parseInt(this.user.id);
+                    const currentQ = parseInt(this.config.current_queue);
+                    
+                    // Guard: ถ้า parse แล้วได้ NaN → return false ป้องกัน NaN === NaN = false
+                    if (isNaN(myId) || isNaN(currentQ)) return false;
+                    
+                    // [FIX] ตรวจสอบ system_status ด้วย trim() ป้องกัน whitespace แอบมา
+                    const systemOpen = String(this.config.system_status || '').trim().toUpperCase() === 'OPEN';
+                    
+                    // [FIX] ตรวจสอบ user.status ด้วย trim() + toUpperCase() ป้องกัน case-sensitivity
+                    const notSelected = String(this.user.status || '').trim().toUpperCase() !== 'SELECTED';
+                    
+                    return myId === currentQ && systemOpen && notSelected;
+                },
+
                 get nextUser() { const nextId = parseInt(this.config.current_queue) + 1; const u = this.users.find(u => parseInt(u[0]) === nextId); return u ? {id: u[0], name: u[1]} : null; },
                 get prevUser() { const prevId = parseInt(this.config.current_queue) - 1; const u = this.users.find(u => parseInt(u[0]) === prevId); return u ? {id: u[0], name: u[1]} : null; },
                 get currentUserObj() { const currId = parseInt(this.config.current_queue); const u = this.users.find(u => parseInt(u[0]) === currId); return u ? {id: u[0], name: u[1]} : null; },
@@ -693,15 +720,12 @@
                     return map[region] || 'bg-slate-600';
                 },
                 
-                // เปิดป็อปอัปแสดงรายละเอียดตำแหน่ง (ใช้ในหน้า Dashboard)
                 openPosDetail(pos) {
                     this.selectedDetailPos = pos;
                     this.posDetailModalOpen = true;
-                    // สร้างไอคอนใหม่สำหรับใน Modal โดยหน่วงเวลาเล็กน้อย
                     setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 50);
                 },
 
-                // ฟังก์ชันสำหรับแอดมินใช้ยิงอัปเดตข้อมูลตรงๆ "เลือกแทน"
                 async submitAdminAssign() {
                     if(!this.adminAssignUserId || !this.adminAssignPosId) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้ใช้งานและตำแหน่งให้ครบถ้วน', 'warning');
                     
@@ -710,12 +734,10 @@
                         const targetUser = this.users.find(u => u[0] == this.adminAssignUserId);
                         const targetPos = this.positions.find(p => p[0] == this.adminAssignPosId);
                         
-                        // บันทึกตรงไปที่ฐานข้อมูล (Bypass ข้อจำกัดเรื่องคิวปกติของ User)
                         await db.from('positions').update({ status: 'TAKEN', taken_by_user_id: parseInt(this.adminAssignUserId) }).eq('id', this.adminAssignPosId);
                         await db.from('users').update({ status: 'SELECTED', selected_pos_name: targetPos[1], selected_at: new Date().toISOString() }).eq('id', parseInt(this.adminAssignUserId));
                         await db.from('logs').insert({ user_id: parseInt(this.adminAssignUserId), user_name: targetUser[1], pos_id: this.adminAssignPosId, pos_name: targetPos[1], pos_region: targetPos[2] });
 
-                        // ถ้าคนที่แอดมินเลือกให้ คือคนที่กำลังถึงคิวพอดี ให้ระบบขยับคิวไปคนต่อไปอัตโนมัติ
                         if(parseInt(this.adminAssignUserId) === parseInt(this.config.current_queue)) {
                              await db.from('config').update({ current_queue: parseInt(this.config.current_queue) + 1 }).eq('id', 1);
                         }
@@ -739,6 +761,10 @@
                 initRealtime() {
                     if (!db) return;
                     
+                    // [FIX #3] แก้ Race Condition: ใช้ _pendingFetch แทนการ skip fetch ทิ้ง
+                    // ปัญหาเดิม: ถ้า realtime trigger ขณะ fetch กำลังทำงาน → _isFetchLocked=true → skip
+                    //            ทำให้ข้อมูลล่าสุดไม่ถูก fetch → queue ค้าง
+                    // แก้: บันทึกว่ามี pending fetch รอไว้ แล้วพอ fetch ปัจจุบันเสร็จ ให้ fetch อีกรอบอัตโนมัติ
                     const debouncedFetch = () => {
                         clearTimeout(this._fetchTimeout);
                         this._fetchTimeout = setTimeout(() => {
@@ -750,7 +776,14 @@
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => { debouncedFetch(); })
                         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'config' }, payload => {
                             const oldQueue = this.config.current_queue;
-                            this.config.current_queue = payload.new.current_queue;
+
+                            // [FIX] อัปเดต config.current_queue ทันทีจาก payload (ไม่ต้องรอ fetchData)
+                            // ป้องกัน: UI ยังแสดงค่าเก่าขณะรอ fetch รอบถัดไป
+                            if (payload.new && payload.new.current_queue !== undefined) {
+                                this.config.current_queue = payload.new.current_queue;
+                                this.config.system_status = payload.new.system_status || this.config.system_status;
+                            }
+
                             if (parseInt(this.user.id) === payload.new.current_queue && oldQueue !== payload.new.current_queue) {
                                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                             }
@@ -760,11 +793,19 @@
                         .subscribe();
                 },
 
+                // [FIX #3] แก้ fetchData: เพิ่ม _pendingFetch pattern แทน skip ทิ้ง
+                // ปัญหาเดิม: _isFetchLocked = true → realtime call fetchData → return ทันที → ข้อมูลเก่า
+                // แก้: ถ้า lock อยู่ → set _pendingFetch = true → พอ lock หลุด → fetch อีกรอบอัตโนมัติ
                 async fetchData() {
                     if (!db) return;
                     
-                    if (this._isFetchLocked) return; 
+                    if (this._isFetchLocked) {
+                        // [FIX] แทนที่จะ skip ทิ้ง → บันทึกว่ามี pending fetch รอไว้
+                        this._pendingFetch = true;
+                        return; 
+                    }
                     this._isFetchLocked = true;
+                    this._pendingFetch = false; // reset pending flag
                     this.isFetching = true;
 
                     try {
@@ -783,25 +824,65 @@
                         this.isInitialLoading = false;
                         this.connectionError = false;
                         
+                        // [FIX #2] แก้ user status sync: เพิ่ม defensive check ป้องกัน undefined
+                        // ปัญหาเดิม: user.status อัปเดตแค่ status และ name แต่ไม่ครอบคลุม lineLinked
+                        //            และไม่มี trim() → อาจ mismatch กับ 'SELECTED' ที่มี whitespace
                         if(this.user.id && this.user.role === 'USER') {
                             const u = this.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
-                            if(u) { this.user.status = u[3]; this.user.name = u[1]; localStorage.setItem('user_session', JSON.stringify(this.user)); }
+                            if(u) { 
+                                // [FIX] เพิ่ม trim() ทั้ง status เพื่อป้องกัน whitespace ทำให้ match ไม่ตรง
+                                this.user.status = String(u[3] || 'WAITING').trim();
+                                this.user.name = u[1] || this.user.name;
+                                
+                                // [FIX] sync lineLinked จาก database ด้วย (ก่อนหน้านี้ไม่ได้ sync)
+                                // ป้องกัน: UI แสดงว่า LINE ไม่ได้เชื่อม ทั้งที่ DB มีค่าแล้ว
+                                this.user.lineLinked = !!u[6]; // u[6] = line_user_id
+                                
+                                localStorage.setItem('user_session', JSON.stringify(this.user)); 
+                            }
                         }
                     } catch(e) {
                         this.isInitialLoading = false;
                         this.connectionError = true;
+                        console.error('[RPCA79] fetchData error:', e);
                     } finally {
                         this._isFetchLocked = false;
                         setTimeout(() => this.isFetching = false, 500); 
+                        
+                        // [FIX #3] ถ้ามี pending fetch รอไว้ → fetch อีกรอบทันที
+                        // ป้องกัน: realtime event ที่ถูก block ระหว่าง fetch → ไม่ถูก process
+                        if (this._pendingFetch) {
+                            this._pendingFetch = false;
+                            setTimeout(() => this.fetchData(), 100);
+                        }
                     }
                 },
 
                 switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
 
+                // [FIX #4] แก้ confirmSelect: เพิ่ม pre-flight validation ก่อน submit
+                // ปัญหา: ระหว่าง confirm dialog กำลังแสดง → มีคนอื่น select ตำแหน่งเดียวกัน
+                //        → ผู้ใช้กด confirm → error จาก server → UX ไม่ดี
+                // แก้: ตรวจสอบ isMyTurn และสถานะตำแหน่งอีกรอบก่อน submit จริง
                 confirmSelect(pos) {
                     Swal.fire({ title: 'ยืนยันเลือก?', text: `${pos[1]} (${pos[2]})`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async (result) => {
                         if (result.isConfirmed) {
                             if (this.isSubmitting) return;
+
+                            // [FIX] Pre-flight check: ตรวจสอบสิทธิ์และสถานะตำแหน่ง ก่อน submit จริง
+                            // ป้องกัน: race condition ที่เกิดระหว่าง confirm dialog เปิดอยู่
+                            if (!this.isMyTurn) {
+                                Swal.fire('หมดเวลา', 'คิวของคุณได้เปลี่ยนแปลงแล้ว กรุณาตรวจสอบสถานะใหม่', 'warning');
+                                return;
+                            }
+
+                            // [FIX] ตรวจสอบ local state ว่าตำแหน่งยังว่างอยู่ไหม ก่อนยิง API
+                            const currentPos = this.positions.find(p => p[0] == pos[0]);
+                            if (!currentPos || currentPos[3] !== 'AVAILABLE') {
+                                Swal.fire('เสียใจด้วย', 'ตำแหน่งนี้ถูกเลือกไปแล้ว กรุณาเลือกตำแหน่งอื่น', 'error');
+                                return;
+                            }
+
                             this.isSubmitting = true;
                             Swal.fire({title: 'Saving...', didOpen:()=>Swal.showLoading()});
                             try {
@@ -816,8 +897,19 @@
                                     Swal.close(); 
                                     this.switchPage('dashboard'); 
                                     this.fetchData(); 
-                                } else { Swal.fire('Error', data.msg, 'error'); }
-                            } catch(e) { this.isSubmitting = false; Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error'); }
+                                } else { 
+                                    // [FIX] แสดง error message จาก server อย่างชัดเจน
+                                    Swal.fire('ไม่สำเร็จ', data.msg || 'กรุณาลองใหม่อีกครั้ง', 'error'); 
+                                    // [FIX] Refresh ข้อมูลหลัง error เพื่ออัปเดต state ให้ถูกต้อง
+                                    this.fetchData();
+                                }
+                            } catch(e) { 
+                                this.isSubmitting = false; 
+                                console.error('[RPCA79] confirmSelect error:', e);
+                                Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error'); 
+                                // [FIX] Refresh ข้อมูลหลัง error ด้วย
+                                this.fetchData();
+                            }
                         }
                     });
                 },
