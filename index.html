@@ -1089,26 +1089,6 @@
                     setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 50);
                 },
 
-                async submitAdminAssign() {
-                    if(!this.adminAssignUserId || !this.adminAssignPosId) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้ใช้งานและตำแหน่งให้ครบถ้วน', 'warning');
-                    Swal.fire({title: 'กำลังบันทึกข้อมูล...', didOpen:()=>Swal.showLoading()});
-                    try {
-                        const targetUser = this.users.find(u => u[0] == this.adminAssignUserId);
-                        const targetPos = this.positions.find(p => p[0] == this.adminAssignPosId);
-                        await db.from('positions').update({ status: 'TAKEN', taken_by_user_id: parseInt(this.adminAssignUserId) }).eq('id', this.adminAssignPosId);
-                        await db.from('users').update({ status: 'SELECTED', selected_pos_name: targetPos[1], selected_at: new Date().toISOString() }).eq('id', parseInt(this.adminAssignUserId));
-                        await db.from('logs').insert({ user_id: parseInt(this.adminAssignUserId), user_name: targetUser[1], pos_id: this.adminAssignPosId, pos_name: targetPos[1], pos_region: targetPos[2] });
-                        if(parseInt(this.adminAssignUserId) === parseInt(this.config.current_queue)) {
-                             await db.from('config').update({ current_queue: parseInt(this.config.current_queue) + 1 }).eq('id', 1);
-                        }
-                        this.adminAssignModalOpen = false;
-                        this.adminAssignUserId = '';
-                        this.adminAssignPosId = '';
-                        Swal.fire('สำเร็จ', 'บันทึกการเลือกตำแหน่งแทนเรียบร้อยแล้ว', 'success');
-                        this.fetchData();
-                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error'); }
-                },
-
                 initApp() {
                     this.fetchData();
                     this.initRealtime();
@@ -1354,7 +1334,7 @@
 
                 logout() { this.user = {id: null, pictureUrl: null}; localStorage.removeItem('user_session'); this.lineProfile = {}; this.switchPage('login'); },
 
-adminAction(action) {
+                adminAction(action) {
                     Swal.fire({title: 'Confirm?', text: action, icon: 'warning', showCancelButton: true}).then(async r => {
                         if(r.isConfirmed) {
                             Swal.fire({title: 'Processing...', didOpen:()=>Swal.showLoading()});
@@ -1370,6 +1350,14 @@ adminAction(action) {
                             } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด: ' + e.message, 'error'); }
                         }
                     });
+                },
+                adminReset() { this.adminAction('RESET'); },
+                triggerBackup() { this.adminAction('BACKUP'); },
+
+                openAdminModal(action, data = null, type = 'USER') {
+                    this.adminModalAction = action; this.adminModalOpen = true;
+                    if(action === 'CREATE') this.adminFormData = {id:'', name:'', code:'', region:''};
+                    else this.adminFormData = type === 'USER' ? {id: data[0], name: data[1], code: data[2], region:''} : {id: data[0], name: data[1], region: data[2], code:''};
                 },
 
                 async saveAdminData() {
