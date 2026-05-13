@@ -80,27 +80,10 @@
         .mobile-nav-item svg { width: 18px; height: 18px; transition: all 0.15s ease; }
         .mobile-nav-item.active svg { transform: translateY(-2px); }
 
-        .summary-stat-card { background: white; border-radius: 20px; padding: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; transition: all 0.2s ease; }
-        .dark .summary-stat-card { background: #1e293b; border-color: #334155; }
-
         .connection-error-banner { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #ef4444; color: white; padding: 14px 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(239,68,68,0.4); z-index: 100; display: flex; align-items: center; gap: 12px; }
         @media (min-width: 768px) { .connection-error-banner { bottom: 24px; left: auto; right: 24px; width: 360px; } }
 
         @media print { body * { visibility: hidden; } #digital-slip-content, #digital-slip-content * { visibility: visible; } #digital-slip-content { position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-shadow: none !important; } .no-print { display: none !important; } }
-
-        .queue-status-bar {
-            position: sticky; top: 57px; z-index: 40;
-            background: rgba(255,255,255,0.97); backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-            transition: all 0.3s ease;
-        }
-        .dark .queue-status-bar { background: rgba(15,23,42,0.97); border-bottom-color: rgba(255,255,255,0.07); }
-        .queue-status-bar.my-turn-active {
-            background: linear-gradient(135deg, #059669, #10b981);
-            border-bottom-color: rgba(16,185,129,0.3);
-            animation: queueBarPulse 2s ease-in-out infinite;
-        }
-        @keyframes queueBarPulse { 0%,100% { box-shadow: 0 4px 20px rgba(16,185,129,0.25); } 50% { box-shadow: 0 4px 30px rgba(16,185,129,0.5); } }
 
         .my-turn-sheet {
             position: fixed; inset: 0; z-index: 150;
@@ -192,344 +175,324 @@
         .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; gap: 12px; }
         .empty-state-icon { width: 64px; height: 64px; background: #f1f5f9; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: #94a3b8; }
         .dark .empty-state-icon { background: #1e293b; }
+        
+        /* Account Card Story Pattern */
+        .story-card-bg {
+            background-color: #0f172a;
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+        }
     </style>
 </head>
 
 <body class="text-slate-800 dark:text-slate-100 bg-pattern min-h-screen transition-colors duration-300" x-init="initApp()" x-cloak>
 
-    <header class="fixed top-0 left-0 right-0 z-50 glass-header shadow-sm transition-all duration-300">
-        <div class="container mx-auto px-4 h-14 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
+    <!-- HEADER: Consolidated Single Line -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header shadow-sm transition-all duration-300 border-b border-slate-200 dark:border-slate-700">
+        <div class="container mx-auto px-4 h-16 flex justify-between items-center gap-2">
+            
+            <!-- Left: Logo & Online Status -->
+            <div class="flex items-center gap-2 shrink-0">
+                <div class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
                     <i data-lucide="shield-half" class="w-5 h-5"></i>
                 </div>
-                <div>
-                    <h1 class="text-base font-bold leading-none text-slate-800 dark:text-white">RPCA79</h1>
-                    <div class="flex items-center gap-1.5 mt-0.5">
+                <div class="hidden sm:block">
+                    <h1 class="text-sm font-bold leading-none text-slate-800 dark:text-white">RPCA79</h1>
+                    <div class="flex items-center gap-1 mt-0.5">
                         <span class="blink-dot bg-green-500" :class="isFetching ? 'animate-ping' : ''"></span>
-                        <span class="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase tracking-wide">
-                            Online <span x-show="isFetching" class="ml-1 opacity-70 text-slate-500">(Syncing...)</span>
+                        <span class="text-[9px] font-bold text-green-600 dark:text-green-400 uppercase tracking-wide">
+                            Online <span x-show="isFetching" class="ml-1 opacity-70 text-slate-500">(Sync)</span>
                         </span>
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <div x-show="config.current_queue" class="hidden sm:flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <i data-lucide="list-ordered" class="w-3.5 h-3.5 text-blue-500"></i>
-                    <span class="text-xs font-bold text-slate-600 dark:text-slate-300">คิว</span>
-                    <span class="text-sm font-black text-blue-600 dark:text-blue-400" x-text="config.current_queue"></span>
+            <!-- Middle: Queue Status & Progress (Combined) -->
+            <div x-show="!isMyTurn && config.current_queue" class="flex-1 max-w-2xl flex items-center justify-between bg-slate-100/70 dark:bg-slate-800/70 rounded-full px-3 md:px-5 py-1.5 border border-slate-200/80 dark:border-slate-700/80 transition-all mx-1 md:mx-4">
+                <div class="flex items-center gap-2 md:gap-4">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] md:text-xs font-bold text-slate-500 dark:text-slate-400">คิวปัจจุบัน</span>
+                        <span class="text-base md:text-lg font-black text-blue-600 dark:text-blue-400" x-text="config.current_queue"></span>
+                    </div>
+                    <div x-show="user.id && user.role === 'USER' && user.status !== 'SELECTED'" class="hidden sm:flex items-center gap-1.5 border-l border-slate-300 dark:border-slate-600 pl-2 md:pl-4">
+                        <span class="text-[10px] md:text-xs font-bold text-slate-500 dark:text-slate-400">คิวคุณ</span>
+                        <span class="text-sm md:text-base font-black text-slate-700 dark:text-slate-200" x-text="user.id"></span>
+                        <span x-show="!isInitialLoading && parseInt(user.id) > parseInt(config.current_queue)" class="hidden lg:inline ml-1 text-[10px] font-bold bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded">
+                            อีก <span x-text="Math.max(0, parseInt(user.id) - parseInt(config.current_queue))"></span> คิว
+                        </span>
+                    </div>
                 </div>
-
-                <div x-show="isMyTurn" class="flex items-center gap-1 bg-green-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold animate-pulse shadow-md shadow-green-500/30">
-                    <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i>
-                    <span>ถึงคิวคุณแล้ว!</span>
+                <div class="flex items-center gap-2 shrink-0 ml-2">
+                    <span class="text-[9px] md:text-[10px] font-bold text-slate-500 dark:text-slate-400"><span x-text="positions.filter(p=>p[3]!=='AVAILABLE').length"></span>/<span x-text="positions.length"></span></span>
+                    <div class="w-12 md:w-24 h-1.5 md:h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full transition-all duration-700" :style="'width:' + progressPercent + '%'"></div>
+                    </div>
                 </div>
+            </div>
 
-                <button @click="toggleDarkMode" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 flex items-center justify-center transition border border-slate-200 dark:border-slate-700">
+            <!-- Middle: My Turn Banner -->
+            <div x-show="isMyTurn" @click="myTurnSheetOpen = true" class="flex-1 max-w-xl flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-600 rounded-full px-4 py-1.5 shadow-md shadow-green-500/30 cursor-pointer animate-pulse mx-1 md:mx-4">
+                <i data-lucide="bell-ring" class="w-4 h-4 text-white mr-1.5 shrink-0"></i>
+                <span class="text-[11px] md:text-sm font-black text-white truncate">ถึงคิวคุณแล้ว! เลือกเลย →</span>
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="flex items-center gap-1.5 md:gap-2 shrink-0">
+                <button @click="toggleDarkMode" class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 flex items-center justify-center transition border border-slate-200 dark:border-slate-700">
                     <span x-show="darkMode"><i data-lucide="sun" class="w-4 h-4"></i></span>
                     <span x-show="!darkMode"><i data-lucide="moon" class="w-4 h-4"></i></span>
                 </button>
 
                 <template x-if="user.pictureUrl">
-                    <img :src="user.pictureUrl" class="w-9 h-9 rounded-full border-2 border-blue-500 shadow-sm object-cover cursor-pointer" @click="switchPage('login')">
+                    <img :src="user.pictureUrl" class="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-blue-500 shadow-sm object-cover cursor-pointer" @click="switchPage('login')">
                 </template>
                 <template x-if="user.id && !user.pictureUrl">
-                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 text-white flex items-center justify-center font-bold text-xs cursor-pointer shadow-md" x-text="user.id" @click="switchPage('login')"></div>
+                    <div class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 text-white flex items-center justify-center font-bold text-xs cursor-pointer shadow-md" x-text="user.id === 'ADMIN' ? 'AD' : user.id" @click="switchPage('login')"></div>
                 </template>
-                <div x-show="!user.id" @click="switchPage('login')" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <div x-show="!user.id" @click="switchPage('login')" class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center border border-slate-200 dark:border-slate-700 cursor-pointer">
                     <i data-lucide="log-in" class="w-4 h-4"></i>
                 </div>
             </div>
         </div>
-        <div class="h-1 bg-slate-100 dark:bg-slate-800 w-full">
-            <div class="h-full bg-blue-500 transition-all duration-1000" :style="'width: ' + progressPercent + '%'"></div>
-        </div>
     </header>
 
-    <div class="h-16"></div>
+    <div class="h-20"></div>
 
     <!-- ===============================================================
          HOME PAGE
     ================================================================ -->
     <div x-show="currentPage === 'home'" class="animate-enter safe-pb">
-        <div class="queue-status-bar" :class="isMyTurn ? 'my-turn-active' : ''">
-            <div class="container mx-auto px-4 py-2.5">
-                <div x-show="!isMyTurn" class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-2">
-                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">คิวปัจจุบัน</span>
-                            <span class="text-lg font-black text-blue-600 dark:text-blue-400" x-text="config.current_queue || '...'"></span>
-                        </div>
-                        <div x-show="user.id && user.role === 'USER' && user.status !== 'SELECTED'" class="flex items-center gap-2">
-                            <div class="w-px h-5 bg-slate-200 dark:bg-slate-700"></div>
-                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">คิวคุณ</span>
-                            <span class="text-lg font-black text-slate-700 dark:text-slate-200" x-text="user.id"></span>
-                            <div x-show="!isInitialLoading && user.status !== 'SELECTED' && parseInt(user.id) > parseInt(config.current_queue)" class="flex items-center gap-1 text-[11px] font-bold text-orange-500">
-                                <span>อีก</span>
-                                <span x-text="Math.max(0, parseInt(user.id) - parseInt(config.current_queue))"></span>
-                                <span>คิว</span>
-                            </div>
-                        </div>
-                        <div x-show="user.status === 'SELECTED'" class="flex items-center gap-1.5 text-[11px] font-bold text-green-600 dark:text-green-400">
-                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
-                            <span>เลือกตำแหน่งแล้ว</span>
-                        </div>
+        <div class="container mx-auto px-4 pb-28 grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
+            <div class="lg:col-span-4 space-y-4 order-1 lg:order-2">
+                 <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg p-5 border border-slate-100 dark:border-slate-700">
+                    <div x-show="!user.id" class="text-center py-4">
+                        <i data-lucide="user-check" class="w-12 h-12 text-blue-500 mx-auto mb-2 opacity-50"></i>
+                        <p class="text-sm font-bold text-slate-500">กรุณาเข้าสู่ระบบผ่านเมนู Login</p>
+                        <button @click="switchPage('login')" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md">ไปหน้าเข้าสู่ระบบ</button>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <div class="hidden sm:flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
-                            <span x-text="positions.filter(p=>p[3]!=='AVAILABLE').length"></span>
-                            <span>/</span>
-                            <span x-text="positions.length"></span>
-                            <span>ตำแหน่ง</span>
-                        </div>
-                        <div class="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-blue-500 rounded-full transition-all duration-700" :style="'width:' + progressPercent + '%'"></div>
-                        </div>
-                    </div>
-                </div>
-                <div x-show="isMyTurn" class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                            <i data-lucide="bell-ring" class="w-4 h-4 text-white"></i>
-                        </div>
-                        <div>
-                            <div class="font-black text-white text-sm">ถึงคิวของคุณแล้ว!</div>
-                            <div class="text-green-100 text-[11px]">แตะเพื่อเลือกตำแหน่ง</div>
-                        </div>
-                    </div>
-                    <button @click="myTurnSheetOpen = true" class="bg-white text-green-700 px-4 py-2 rounded-xl font-black text-sm shadow-md active:scale-95 transition">
-                        เลือกเลย →
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="container mx-auto px-4 pb-28 grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
-        <div class="lg:col-span-4 space-y-4 order-1 lg:order-2">
-             <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg p-5 border border-slate-100 dark:border-slate-700">
-                <div x-show="!user.id" class="text-center py-4">
-                    <i data-lucide="user-check" class="w-12 h-12 text-blue-500 mx-auto mb-2 opacity-50"></i>
-                    <p class="text-sm font-bold text-slate-500">กรุณาเข้าสู่ระบบผ่านเมนู Login</p>
-                    <button @click="switchPage('login')" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md">ไปหน้าเข้าสู่ระบบ</button>
-                </div>
-                <div x-show="user.id">
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="flex items-center gap-3">
-                            <template x-if="user.pictureUrl">
-                                <img :src="user.pictureUrl" class="w-12 h-12 rounded-full border-2 border-blue-500 object-cover shadow-sm">
-                            </template>
-                            <template x-if="!user.pictureUrl">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-md" x-text="user.id"></div>
-                            </template>
-                            <div>
-                                <div class="font-bold text-slate-800 dark:text-white text-sm" x-text="user.name"></div>
-                                <div class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500 dark:text-slate-300" x-text="user.status"></div>
-                            </div>
-                        </div>
-                        <button @click="logout" class="text-red-500 bg-red-50 dark:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center"><i data-lucide="power" class="w-4 h-4"></i></button>
-                    </div>
-                    <div x-show="user.lineLinked" class="mb-3">
-                        <span class="line-linked-badge"><i data-lucide="check-circle-2" class="w-3 h-3"></i> เชื่อมต่อ LINE: <span x-text="lineProfile && lineProfile.displayName ? lineProfile.displayName : 'สำเร็จ'"></span></span>
-                    </div>
-                    <div x-show="isMyTurn" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-2xl text-center shadow-lg animate-pulse cursor-pointer" @click="window.scrollTo({top:0, behavior:'smooth'})">ถึงคิวของคุณแล้ว! กดเลือกตำแหน่งได้เลย</div>
-                    <div x-show="!isMyTurn && user.status === 'WAITING'" class="bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl text-center"><p class="text-slate-500 dark:text-slate-300 font-bold text-xs">รออีก <span class="text-xl text-blue-600 dark:text-blue-400 mx-1" x-text="Math.max(0, parseInt(user.id) - parseInt(config.current_queue))"></span> คิว</p></div>
-                    <div x-show="user.status === 'SELECTED'" class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-2xl text-center"><p class="text-blue-600 dark:text-blue-400 font-bold text-sm">✅ เลือกตำแหน่งแล้ว</p></div>
-                </div>
-            </div>
-
-            <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
-                <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-4 text-xs uppercase tracking-wider flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-blue-500"></i> ลำดับคิวปัจจุบัน</h3>
-                <div class="space-y-3 relative">
-                    <div class="absolute left-[1.1rem] top-3 bottom-3 w-0.5 bg-slate-100 dark:bg-slate-700"></div>
-                    <div class="relative flex items-center gap-3 p-2 opacity-50"><div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center z-10 text-slate-400 font-bold"><i data-lucide="check" class="w-4 h-4"></i></div><div><div class="text-[9px] uppercase font-bold text-slate-400">Previous</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="prevUser ? prevUser.name : '-'"></div></div></div>
-                    <div class="relative flex items-center gap-3 bg-white dark:bg-slate-700 p-3 rounded-2xl shadow-md border-l-4 border-blue-500 z-10"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center font-bold text-base shadow-lg animate-pulse"><span x-text="config.current_queue || '?'"></span></div><div><div class="text-[9px] uppercase font-bold text-blue-600 dark:text-blue-400">Now Selecting</div><div class="text-sm font-bold text-slate-800 dark:text-white leading-tight" x-text="currentUserObj ? currentUserObj.name : 'Waiting...'"></div></div></div>
-                    <div class="relative flex items-center gap-3 p-2 opacity-60"><div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-green-200 dark:border-green-900 flex items-center justify-center z-10 text-green-600 dark:text-green-400 font-bold"><i data-lucide="arrow-down" class="w-4 h-4"></i></div><div><div class="text-[9px] uppercase font-bold text-green-600 dark:text-green-400">Next</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="nextUser ? nextUser.name : '-'"></div></div></div>
-                </div>
-            </div>
-
-            <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
-                <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider flex items-center gap-2"><i data-lucide="history" class="w-4 h-4 text-blue-500"></i> ล่าสุด (5 รายการ)</h3></div>
-                <div class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                    <template x-for="log in serverLogs.slice(0, 5)" :key="log[0] + log[1]">
-                        <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
-                            <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-[10px]" x-text="log[1]"></div>
-                            <div class="flex-1 min-w-0"><div class="text-[10px] text-slate-500 dark:text-slate-400 truncate" x-text="log[2]"></div><div class="flex items-center gap-1.5"><div class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" x-text="log[4]"></div><span class="text-[9px] bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-1.5 rounded" x-text="log[5]"></span></div></div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </div>
-
-        <div class="lg:col-span-8 space-y-6 order-2 lg:order-1">
-            <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2"><i data-lucide="network" class="w-5 h-5 text-blue-600"></i> เลือกกองบัญชาการ (ภาค)</h3>
-                    <button x-show="filterRegion" class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/30 px-3 py-1.5 rounded-lg hover:bg-red-100 transition flex items-center" @click="filterRegion=''">ล้างตัวกรอง <i data-lucide="x" class="w-3 h-3 ml-1"></i></button>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    <template x-for="bureau in ['บช.น.', 'ภ.1', 'ภ.2', 'ภ.3', 'ภ.4', 'ภ.5', 'ภ.6', 'ภ.7', 'ภ.8', 'ภ.9']">
-                        <button @click="filterRegion = (filterRegion === bureau ? '' : bureau)" :class="filterRegion === bureau ? 'active ring-2 ring-blue-500' : 'bg-slate-50 dark:bg-slate-700/50'" class="bureau-card rounded-2xl p-3 flex flex-col items-center justify-center gap-2 relative overflow-hidden group"><span class="text-2xl md:text-3xl font-black text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors" x-text="bureau"></span><div class="w-full"><div class="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 px-1"><span x-text="getRegionStats(bureau).taken + ' คน'"></span><span x-text="'จาก ' + getRegionStats(bureau).total"></span></div><div class="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden"><div class="h-full bg-blue-500 transition-all duration-500" :style="'width: ' + getRegionStats(bureau).percent + '%'"></div></div></div></button>
-                    </template>
-                </div>
-            </div>
-
-            <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 shadow-sm border border-slate-100 dark:border-slate-700 space-y-4">
-                <div class="flex flex-col md:flex-row gap-3">
-                    <div class="relative flex-1 flex items-center">
-                        <i data-lucide="search" class="absolute left-3.5 text-slate-400 w-4 h-4"></i>
-                        <input x-model="search" type="text" placeholder="ค้นหาหน่วยงาน..." class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-700 dark:text-white border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 outline-none text-sm font-medium">
-                        <button x-show="search.length > 0" @click="search = ''" class="absolute right-3.5 text-slate-400 hover:text-slate-600"><i data-lucide="x-circle" class="w-4 h-4"></i></button>
-                    </div>
-                    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                        <div class="bg-slate-100 dark:bg-slate-700 p-1 rounded-xl flex shrink-0"><button @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition flex items-center justify-center"><i data-lucide="layout-grid" class="w-4 h-4"></i></button><button @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition flex items-center justify-center"><i data-lucide="list" class="w-4 h-4"></i></button></div>
-                        <button @click="filterStatus = (filterStatus === 'WISHLIST' ? 'ALL' : 'WISHLIST')" :class="filterStatus === 'WISHLIST' ? 'bg-yellow-400 text-white shadow-lg' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> ที่ติดดาว</button>
-                        <button @click="filterStatus = (filterStatus === 'TAKEN' ? 'ALL' : 'TAKEN')" :class="filterStatus === 'TAKEN' ? 'bg-slate-800 text-white dark:bg-slate-600' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> เลือกแล้ว</button>
-                        <button @click="filterStatus = (filterStatus === 'AVAILABLE' ? 'ALL' : 'AVAILABLE')" :class="filterStatus === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> ว่าง</button>
-                    </div>
-                </div>
-                
-                <div class="min-h-[50vh]">
-                    <div x-show="isInitialLoading" class="space-y-3">
-                        <div class="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-200/50 dark:border-slate-700/50">
-                            <div class="flex items-center gap-2 mb-3">
-                                <div class="skeleton w-1 h-4 rounded-full"></div>
-                                <div class="skeleton h-4 w-20 rounded"></div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-                                <template x-for="i in [1,2,3,4,5,6]" :key="i">
-                                    <div class="rounded-lg p-3 border border-slate-100 dark:border-slate-700 space-y-2">
-                                        <div class="skeleton h-3 w-12 rounded"></div>
-                                        <div class="skeleton h-4 w-full rounded"></div>
-                                        <div class="skeleton h-3 w-3/4 rounded"></div>
-                                        <div class="skeleton h-9 w-full rounded-md mt-1"></div>
-                                    </div>
+                    <div x-show="user.id">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-3">
+                                <template x-if="user.pictureUrl">
+                                    <img :src="user.pictureUrl" class="w-12 h-12 rounded-full border-2 border-blue-500 object-cover shadow-sm">
                                 </template>
+                                <template x-if="!user.pictureUrl">
+                                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-md" x-text="user.id === 'ADMIN' ? 'AD' : user.id"></div>
+                                </template>
+                                <div>
+                                    <div class="font-bold text-slate-800 dark:text-white text-sm" x-text="user.name"></div>
+                                    <div class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500 dark:text-slate-300" x-text="user.status"></div>
+                                </div>
                             </div>
+                            <button @click="logout" class="text-red-500 bg-red-50 dark:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center"><i data-lucide="power" class="w-4 h-4"></i></button>
                         </div>
+                        <div x-show="user.lineLinked" class="mb-3">
+                            <span class="line-linked-badge"><i data-lucide="check-circle-2" class="w-3 h-3"></i> เชื่อมต่อ LINE: <span x-text="lineProfile && lineProfile.displayName ? lineProfile.displayName : 'สำเร็จ'"></span></span>
+                        </div>
+                        <div x-show="isMyTurn" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-2xl text-center shadow-lg animate-pulse cursor-pointer" @click="myTurnSheetOpen = true">ถึงคิวของคุณแล้ว! กดเลือกตำแหน่งได้เลย</div>
+                        <div x-show="!isMyTurn && user.status === 'WAITING'" class="bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl text-center"><p class="text-slate-500 dark:text-slate-300 font-bold text-xs">รออีก <span class="text-xl text-blue-600 dark:text-blue-400 mx-1" x-text="Math.max(0, parseInt(user.id) - parseInt(config.current_queue))"></span> คิว</p></div>
+                        <div x-show="user.status === 'SELECTED'" class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-2xl text-center"><p class="text-blue-600 dark:text-blue-400 font-bold text-sm">✅ เลือกตำแหน่งแล้ว</p></div>
                     </div>
+                </div>
 
-                    <div x-show="!isInitialLoading && (filterRegion || filterStatus !== 'ALL' || search)" class="flex items-center gap-2 flex-wrap mb-3 px-1">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">กำลังกรอง:</span>
-                        <span x-show="filterRegion" class="filter-chip">
-                            <i data-lucide="map-pin" class="w-3 h-3"></i>
-                            <span x-text="filterRegion"></span>
-                            <button @click="filterRegion = ''" title="ลบตัวกรอง">×</button>
-                        </span>
-                        <span x-show="filterStatus === 'AVAILABLE'" class="filter-chip" style="background:#dcfce7;color:#15803d;">
-                            <i data-lucide="check-circle-2" class="w-3 h-3"></i>
-                            <span>ว่างเท่านั้น</span>
-                            <button @click="filterStatus = 'ALL'" style="background:#86efac;color:#15803d;">×</button>
-                        </span>
-                        <span x-show="filterStatus === 'TAKEN'" class="filter-chip" style="background:#f1f5f9;color:#475569;">
-                            <i data-lucide="lock" class="w-3 h-3"></i>
-                            <span>เลือกแล้ว</span>
-                            <button @click="filterStatus = 'ALL'" style="background:#cbd5e1;color:#475569;">×</button>
-                        </span>
-                        <span x-show="filterStatus === 'WISHLIST'" class="filter-chip" style="background:#fef9c3;color:#92400e;">
-                            <i data-lucide="star" class="w-3 h-3"></i>
-                            <span>ที่ติดดาว</span>
-                            <button @click="filterStatus = 'ALL'" style="background:#fde68a;color:#92400e;">×</button>
-                        </span>
-                        <span x-show="search" class="filter-chip" style="background:#f3e8ff;color:#7c3aed;">
-                            <i data-lucide="search" class="w-3 h-3"></i>
-                            <span>"</span><span x-text="search"></span><span>"</span>
-                            <button @click="search = ''" style="background:#d8b4fe;color:#7c3aed;">×</button>
-                        </span>
-                        <button @click="filterRegion=''; filterStatus='ALL'; search='';" class="text-[10px] font-bold text-red-500 hover:text-red-700 underline ml-1">ล้างทั้งหมด</button>
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
+                    <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-4 text-xs uppercase tracking-wider flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-blue-500"></i> ลำดับคิวปัจจุบัน</h3>
+                    <div class="space-y-3 relative">
+                        <div class="absolute left-[1.1rem] top-3 bottom-3 w-0.5 bg-slate-100 dark:bg-slate-700"></div>
+                        <div class="relative flex items-center gap-3 p-2 opacity-50"><div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center z-10 text-slate-400 font-bold"><i data-lucide="check" class="w-4 h-4"></i></div><div><div class="text-[9px] uppercase font-bold text-slate-400">Previous</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="prevUser ? prevUser.name : '-'"></div></div></div>
+                        <div class="relative flex items-center gap-3 bg-white dark:bg-slate-700 p-3 rounded-2xl shadow-md border-l-4 border-blue-500 z-10"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center font-bold text-base shadow-lg animate-pulse"><span x-text="config.current_queue || '?'"></span></div><div><div class="text-[9px] uppercase font-bold text-blue-600 dark:text-blue-400">Now Selecting</div><div class="text-sm font-bold text-slate-800 dark:text-white leading-tight" x-text="currentUserObj ? currentUserObj.name : 'Waiting...'"></div></div></div>
+                        <div class="relative flex items-center gap-3 p-2 opacity-60"><div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 border-2 border-green-200 dark:border-green-900 flex items-center justify-center z-10 text-green-600 dark:text-green-400 font-bold"><i data-lucide="arrow-down" class="w-4 h-4"></i></div><div><div class="text-[9px] uppercase font-bold text-green-600 dark:text-green-400">Next</div><div class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="nextUser ? nextUser.name : '-'"></div></div></div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider flex items-center gap-2"><i data-lucide="history" class="w-4 h-4 text-blue-500"></i> ล่าสุด (5 รายการ)</h3></div>
+                    <div class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                        <template x-for="log in serverLogs.slice(0, 5)" :key="log[0] + log[1]">
+                            <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
+                                <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-[10px]" x-text="log[1]"></div>
+                                <div class="flex-1 min-w-0"><div class="text-[10px] text-slate-500 dark:text-slate-400 truncate" x-text="log[2]"></div><div class="flex items-center gap-1.5"><div class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" x-text="log[4]"></div><span class="text-[9px] bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-1.5 rounded" x-text="log[5]"></span></div></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8 space-y-6 order-2 lg:order-1">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2"><i data-lucide="network" class="w-5 h-5 text-blue-600"></i> เลือกกองบัญชาการ (ภาค)</h3>
+                        <button x-show="filterRegion" class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/30 px-3 py-1.5 rounded-lg hover:bg-red-100 transition flex items-center" @click="filterRegion=''">ล้างตัวกรอง <i data-lucide="x" class="w-3 h-3 ml-1"></i></button>
+                    </div>
+                    <!-- DYNAMIC REGIONS rendering -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                        <template x-for="bureau in uniqueRegions" :key="bureau">
+                            <button @click="filterRegion = (filterRegion === bureau ? '' : bureau)" :class="filterRegion === bureau ? 'active ring-2 ring-blue-500' : 'bg-slate-50 dark:bg-slate-700/50'" class="bureau-card rounded-2xl p-3 flex flex-col items-center justify-center gap-2 relative overflow-hidden group">
+                                <span class="text-xl md:text-2xl font-black text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors" x-text="bureau"></span>
+                                <div class="w-full">
+                                    <div class="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 px-1"><span x-text="getRegionStats(bureau).taken + ' คน'"></span><span x-text="'จาก ' + getRegionStats(bureau).total"></span></div>
+                                    <div class="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden"><div class="h-full bg-blue-500 transition-all duration-500" :style="'width: ' + getRegionStats(bureau).percent + '%'"></div></div>
+                                </div>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 shadow-sm border border-slate-100 dark:border-slate-700 space-y-4">
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <div class="relative flex-1 flex items-center">
+                            <i data-lucide="search" class="absolute left-3.5 text-slate-400 w-4 h-4"></i>
+                            <input x-model="search" type="text" placeholder="ค้นหาหน่วยงาน..." class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-700 dark:text-white border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 outline-none text-sm font-medium">
+                            <button x-show="search.length > 0" @click="search = ''" class="absolute right-3.5 text-slate-400 hover:text-slate-600"><i data-lucide="x-circle" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                            <div class="bg-slate-100 dark:bg-slate-700 p-1 rounded-xl flex shrink-0"><button @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition flex items-center justify-center"><i data-lucide="layout-grid" class="w-4 h-4"></i></button><button @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition flex items-center justify-center"><i data-lucide="list" class="w-4 h-4"></i></button></div>
+                            <button @click="filterStatus = (filterStatus === 'WISHLIST' ? 'ALL' : 'WISHLIST')" :class="filterStatus === 'WISHLIST' ? 'bg-yellow-400 text-white shadow-lg' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> ที่ติดดาว</button>
+                            <button @click="filterStatus = (filterStatus === 'TAKEN' ? 'ALL' : 'TAKEN')" :class="filterStatus === 'TAKEN' ? 'bg-slate-800 text-white dark:bg-slate-600' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> เลือกแล้ว</button>
+                            <button @click="filterStatus = (filterStatus === 'AVAILABLE' ? 'ALL' : 'AVAILABLE')" :class="filterStatus === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' : 'bg-slate-50 dark:bg-slate-700 text-slate-500'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> ว่าง</button>
+                        </div>
                     </div>
                     
-                    <div x-show="!isInitialLoading && viewMode === 'grid'" class="space-y-4">
-                        <template x-for="group in groupedPositions" :key="group.name">
+                    <div class="min-h-[50vh]">
+                        <div x-show="isInitialLoading" class="space-y-3">
                             <div class="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-200/50 dark:border-slate-700/50">
-                                <div class="flex items-center gap-2 mb-2"><span class="w-1 h-4 rounded-full bg-blue-500"></span><h3 class="font-bold text-sm text-slate-700 dark:text-slate-200" x-text="group.name"></h3><span class="ml-auto text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-2 rounded-full" x-text="group.items.length"></span></div>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="skeleton w-1 h-4 rounded-full"></div>
+                                    <div class="skeleton h-4 w-20 rounded"></div>
+                                </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-                                    <template x-for="pos in group.items" :key="pos[0]">
-                                        <div class="rounded-lg p-3 border-2 relative overflow-hidden card-interaction transition-all"
-                                             :class="isMyTurn && pos[3]==='AVAILABLE' ? 'pos-card-my-turn' : (pos[3]==='AVAILABLE' ? 'pos-card-available shadow-sm' : 'pos-card-taken opacity-80')">
-                                            <button @click.stop="toggleWishlist(pos[0])" class="absolute top-2 right-2 z-20 hover:scale-110 transition" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i data-lucide="star" class="w-4 h-4"></i></button>
-                                            
-                                            <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="absolute inset-0 border-2 border-blue-400 rounded-lg animate-pulse pointer-events-none z-10 opacity-50"></div>
-                                            
-                                            <div class="flex justify-between items-start mb-1">
-                                                <span class="text-[9px] font-bold px-1.5 rounded uppercase tracking-wide flex items-center gap-1"
-                                                      :class="pos[3] === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'">
-                                                    <span x-show="pos[3] === 'AVAILABLE'"><i data-lucide="check-circle-2" class="w-3 h-3 inline"></i></span>
-                                                    <span x-show="pos[3] !== 'AVAILABLE'"><i data-lucide="lock" class="w-3 h-3 inline"></i></span>
-                                                    <span x-text="pos[3] === 'AVAILABLE' ? 'ว่าง' : 'ถูกเลือก'"></span>
-                                                </span>
-                                            </div>
-                                            
-                                            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight mb-2 pr-6 truncate" x-text="pos[1]" :title="pos[1]"></h3>
-                                            
-                                            <div class="mb-2 min-h-[1.2rem]">
-                                                <template x-if="pos[3] === 'AVAILABLE'"><div class="flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400"><i data-lucide="map-pin" class="w-3 h-3 text-blue-500"></i> <span x-text="pos[2]"></span></div></template>
-                                                <template x-if="pos[3] !== 'AVAILABLE'"><div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-700/50 px-1.5 py-1 rounded w-full"><i data-lucide="user-check" class="w-3 h-3 text-slate-400"></i> <span class="truncate" x-text="getUserName(pos[4])"></span></div></template>
-                                            </div>
-
-                                            <button
-                                                x-show="isMyTurn && pos[3] === 'AVAILABLE'"
-                                                @click="confirmSelect(pos)"
-                                                :disabled="isSubmitting"
-                                                class="btn-select-main"
-                                                :class="isSubmitting ? 'opacity-50 cursor-not-allowed' : ''">
-                                                <span x-show="!isSubmitting"><i data-lucide="check" class="w-4 h-4"></i></span>
-                                                <span x-show="isSubmitting"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></span>
-                                                <span x-text="isSubmitting ? 'กำลังบันทึก...' : 'เลือกตำแหน่งนี้'"></span>
-                                            </button>
-                                            <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-50 dark:bg-slate-700/50 text-slate-400 py-2 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 cursor-not-allowed">รอคิว</button>
+                                    <template x-for="i in [1,2,3,4,5,6]" :key="i">
+                                        <div class="rounded-lg p-3 border border-slate-100 dark:border-slate-700 space-y-2">
+                                            <div class="skeleton h-3 w-12 rounded"></div>
+                                            <div class="skeleton h-4 w-full rounded"></div>
+                                            <div class="skeleton h-3 w-3/4 rounded"></div>
+                                            <div class="skeleton h-9 w-full rounded-md mt-1"></div>
                                         </div>
                                     </template>
                                 </div>
                             </div>
-                        </template>
-                    </div>
-                    
-                    <div x-show="!isInitialLoading && viewMode === 'list'" class="space-y-3">
-                        <template x-for="group in groupedPositions" :key="group.name">
-                            <div class="space-y-1.5">
-                                <div class="sticky top-[4rem] z-20 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur px-2 py-1 rounded text-[10px] font-bold uppercase text-slate-500 flex justify-between shadow-sm"><span x-text="group.name"></span><span x-text="group.items.length"></span></div>
-                                <template x-for="pos in group.items" :key="pos[0]">
-                                    <div class="bg-white dark:bg-slate-800 rounded-lg p-2 flex items-center gap-2 border border-slate-100 dark:border-slate-700 shadow-sm" :class="pos[3] !== 'AVAILABLE' ? 'opacity-75 bg-slate-50 dark:bg-slate-900' : ''">
-                                        <div class="w-8 h-8 rounded flex items-center justify-center shrink-0" :class="pos[3] === 'AVAILABLE' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'"><i data-lucide="building" class="w-4 h-4"></i></div>
-                                        <div class="min-w-0 flex-1">
-                                            <div class="flex justify-between items-center">
-                                                <h4 class="font-bold text-slate-800 dark:text-slate-100 text-xs truncate" x-text="pos[1]"></h4>
-                                                <button @click.stop="toggleWishlist(pos[0])" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700'"><i data-lucide="star" class="w-3 h-3"></i></button>
+                        </div>
+
+                        <div x-show="!isInitialLoading && (filterRegion || filterStatus !== 'ALL' || search)" class="flex items-center gap-2 flex-wrap mb-3 px-1">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">กำลังกรอง:</span>
+                            <span x-show="filterRegion" class="filter-chip">
+                                <i data-lucide="map-pin" class="w-3 h-3"></i>
+                                <span x-text="filterRegion"></span>
+                                <button @click="filterRegion = ''" title="ลบตัวกรอง">×</button>
+                            </span>
+                            <span x-show="filterStatus === 'AVAILABLE'" class="filter-chip" style="background:#dcfce7;color:#15803d;">
+                                <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                                <span>ว่างเท่านั้น</span>
+                                <button @click="filterStatus = 'ALL'" style="background:#86efac;color:#15803d;">×</button>
+                            </span>
+                            <span x-show="filterStatus === 'TAKEN'" class="filter-chip" style="background:#f1f5f9;color:#475569;">
+                                <i data-lucide="lock" class="w-3 h-3"></i>
+                                <span>เลือกแล้ว</span>
+                                <button @click="filterStatus = 'ALL'" style="background:#cbd5e1;color:#475569;">×</button>
+                            </span>
+                            <span x-show="filterStatus === 'WISHLIST'" class="filter-chip" style="background:#fef9c3;color:#92400e;">
+                                <i data-lucide="star" class="w-3 h-3"></i>
+                                <span>ที่ติดดาว</span>
+                                <button @click="filterStatus = 'ALL'" style="background:#fde68a;color:#92400e;">×</button>
+                            </span>
+                            <span x-show="search" class="filter-chip" style="background:#f3e8ff;color:#7c3aed;">
+                                <i data-lucide="search" class="w-3 h-3"></i>
+                                <span>"</span><span x-text="search"></span><span>"</span>
+                                <button @click="search = ''" style="background:#d8b4fe;color:#7c3aed;">×</button>
+                            </span>
+                            <button @click="filterRegion=''; filterStatus='ALL'; search='';" class="text-[10px] font-bold text-red-500 hover:text-red-700 underline ml-1">ล้างทั้งหมด</button>
+                        </div>
+                        
+                        <div x-show="!isInitialLoading && viewMode === 'grid'" class="space-y-4">
+                            <template x-for="group in groupedPositions" :key="group.name">
+                                <div class="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-200/50 dark:border-slate-700/50">
+                                    <div class="flex items-center gap-2 mb-2"><span class="w-1 h-4 rounded-full bg-blue-500"></span><h3 class="font-bold text-sm text-slate-700 dark:text-slate-200" x-text="group.name"></h3><span class="ml-auto text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-2 rounded-full" x-text="group.items.length"></span></div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+                                        <template x-for="pos in group.items" :key="pos[0]">
+                                            <div class="rounded-lg p-3 border-2 relative overflow-hidden card-interaction transition-all"
+                                                 :class="isMyTurn && pos[3]==='AVAILABLE' ? 'pos-card-my-turn' : (pos[3]==='AVAILABLE' ? 'pos-card-available shadow-sm' : 'pos-card-taken opacity-80')">
+                                                <button @click.stop="toggleWishlist(pos[0])" class="absolute top-2 right-2 z-20 hover:scale-110 transition" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i data-lucide="star" class="w-4 h-4"></i></button>
+                                                
+                                                <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="absolute inset-0 border-2 border-blue-400 rounded-lg animate-pulse pointer-events-none z-10 opacity-50"></div>
+                                                
+                                                <div class="flex justify-between items-start mb-1">
+                                                    <span class="text-[9px] font-bold px-1.5 rounded uppercase tracking-wide flex items-center gap-1"
+                                                          :class="pos[3] === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'">
+                                                        <span x-show="pos[3] === 'AVAILABLE'"><i data-lucide="check-circle-2" class="w-3 h-3 inline"></i></span>
+                                                        <span x-show="pos[3] !== 'AVAILABLE'"><i data-lucide="lock" class="w-3 h-3 inline"></i></span>
+                                                        <span x-text="pos[3] === 'AVAILABLE' ? 'ว่าง' : 'ถูกเลือก'"></span>
+                                                    </span>
+                                                </div>
+                                                
+                                                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight mb-2 pr-6 truncate" x-text="pos[1]" :title="pos[1]"></h3>
+                                                
+                                                <div class="mb-2 min-h-[1.2rem]">
+                                                    <template x-if="pos[3] === 'AVAILABLE'"><div class="flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400"><i data-lucide="map-pin" class="w-3 h-3 text-blue-500"></i> <span x-text="pos[2]"></span></div></template>
+                                                    <template x-if="pos[3] !== 'AVAILABLE'"><div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-700/50 px-1.5 py-1 rounded w-full"><i data-lucide="user-check" class="w-3 h-3 text-slate-400"></i> <span class="truncate" x-text="getUserName(pos[4])"></span></div></template>
+                                                </div>
+
+                                                <button
+                                                    x-show="isMyTurn && pos[3] === 'AVAILABLE'"
+                                                    @click="confirmSelect(pos)"
+                                                    :disabled="isSubmitting"
+                                                    class="btn-select-main"
+                                                    :class="isSubmitting ? 'opacity-50 cursor-not-allowed' : ''">
+                                                    <span x-show="!isSubmitting"><i data-lucide="check" class="w-4 h-4"></i></span>
+                                                    <span x-show="isSubmitting"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></span>
+                                                    <span x-text="isSubmitting ? 'กำลังบันทึก...' : 'เลือกตำแหน่งนี้'"></span>
+                                                </button>
+                                                <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-50 dark:bg-slate-700/50 text-slate-400 py-2 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 cursor-not-allowed">รอคิว</button>
                                             </div>
-                                            <div class="text-[9px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
-                                                <span class="bg-slate-100 dark:bg-slate-700 px-1 rounded" x-text="pos[2]"></span>
-                                                <span x-show="pos[3] !== 'AVAILABLE'" class="text-slate-500 dark:text-slate-400 flex items-center truncate"><i data-lucide="user-check" class="w-3 h-3 mr-0.5"></i> <span class="font-bold text-slate-700 dark:text-slate-300" x-text="getUserName(pos[4])"></span></span>
-                                            </div>
-                                        </div>
-                                        <div class="w-20 shrink-0">
-                                            <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click="confirmSelect(pos)" :disabled="isSubmitting" class="w-full bg-blue-600 text-white py-1.5 rounded text-[10px] font-bold shadow-sm disabled:opacity-50">
-                                                <span x-text="isSubmitting ? '...' : 'เลือก'"></span>
-                                            </button>
-                                            <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-100 dark:bg-slate-700 text-slate-400 py-1.5 rounded text-[10px] font-bold border border-slate-200 dark:border-slate-600">รอ</button>
-                                        </div>
+                                        </template>
                                     </div>
-                                </template>
+                                </div>
+                            </template>
+                        </div>
+                        
+                        <div x-show="!isInitialLoading && viewMode === 'list'" class="space-y-3">
+                            <template x-for="group in groupedPositions" :key="group.name">
+                                <div class="space-y-1.5">
+                                    <div class="sticky top-[4rem] z-20 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur px-2 py-1 rounded text-[10px] font-bold uppercase text-slate-500 flex justify-between shadow-sm"><span x-text="group.name"></span><span x-text="group.items.length"></span></div>
+                                    <template x-for="pos in group.items" :key="pos[0]">
+                                        <div class="bg-white dark:bg-slate-800 rounded-lg p-2 flex items-center gap-2 border border-slate-100 dark:border-slate-700 shadow-sm" :class="pos[3] !== 'AVAILABLE' ? 'opacity-75 bg-slate-50 dark:bg-slate-900' : ''">
+                                            <div class="w-8 h-8 rounded flex items-center justify-center shrink-0" :class="pos[3] === 'AVAILABLE' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'"><i data-lucide="building" class="w-4 h-4"></i></div>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex justify-between items-center">
+                                                    <h4 class="font-bold text-slate-800 dark:text-slate-100 text-xs truncate" x-text="pos[1]"></h4>
+                                                    <button @click.stop="toggleWishlist(pos[0])" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700'"><i data-lucide="star" class="w-3 h-3"></i></button>
+                                                </div>
+                                                <div class="text-[9px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                                                    <span class="bg-slate-100 dark:bg-slate-700 px-1 rounded" x-text="pos[2]"></span>
+                                                    <span x-show="pos[3] !== 'AVAILABLE'" class="text-slate-500 dark:text-slate-400 flex items-center truncate"><i data-lucide="user-check" class="w-3 h-3 mr-0.5"></i> <span class="font-bold text-slate-700 dark:text-slate-300" x-text="getUserName(pos[4])"></span></span>
+                                                </div>
+                                            </div>
+                                            <div class="w-20 shrink-0">
+                                                <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click="confirmSelect(pos)" :disabled="isSubmitting" class="w-full bg-blue-600 text-white py-1.5 rounded text-[10px] font-bold shadow-sm disabled:opacity-50">
+                                                    <span x-text="isSubmitting ? '...' : 'เลือก'"></span>
+                                                </button>
+                                                <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-100 dark:bg-slate-700 text-slate-400 py-1.5 rounded text-[10px] font-bold border border-slate-200 dark:border-slate-600">รอ</button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                        <div x-show="groupedPositions.length === 0 && !isInitialLoading" class="empty-state">
+                            <div class="empty-state-icon">
+                                <i data-lucide="search-x" class="w-8 h-8"></i>
                             </div>
-                        </template>
-                    </div>
-                    <div x-show="groupedPositions.length === 0 && !isInitialLoading" class="empty-state">
-                        <div class="empty-state-icon">
-                            <i data-lucide="search-x" class="w-8 h-8"></i>
+                            <div>
+                                <div class="font-bold text-slate-600 dark:text-slate-300 text-base mb-1">ไม่พบตำแหน่งตามเงื่อนไข</div>
+                                <div class="text-slate-400 text-sm">ลองปรับตัวกรองหรือคำค้นหาใหม่</div>
+                            </div>
+                            <button @click="filterRegion=''; filterStatus='ALL'; search='';" class="mt-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition">
+                                ล้างตัวกรองทั้งหมด
+                            </button>
                         </div>
-                        <div>
-                            <div class="font-bold text-slate-600 dark:text-slate-300 text-base mb-1">ไม่พบตำแหน่งตามเงื่อนไข</div>
-                            <div class="text-slate-400 text-sm">ลองปรับตัวกรองหรือคำค้นหาใหม่</div>
-                        </div>
-                        <button @click="filterRegion=''; filterStatus='ALL'; search='';" class="mt-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition">
-                            ล้างตัวกรองทั้งหมด
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </div> <!-- [FIX] สิ้นสุดกรอบ Grid คอลัมน์ -->
-    </div> <!-- [FIX] เพิ่ม </div> ตัวนี้เพื่อปิดแท็บ Home อย่างสมบูรณ์! -->
+    </div>
 
     <!-- ===============================================================
          MONITOR PAGE
@@ -584,7 +547,8 @@
         </div>
         <div class="flex-1 overflow-y-auto bg-slate-200/50 dark:bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
-                <template x-for="region in ['บช.น.', 'ภ.1', 'ภ.2', 'ภ.3', 'ภ.4', 'ภ.5', 'ภ.6', 'ภ.7', 'ภ.8', 'ภ.9']" :key="region">
+                <!-- DYNAMIC REGIONS rendering -->
+                <template x-for="region in uniqueRegions" :key="region">
                     <div x-show="getRegionStats(region).total > 0" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm h-[450px]">
                         <div class="py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0" :class="getRegionColorClass(region)"><span x-text="region"></span></div>
                         <div class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 py-2 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
@@ -632,6 +596,7 @@
         </div>
     </div>
 
+    <!-- ADMIN MODALS -->
     <div x-show="adminModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-cloak><div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl animate-enter"><h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4" x-text="adminModalAction === 'CREATE' ? 'Add New' : 'Edit Data'"></h3><div class="space-y-4"><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">ID</label><input x-model="adminFormData.id" :disabled="adminModalAction === 'UPDATE'" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Name</label><input x-model="adminFormData.name" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'users'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Code</label><input x-model="adminFormData.code" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'positions'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Region</label><input x-model="adminFormData.region" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div></div><div class="flex gap-2 mt-6"><button @click="saveAdminData" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold text-sm">Save</button><button @click="adminModalOpen = false" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-2 rounded-lg font-bold text-sm">Cancel</button></div></div></div>
 
     <div x-show="adminAssignModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
@@ -664,6 +629,7 @@
         </div>
     </div>
 
+    <!-- DETAIL MODAL -->
     <div x-show="posDetailModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
         <div @click.away="posDetailModalOpen = false" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-enter relative text-center">
             <button @click="posDetailModalOpen = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -697,6 +663,7 @@
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 w-full max-w-md overflow-hidden relative">
             <div class="h-2 bg-blue-600 w-full"></div>
             <div class="p-8">
+                <!-- NOT LOGGED IN -->
                 <div x-show="!user.id" class="text-center">
                     <div class="w-20 h-20 bg-[#06C755]/10 text-[#06C755] rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner"><i data-lucide="message-circle" class="w-10 h-10"></i></div>
                     <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">เข้าสู่ระบบด้วย LINE</h2>
@@ -731,38 +698,96 @@
                     </div>
                 </div>
 
-                <div x-show="user.id" class="text-center">
+                <!-- LOGGED IN -->
+                <div x-show="user.id" class="text-center relative">
                     <template x-if="user.pictureUrl">
-                        <img :src="user.pictureUrl" class="w-24 h-24 rounded-full border-4 border-blue-500 mx-auto mb-4 object-cover shadow-lg">
+                        <img :src="user.pictureUrl" class="w-24 h-24 rounded-full border-4 border-blue-500 mx-auto mb-4 object-cover shadow-lg relative z-10">
                     </template>
                     <template x-if="!user.pictureUrl">
-                        <div class="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-bold shadow-lg" x-text="user.id"></div>
+                        <div class="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-bold shadow-lg relative z-10" x-text="user.id === 'ADMIN' ? 'AD' : user.id"></div>
                     </template>
                     <h2 class="text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-1" x-text="user.name"></h2>
                     <div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-4 flex items-center justify-center gap-1">
                         <span x-show="user.lineLinked" class="text-[#06C755]"><i data-lucide="check-circle-2" class="w-3 h-3 inline"></i> เชื่อมต่อด้วย LINE</span>
                     </div>
-                    <div class="inline-block px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs font-bold mb-4" x-text="user.status"></div>
+
+                    <!-- Card สำหรับคนรอคิว -->
+                    <div x-show="user.status === 'WAITING' && !isMyTurn" class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
+                        <div class="inline-block px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 rounded-full text-xs font-bold mb-3"><i data-lucide="clock" class="w-3 h-3 inline"></i> กำลังรอคิวเลือกตำแหน่ง</div>
+                        <div class="flex justify-between items-center border-t border-slate-200 dark:border-slate-600 pt-3">
+                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400">ต้องรออีก</span>
+                            <div class="text-right">
+                                <span class="text-2xl font-black text-orange-500" x-text="Math.max(0, parseInt(user.id) - parseInt(config.current_queue))"></span>
+                                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">คิว</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card สำหรับคนเลือกตำแหน่งแล้ว (Story Export) -->
+                    <div x-show="user.status === 'SELECTED'" class="mt-2 mb-6 animate-enter">
+                        <div class="story-card-bg rounded-3xl p-1 shadow-2xl relative overflow-hidden text-left border border-slate-700">
+                            <!-- Decor -->
+                            <div class="absolute -top-10 -right-10 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl pointer-events-none"></div>
+                            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500 opacity-20 rounded-full blur-2xl pointer-events-none"></div>
+
+                            <div class="bg-slate-900/60 backdrop-blur-md rounded-[22px] p-6 text-white relative z-10 border border-white/10">
+                                <div class="flex justify-between items-start mb-5">
+                                    <div>
+                                        <div class="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1 flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> OFFICIAL SELECTION</div>
+                                        <h3 class="text-xl font-black text-white leading-tight">RPCA 79</h3>
+                                    </div>
+                                    <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+                                        <i data-lucide="check" class="w-5 h-5 text-white"></i>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <div class="text-[10px] text-slate-400 font-bold uppercase mb-0.5">ผู้บันทึก (Name)</div>
+                                        <div class="text-sm font-bold text-white leading-snug" x-text="user.name"></div>
+                                    </div>
+                                    
+                                    <div class="flex gap-4">
+                                        <div class="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">
+                                            <div class="text-[10px] text-slate-400 font-bold uppercase mb-0.5">ลำดับ (Queue)</div>
+                                            <div class="text-xl font-black text-white" x-text="user.id"></div>
+                                        </div>
+                                        <div class="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">
+                                            <div class="text-[10px] text-slate-400 font-bold uppercase mb-0.5">ภาค (Region)</div>
+                                            <div class="text-xl font-black text-yellow-400 drop-shadow-md" x-text="user.selectedRegion || '-'"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-gradient-to-r from-blue-600/30 to-indigo-600/30 rounded-xl p-4 border border-blue-500/30">
+                                        <div class="text-[10px] text-blue-200 font-bold uppercase mb-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ตำแหน่งที่เลือก (Selected Position)</div>
+                                        <div class="text-base md:text-lg font-black text-white leading-tight" x-text="user.selectedPosName || '-'"></div>
+                                    </div>
+
+                                    <div>
+                                        <div class="text-[10px] text-slate-400 font-bold uppercase mb-0.5 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> เวลาที่บันทึก (Timestamp)</div>
+                                        <div class="text-[11px] font-mono text-slate-300" x-text="user.selectedAt ? formatTime(user.selectedAt) + ' น.' : '-'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-3 text-center opacity-80"><i data-lucide="camera" class="w-3 h-3 inline align-text-bottom"></i> สามารถแคปหน้าจอนี้เพื่อบันทึกเป็นหลักฐานได้</p>
+                    </div>
+
                     <div x-show="!user.lineLinked && user.role !== 'ADMIN'" class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
                         <div class="flex items-center justify-between">
                             <div class="text-left"><div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">LINE Account</div><div class="text-xs text-slate-400 font-semibold">ยังไม่เชื่อมต่อ</div></div>
                             <button @click="openLineBindModal()" class="bg-[#06C755] text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-md">เชื่อมต่อ LINE</button>
                         </div>
                     </div>
-                    <div x-show="user.status === 'WAITING' && !isMyTurn" class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
-                        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-600 pb-2 mb-2"><span class="text-xs font-bold text-slate-500 dark:text-slate-400">คิวปัจจุบัน</span><span class="text-lg font-black text-blue-600 dark:text-blue-400" x-text="config.current_queue"></span></div>
-                        <div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-500 dark:text-slate-400">ต้องรออีก</span><div class="text-right"><span class="text-2xl font-black text-orange-500" x-text="Math.max(0, parseInt(user.id) - parseInt(config.current_queue))"></span><span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">คิว</span></div></div>
-                    </div>
-                    <button @click="logout" class="w-full bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-300 hover:bg-red-500 hover:text-white py-3 rounded-xl font-bold transition">ออกจากระบบ (Logout)</button>
-                    <button x-show="user.role === 'ADMIN'" @click="switchPage('admin_panel')" class="w-full mt-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-3 rounded-xl font-bold transition">Go to Admin Panel</button>
+                    
+                    <button @click="logout" class="w-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 hover:dark:bg-slate-600 py-3 rounded-xl font-bold transition">ออกจากระบบ (Logout)</button>
+                    <button x-show="user.role === 'ADMIN'" @click="switchPage('admin_panel')" class="w-full mt-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 py-3 rounded-xl font-bold transition shadow-sm border border-red-100 dark:border-red-900/50"><i data-lucide="settings" class="w-4 h-4 inline align-text-bottom"></i> ไปหน้าผู้ดูแลระบบ (Admin)</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ===============================================================
-         MODALS
-    ================================================================ -->
+    <!-- MODALS (Slip, LINE Bind) -->
     <div x-show="showSlip" class="fixed inset-0 bg-slate-900/90 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" x-cloak>
         <div id="digital-slip-content" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden relative">
             <div class="bg-blue-600 p-6 text-center text-white"><div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold mx-auto mb-3 shadow-lg"><i data-lucide="check" class="w-6 h-6"></i></div><h2 class="text-lg font-bold uppercase tracking-wider">Selection Success</h2><p class="text-blue-100 text-xs mt-1" x-text="new Date().toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'})"></p></div>
@@ -848,96 +873,6 @@
 
     <div class="toast-container" id="toast-container"></div>
 
-    <div x-show="myTurnSheetOpen && isMyTurn" class="my-turn-sheet" x-cloak>
-        <div class="my-turn-sheet-backdrop" @click="myTurnSheetOpen = false"></div>
-
-        <div class="my-turn-sheet-content dark:bg-slate-800">
-            <div class="my-turn-sheet-handle"></div>
-
-            <div class="px-5 pt-4 pb-3 border-b border-slate-100 dark:border-slate-700 shrink-0">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
-                            <span class="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">ถึงคิวของคุณแล้ว!</span>
-                        </div>
-                        <h2 class="text-xl font-black text-slate-800 dark:text-white leading-tight" x-text="user.name"></h2>
-                        <p class="text-xs text-slate-400 mt-0.5">กรุณาเลือกตำแหน่งที่ต้องการ</p>
-                    </div>
-                    <button @click="myTurnSheetOpen = false" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-600 transition">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-                <div x-show="wishlistAvailable.length > 0">
-                    <div class="flex items-center gap-2 mb-2">
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400"></i>
-                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">ตำแหน่งที่ติดดาวไว้</span>
-                        <span class="ml-auto text-[10px] bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded-full font-bold" x-text="wishlistAvailable.length + ' ว่าง'"></span>
-                    </div>
-                    <div class="space-y-2">
-                        <template x-for="pos in wishlistAvailable" :key="'ws-' + pos[0]">
-                            <div class="select-btn-large" style="border-color:#fbbf24; background: #fffbeb;" x-bind:class="$el.classList">
-                                <div class="flex-1 min-w-0 mr-3">
-                                    <div class="font-bold text-slate-800 dark:text-slate-100 text-sm truncate" x-text="pos[1]"></div>
-                                    <div class="flex items-center gap-1 mt-0.5">
-                                        <i data-lucide="map-pin" class="w-3 h-3 text-blue-400 shrink-0"></i>
-                                        <span class="text-[11px] text-slate-500 dark:text-slate-400" x-text="pos[2]"></span>
-                                    </div>
-                                </div>
-                                <button class="select-btn-action" @click="myTurnSheetOpen=false; confirmSelect(pos)" :disabled="isSubmitting" style="background:#d97706;">
-                                    <span x-show="!isSubmitting">⭐ เลือก</span>
-                                    <span x-show="isSubmitting">...</span>
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <i data-lucide="list" class="w-4 h-4 text-blue-500"></i>
-                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">ตำแหน่งว่างทั้งหมด</span>
-                        <span class="ml-auto text-[10px] bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold" x-text="availablePositions.length + ' ตำแหน่ง'"></span>
-                    </div>
-                    <template x-if="availablePositions.length === 0">
-                        <div class="text-center py-6 text-slate-400 text-sm">ไม่มีตำแหน่งว่างแล้ว</div>
-                    </template>
-                    <div class="space-y-2" x-show="availablePositions.length > 0">
-                        <template x-for="pos in availablePositions" :key="'av-' + pos[0]">
-                            <div class="select-btn-large">
-                                <div class="flex items-center gap-2 mr-3 flex-1 min-w-0">
-                                    <div class="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center shrink-0">
-                                        <i data-lucide="building" class="w-4 h-4 text-green-600 dark:text-green-400"></i>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <div class="font-bold text-slate-800 dark:text-slate-100 text-sm truncate" x-text="pos[1]"></div>
-                                        <div class="flex items-center gap-1 mt-0.5">
-                                            <span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-1.5 rounded font-semibold" x-text="pos[2]"></span>
-                                            <span x-show="isWishlist(pos[0])" class="text-yellow-400"><i data-lucide="star" class="w-3 h-3 inline"></i></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button class="select-btn-action" @click="myTurnSheetOpen=false; confirmSelect(pos)" :disabled="isSubmitting">
-                                    <span x-show="!isSubmitting">เลือก</span>
-                                    <span x-show="isSubmitting"><i data-lucide="loader-2" class="w-3 h-3 animate-spin inline"></i></span>
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </div>
-
-            <div class="px-4 pb-6 pt-3 border-t border-slate-100 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
-                <button @click="myTurnSheetOpen = false" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-3 rounded-xl font-bold text-sm transition hover:bg-slate-300">
-                    ปิด — ดูรายการจากหน้าหลัก
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
         const SUPABASE_URL = "https://izujreipvtsnldgpdynu.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_p7MUWJqXpImPGqkGEfbiow_EDC1iRK2"; 
@@ -988,7 +923,22 @@
                 _prevQueue: null,
 
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
-                get uniqueRegions() { return [...new Set(this.positions.map(p => p[2]))].sort(); },
+                
+                // ดึงรายชื่อภาคอัตโนมัติจากฐานข้อมูล เรียง บช.น., ภ.1-9 ไว้แรกสุด ที่เหลือตามอักษร
+                get uniqueRegions() { 
+                    const regions = [...new Set(this.positions.map(p => p[2]))].filter(Boolean);
+                    return regions.sort((a, b) => {
+                        if (a === 'บช.น.') return -1;
+                        if (b === 'บช.น.') return 1;
+                        const aIsPhak = a.startsWith('ภ.');
+                        const bIsPhak = b.startsWith('ภ.');
+                        if (aIsPhak && bIsPhak) return a.localeCompare(b);
+                        if (aIsPhak) return -1;
+                        if (bIsPhak) return 1;
+                        return a.localeCompare(b);
+                    });
+                },
+
                 get progressPercent() { return this.positions.length ? (this.positions.filter(p => p[3]!=='AVAILABLE').length/this.positions.length)*100 : 0; },
                 getUserName(id) { const u = this.users.find(x => String(x[0]).trim() == String(id).trim()); return u ? u[1] : id; },
                 get prev3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) < cur).sort((a,b) => parseInt(b[0]) - parseInt(a[0])).slice(0, 3).reverse(); },
@@ -1063,9 +1013,10 @@
                 getPositionsByRegion(region) {
                     return this.positions.filter(p => p[2] === region).sort((a, b) => a[1].localeCompare(b[1]));
                 },
+                // เพิ่มสีสำหรับหน่วยอื่นๆ ให้ดึงดูดสายตาขึ้น หรือใช้ default หากไม่ตรงกับอันใดเลย
                 getRegionColorClass(region) {
-                    const map = { 'บช.น.': 'bg-blue-600', 'ภ.1': 'bg-red-600', 'ภ.2': 'bg-orange-500', 'ภ.3': 'bg-green-600', 'ภ.4': 'bg-gradient-to-r from-purple-600 to-fuchsia-600', 'ภ.5': 'bg-pink-600', 'ภ.6': 'bg-teal-600', 'ภ.7': 'bg-yellow-600', 'ภ.8': 'bg-indigo-600', 'ภ.9': 'bg-cyan-600' };
-                    return map[region] || 'bg-slate-600';
+                    const map = { 'บช.น.': 'bg-blue-600', 'ภ.1': 'bg-red-600', 'ภ.2': 'bg-orange-500', 'ภ.3': 'bg-green-600', 'ภ.4': 'bg-gradient-to-r from-purple-600 to-fuchsia-600', 'ภ.5': 'bg-pink-600', 'ภ.6': 'bg-teal-600', 'ภ.7': 'bg-yellow-600', 'ภ.8': 'bg-indigo-600', 'ภ.9': 'bg-cyan-600', 'ตชด.': 'bg-emerald-700', 'สพฐ.ตร.': 'bg-slate-700', 'บช.ก.': 'bg-yellow-700' };
+                    return map[region] || 'bg-slate-700';
                 },
                 
                 openPosDetail(pos) {
@@ -1170,12 +1121,17 @@
                         this.isInitialLoading = false;
                         this.connectionError = false;
                         
+                        // เซฟข้อมูลเข้า User ปัจจุบัน (เพื่อให้เรียกดูเวลา/ตำแหน่งที่เลือกในหน้าบัญชีได้)
                         if(this.user.id && this.user.role === 'USER') {
                             const u = this.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
                             if(u) {
                                 this.user.status = String(u[3] || 'WAITING').trim();
                                 this.user.name = u[1] || this.user.name;
                                 this.user.lineLinked = !!u[6];
+                                this.user.selectedPosName = u[4] || null;
+                                this.user.selectedAt = u[5] || null;
+                                const selectedPos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim());
+                                this.user.selectedRegion = selectedPos ? selectedPos[2] : null;
                                 localStorage.setItem('user_session', JSON.stringify(this.user));
                             }
                         }
