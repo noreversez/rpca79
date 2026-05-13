@@ -481,7 +481,7 @@
                         </span>
                         <span x-show="search" class="filter-chip" style="background:#f3e8ff;color:#7c3aed;">
                             <i data-lucide="search" class="w-3 h-3"></i>
-                            <span x-text="'\"' + search + '\"'"></span>
+                            <span x-text="'&quot;' + search + '&quot;'"></span>
                             <button @click="search = ''" style="background:#d8b4fe;color:#7c3aed;">×</button>
                         </span>
                         <button @click="filterRegion=''; filterStatus='ALL'; search='';" class="text-[10px] font-bold text-red-500 hover:text-red-700 underline ml-1">ล้างทั้งหมด</button>
