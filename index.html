@@ -26,7 +26,6 @@
         body { -webkit-tap-highlight-color: transparent; }
         [x-cloak] { display: none !important; }
         
-        /* [CHANGED] Header ลดความสูงลงเพราะเอา nav tabs ออก */
         .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
         .dark .glass-header { background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid rgba(255,255,255,0.05); }
 
@@ -50,8 +49,6 @@
         .bureau-card.active { border-color: #2563eb; background-color: #eff6ff; }
         .dark .bureau-card.active { border-color: #3b82f6; background-color: #1e293b; }
 
-        /* marquee - เก็บไว้ในกรณีใช้ที่อื่น */
-
         .timeline-line { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: #e2e8f0; z-index: 0; transform: translateY(-50%); }
         .dark .timeline-line { background: #334155; }
 
@@ -68,7 +65,6 @@
         .pdf-export-btn:active { transform: scale(0.98); }
         .pdf-export-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        /* Bottom Navigation - แสดงทุก device (ทั้ง mobile และ desktop) เพราะเอา header nav ออก */
         .mobile-bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
             background: rgba(255,255,255,0.97); backdrop-filter: blur(16px);
@@ -92,11 +88,6 @@
 
         @media print { body * { visibility: hidden; } #digital-slip-content, #digital-slip-content * { visibility: visible; } #digital-slip-content { position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-shadow: none !important; } .no-print { display: none !important; } }
 
-        /* ================================================================
-           [NEW] UX IMPROVEMENTS STYLES
-        ================================================================ */
-
-        /* 1. Sticky Queue Status Bar - แสดงคิวตลอดเวลาใต้ header */
         .queue-status-bar {
             position: sticky; top: 57px; z-index: 40;
             background: rgba(255,255,255,0.97); backdrop-filter: blur(12px);
@@ -111,7 +102,6 @@
         }
         @keyframes queueBarPulse { 0%,100% { box-shadow: 0 4px 20px rgba(16,185,129,0.25); } 50% { box-shadow: 0 4px 30px rgba(16,185,129,0.5); } }
 
-        /* 2. My Turn Bottom Sheet Modal */
         .my-turn-sheet {
             position: fixed; inset: 0; z-index: 150;
             display: flex; flex-direction: column; justify-content: flex-end;
@@ -128,7 +118,6 @@
         .my-turn-sheet-handle { width: 40px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; }
         .dark .my-turn-sheet-handle { background: #475569; }
 
-        /* ปุ่มเลือกใหญ่ใน My Turn Sheet */
         .select-btn-large {
             display: flex; align-items: center; justify-content: space-between;
             background: white; border: 2px solid #e2e8f0; border-radius: 16px;
@@ -149,16 +138,15 @@
         .select-btn-action:active { transform: scale(0.95); }
         .select-btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* 3. Skeleton Loading */
         .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 8px; }
         .dark .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; }
         @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-        /* 4. Toast Notification */
+        /* [FIX] แก้ไข gap-10px เป็น gap: 10px; */
         .toast-container { position: fixed; top: 70px; right: 16px; z-index: 300; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
         .toast {
             background: white; border-radius: 14px; padding: 12px 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15); display: flex; align-items: center; gap-10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px;
             font-size: 13px; font-weight: 600; min-width: 220px; max-width: 320px;
             pointer-events: all; border-left: 4px solid #2563eb;
             animation: toastSlideIn 0.35s cubic-bezier(0.16,1,0.3,1);
@@ -171,18 +159,15 @@
         @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
 
-        /* 5. Active Filter Chips */
         .filter-chip { display: inline-flex; align-items: center; gap: 5px; background: #dbeafe; color: #1d4ed8; padding: 4px 10px 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
         .dark .filter-chip { background: #1e3a5f; color: #60a5fa; }
         .filter-chip button { background: #93c5fd; border-radius: 50%; width: 16px; height: 16px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #1d4ed8; transition: background 0.15s; }
         .filter-chip button:hover { background: #2563eb; color: white; }
 
-        /* 6. Onboarding Steps (Login Page) */
         .onboarding-step { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
         .onboarding-step-num { width: 28px; height: 28px; border-radius: 50%; background: #dbeafe; color: #2563eb; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .dark .onboarding-step-num { background: #1e3a5f; color: #60a5fa; }
 
-        /* 7. Position card สีชัดขึ้น ปุ่มใหญ่ขึ้น */
         .pos-card-available { background: white; border: 2px solid #86efac; }
         .dark .pos-card-available { background: #0f172a; border-color: #166534; }
         .pos-card-taken { background: #f8fafc; border: 2px solid #e2e8f0; }
@@ -190,7 +175,6 @@
         .pos-card-my-turn { background: #eff6ff; border: 2px solid #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
         .dark .pos-card-my-turn { background: #1e293b; border-color: #3b82f6 !important; }
 
-        /* ปุ่มเลือกใหญ่ขึ้น min 44px */
         .btn-select-main {
             width: 100%; background: #2563eb; color: white;
             padding: 12px 8px; border-radius: 10px; font-weight: 700;
@@ -202,34 +186,20 @@
         .btn-select-main:active { transform: scale(0.97); }
         .btn-select-main:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        /* 8. Bottom Nav badge เมื่อถึงคิว */
         .nav-badge-turn { position: absolute; top: 6px; right: 20%; width: 8px; height: 8px; background: #10b981; border-radius: 50%; border: 2px solid white; animation: navBadgePulse 1.5s infinite; }
         .dark .nav-badge-turn { border-color: #0f172a; }
         @keyframes navBadgePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.4); } }
 
-        /* 9. Empty state ที่ดีขึ้น */
         .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; gap: 12px; }
         .empty-state-icon { width: 64px; height: 64px; background: #f1f5f9; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: #94a3b8; }
         .dark .empty-state-icon { background: #1e293b; }
     </style>
 </head>
 
-<!--
-    [CHANGED] pt-8 → pt-0: เอา announcement bar offset ออกจาก body
-    เพราะ header ตอนนี้ไม่มี nav tabs แล้ว ความสูงจึงลดลง
-    ปรับ spacer div ด้านล่างแทน
--->
 <body class="text-slate-800 dark:text-slate-100 bg-pattern min-h-screen transition-colors duration-300" x-init="initApp()" x-cloak>
 
-    <!-- [REMOVED] Announcement Bar สีเหลืองถูกลบออกตามที่ร้องขอ -->
-
-    <!-- ===============================================================
-         HEADER - ลบ nav tabs ออก เหลือแค่ Logo + Status + Controls
-    ================================================================ -->
     <header class="fixed top-0 left-0 right-0 z-50 glass-header shadow-sm transition-all duration-300">
         <div class="container mx-auto px-4 h-14 flex justify-between items-center">
-
-            <!-- Left: Logo + Status -->
             <div class="flex items-center gap-3">
                 <div class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
                     <i data-lucide="shield-half" class="w-5 h-5"></i>
@@ -245,29 +215,23 @@
                 </div>
             </div>
 
-            <!-- Right: User Info + Controls -->
             <div class="flex items-center gap-2">
-
-                <!-- Queue badge: แสดงคิวปัจจุบัน -->
                 <div x-show="config.current_queue" class="hidden sm:flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
                     <i data-lucide="list-ordered" class="w-3.5 h-3.5 text-blue-500"></i>
                     <span class="text-xs font-bold text-slate-600 dark:text-slate-300">คิว</span>
                     <span class="text-sm font-black text-blue-600 dark:text-blue-400" x-text="config.current_queue"></span>
                 </div>
 
-                <!-- [FIX] isMyTurn badge: แสดงเมื่อถึงคิว ช่วย debug -->
                 <div x-show="isMyTurn" class="flex items-center gap-1 bg-green-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold animate-pulse shadow-md shadow-green-500/30">
                     <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i>
                     <span>ถึงคิวคุณแล้ว!</span>
                 </div>
 
-                <!-- Dark mode toggle -->
                 <button @click="toggleDarkMode" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 flex items-center justify-center transition border border-slate-200 dark:border-slate-700">
                     <span x-show="darkMode"><i data-lucide="sun" class="w-4 h-4"></i></span>
                     <span x-show="!darkMode"><i data-lucide="moon" class="w-4 h-4"></i></span>
                 </button>
 
-                <!-- User avatar -->
                 <template x-if="user.pictureUrl">
                     <img :src="user.pictureUrl" class="w-9 h-9 rounded-full border-2 border-blue-500 shadow-sm object-cover cursor-pointer" @click="switchPage('login')">
                 </template>
@@ -279,25 +243,17 @@
                 </div>
             </div>
         </div>
-
-        <!-- Progress bar -->
+        <!-- [FIX] เปลี่ยน backtick เป็นเครื่องหมายต่อ string ธรรมดาป้องกัน HTML Parser error -->
         <div class="h-1 bg-slate-100 dark:bg-slate-800 w-full">
-            <div class="h-full bg-blue-500 transition-all duration-1000" :style="`width: ${progressPercent}%`"></div>
+            <div class="h-full bg-blue-500 transition-all duration-1000" :style="'width: ' + progressPercent + '%'"></div>
         </div>
     </header>
 
-    <!-- Spacer: ชดเชยความสูง header (h-14 + h-1 progress bar) -->
     <div class="h-16"></div>
 
-    <!-- ===============================================================
-         HOME PAGE
-    ================================================================ -->
     <div x-show="currentPage === 'home'" class="animate-enter safe-pb">
-
-        <!-- [NEW] Sticky Queue Status Bar - แสดงคิวตลอดเวลา -->
         <div class="queue-status-bar" :class="isMyTurn ? 'my-turn-active' : ''">
             <div class="container mx-auto px-4 py-2.5">
-                <!-- สถานะปกติ: แสดงคิว -->
                 <div x-show="!isMyTurn" class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-2">
@@ -319,7 +275,6 @@
                             <span>เลือกตำแหน่งแล้ว</span>
                         </div>
                     </div>
-                    <!-- Progress mini -->
                     <div class="flex items-center gap-2">
                         <div class="hidden sm:flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
                             <span x-text="positions.filter(p=>p[3]!=='AVAILABLE').length"></span>
@@ -327,12 +282,12 @@
                             <span x-text="positions.length"></span>
                             <span>ตำแหน่ง</span>
                         </div>
+                        <!-- [FIX] เปลี่ยน backtick -->
                         <div class="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-blue-500 rounded-full transition-all duration-700" :style="`width:${progressPercent}%`"></div>
+                            <div class="h-full bg-blue-500 rounded-full transition-all duration-700" :style="'width:' + progressPercent + '%'"></div>
                         </div>
                     </div>
                 </div>
-                <!-- สถานะถึงคิว: แสดง banner -->
                 <div x-show="isMyTurn" class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
@@ -375,7 +330,7 @@
                         <button @click="logout" class="text-red-500 bg-red-50 dark:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center"><i data-lucide="power" class="w-4 h-4"></i></button>
                     </div>
                     <div x-show="user.lineLinked" class="mb-3">
-                        <span class="line-linked-badge"><i data-lucide="check-circle-2" class="w-3 h-3"></i> เชื่อมต่อ LINE: <span x-text="lineProfile?.displayName || 'สำเร็จ'"></span></span>
+                        <span class="line-linked-badge"><i data-lucide="check-circle-2" class="w-3 h-3"></i> เชื่อมต่อ LINE: <span x-text="lineProfile && lineProfile.displayName ? lineProfile.displayName : 'สำเร็จ'"></span></span>
                     </div>
                     <div x-show="isMyTurn" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-2xl text-center shadow-lg animate-pulse cursor-pointer" @click="window.scrollTo({top:0, behavior:'smooth'})">ถึงคิวของคุณแล้ว! กดเลือกตำแหน่งได้เลย</div>
                     <div x-show="!isMyTurn && user.status === 'WAITING'" class="bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl text-center"><p class="text-slate-500 dark:text-slate-300 font-bold text-xs">รออีก <span class="text-xl text-blue-600 dark:text-blue-400 mx-1" x-text="Math.max(0, parseInt(user.id) - parseInt(config.current_queue))"></span> คิว</p></div>
@@ -414,7 +369,7 @@
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <template x-for="bureau in ['บช.น.', 'ภ.1', 'ภ.2', 'ภ.3', 'ภ.4', 'ภ.5', 'ภ.6', 'ภ.7', 'ภ.8', 'ภ.9']">
-                        <button @click="filterRegion = (filterRegion === bureau ? '' : bureau)" :class="filterRegion === bureau ? 'active ring-2 ring-blue-500' : 'bg-slate-50 dark:bg-slate-700/50'" class="bureau-card rounded-2xl p-3 flex flex-col items-center justify-center gap-2 relative overflow-hidden group"><span class="text-2xl md:text-3xl font-black text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors" x-text="bureau"></span><div class="w-full"><div class="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 px-1"><span x-text="getRegionStats(bureau).taken + ' คน'"></span><span x-text="'จาก ' + getRegionStats(bureau).total"></span></div><div class="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden"><div class="h-full bg-blue-500 transition-all duration-500" :style="`width: ${getRegionStats(bureau).percent}%`"></div></div></div></button>
+                        <button @click="filterRegion = (filterRegion === bureau ? '' : bureau)" :class="filterRegion === bureau ? 'active ring-2 ring-blue-500' : 'bg-slate-50 dark:bg-slate-700/50'" class="bureau-card rounded-2xl p-3 flex flex-col items-center justify-center gap-2 relative overflow-hidden group"><span class="text-2xl md:text-3xl font-black text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors" x-text="bureau"></span><div class="w-full"><div class="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 px-1"><span x-text="getRegionStats(bureau).taken + ' คน'"></span><span x-text="'จาก ' + getRegionStats(bureau).total"></span></div><div class="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden"><div class="h-full bg-blue-500 transition-all duration-500" :style="'width: ' + getRegionStats(bureau).percent + '%'"></div></div></div></button>
                     </template>
                 </div>
             </div>
@@ -435,9 +390,7 @@
                 </div>
                 
                 <div class="min-h-[50vh]">
-                    <!-- [ORIGINAL] Spinner loading -->
                     <div x-show="isInitialLoading" class="space-y-3">
-                        <!-- [NEW] Skeleton cards แทน spinner เดิม -->
                         <div class="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-200/50 dark:border-slate-700/50">
                             <div class="flex items-center gap-2 mb-3">
                                 <div class="skeleton w-1 h-4 rounded-full"></div>
@@ -456,7 +409,6 @@
                         </div>
                     </div>
 
-                    <!-- [NEW] Active Filter Chips Summary - แสดงเมื่อมี filter active -->
                     <div x-show="!isInitialLoading && (filterRegion || filterStatus !== 'ALL' || search)" class="flex items-center gap-2 flex-wrap mb-3 px-1">
                         <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">กำลังกรอง:</span>
                         <span x-show="filterRegion" class="filter-chip">
@@ -479,9 +431,10 @@
                             <span>ที่ติดดาว</span>
                             <button @click="filterStatus = 'ALL'" style="background:#fde68a;color:#92400e;">×</button>
                         </span>
+                        <!-- [FIX] เปลี่ยนวิธีการแสดงโควตสำหรับ Search เพื่อหลีกเลี่ยง SyntaxError แบบเด็ดขาด -->
                         <span x-show="search" class="filter-chip" style="background:#f3e8ff;color:#7c3aed;">
                             <i data-lucide="search" class="w-3 h-3"></i>
-                            <span x-text="'&quot;' + search + '&quot;'"></span>
+                            <span>"</span><span x-text="search"></span><span>"</span>
                             <button @click="search = ''" style="background:#d8b4fe;color:#7c3aed;">×</button>
                         </span>
                         <button @click="filterRegion=''; filterStatus='ALL'; search='';" class="text-[10px] font-bold text-red-500 hover:text-red-700 underline ml-1">ล้างทั้งหมด</button>
@@ -493,16 +446,10 @@
                                 <div class="flex items-center gap-2 mb-2"><span class="w-1 h-4 rounded-full bg-blue-500"></span><h3 class="font-bold text-sm text-slate-700 dark:text-slate-200" x-text="group.name"></h3><span class="ml-auto text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-2 rounded-full" x-text="group.items.length"></span></div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
                                     <template x-for="pos in group.items" :key="pos[0]">
-                                        <!-- [NEW] ปรับสีการ์ดให้ชัดขึ้น: ว่าง=green border, ถูกเลือก=slate, ถึงคิว=blue glow -->
                                         <div class="rounded-lg p-3 border-2 relative overflow-hidden card-interaction transition-all"
-                                             :class="[
-                                                isMyTurn && pos[3]==='AVAILABLE' ? 'pos-card-my-turn' :
-                                                pos[3]==='AVAILABLE' ? 'pos-card-available shadow-sm' :
-                                                'pos-card-taken opacity-80'
-                                             ]">
+                                             :class="isMyTurn && pos[3]==='AVAILABLE' ? 'pos-card-my-turn' : (pos[3]==='AVAILABLE' ? 'pos-card-available shadow-sm' : 'pos-card-taken opacity-80')">
                                             <button @click.stop="toggleWishlist(pos[0])" class="absolute top-2 right-2 z-20 hover:scale-110 transition" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i data-lucide="star" class="w-4 h-4"></i></button>
                                             
-                                            <!-- Pulse border แสดงเมื่อถึงคิว -->
                                             <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="absolute inset-0 border-2 border-blue-400 rounded-lg animate-pulse pointer-events-none z-10 opacity-50"></div>
                                             
                                             <div class="flex justify-between items-start mb-1">
@@ -521,7 +468,6 @@
                                                 <template x-if="pos[3] !== 'AVAILABLE'"><div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-700/50 px-1.5 py-1 rounded w-full"><i data-lucide="user-check" class="w-3 h-3 text-slate-400"></i> <span class="truncate" x-text="getUserName(pos[4])"></span></div></template>
                                             </div>
 
-                                            <!-- [NEW] ปุ่มเลือก ใหญ่ขึ้น min-height 44px ตาม Apple HIG -->
                                             <button
                                                 x-show="isMyTurn && pos[3] === 'AVAILABLE'"
                                                 @click="confirmSelect(pos)"
@@ -568,7 +514,6 @@
                             </div>
                         </template>
                     </div>
-                    <!-- [NEW] Empty State ที่ดีขึ้น มี action -->
                     <div x-show="groupedPositions.length === 0 && !isInitialLoading" class="empty-state">
                         <div class="empty-state-icon">
                             <i data-lucide="search-x" class="w-8 h-8"></i>
@@ -584,7 +529,7 @@
                 </div>
             </div>
         </div>
-    </div><!-- end home page wrapper -->
+    </div>
     <div x-show="currentPage === 'monitor'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="radio" class="w-6 h-6 text-red-500"></i> Live Monitor</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-md border border-slate-100 dark:border-slate-700 mb-8 overflow-hidden relative">
@@ -613,9 +558,6 @@
         </div>
     </div>
 
-    <!-- ===============================================================
-         DASHBOARD PAGE
-    ================================================================ -->
     <div x-show="currentPage === 'dashboard'" 
          :class="isDashboardFullscreen ? 'fixed inset-0 z-[100] bg-slate-100 dark:bg-slate-900 p-2 md:p-4 flex flex-col h-screen' : 'container mx-auto px-4 py-6 pb-28 animate-enter safe-pb'">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 shrink-0">
@@ -660,9 +602,6 @@
         </div>
     </div>
 
-    <!-- ===============================================================
-         ADMIN PANEL PAGE
-    ================================================================ -->
     <div x-show="currentPage === 'admin_panel'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="settings" class="w-6 h-6 text-red-500"></i> Admin Panel</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
@@ -683,10 +622,8 @@
         </div>
     </div>
 
-    <!-- Admin Modal -->
     <div x-show="adminModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-cloak><div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl animate-enter"><h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4" x-text="adminModalAction === 'CREATE' ? 'Add New' : 'Edit Data'"></h3><div class="space-y-4"><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">ID</label><input x-model="adminFormData.id" :disabled="adminModalAction === 'UPDATE'" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Name</label><input x-model="adminFormData.name" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'users'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Code</label><input x-model="adminFormData.code" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'positions'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Region</label><input x-model="adminFormData.region" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div></div><div class="flex gap-2 mt-6"><button @click="saveAdminData" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold text-sm">Save</button><button @click="adminModalOpen = false" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-2 rounded-lg font-bold text-sm">Cancel</button></div></div></div>
 
-    <!-- Admin Assign Modal -->
     <div x-show="adminAssignModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl animate-enter">
             <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="user-plus" class="w-5 h-5 text-purple-500"></i> เลือกตำแหน่งแทนผู้ใช้</h3>
@@ -717,7 +654,6 @@
         </div>
     </div>
 
-    <!-- Position Detail Modal -->
     <div x-show="posDetailModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
         <div @click.away="posDetailModalOpen = false" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-enter relative text-center">
             <button @click="posDetailModalOpen = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -744,9 +680,6 @@
         </div>
     </div>
 
-    <!-- ===============================================================
-         LOGIN PAGE
-    ================================================================ -->
     <div x-show="currentPage === 'login'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb flex flex-col items-center justify-center min-h-[70vh]">
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 w-full max-w-md overflow-hidden relative">
             <div class="h-2 bg-blue-600 w-full"></div>
@@ -756,7 +689,6 @@
                     <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">เข้าสู่ระบบด้วย LINE</h2>
                     <p class="text-slate-400 text-sm mb-4">เพื่อความปลอดภัยและเชื่อมข้อมูลเข้ากับรหัสของคุณ</p>
 
-                    <!-- [NEW] Onboarding Steps สำหรับผู้ใช้ใหม่ -->
                     <div class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 mb-6 text-left border border-slate-100 dark:border-slate-600">
                         <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">วิธีใช้งานระบบ</div>
                         <div class="onboarding-step">
@@ -815,7 +747,6 @@
         </div>
     </div>
 
-    <!-- Slip Modal -->
     <div x-show="showSlip" class="fixed inset-0 bg-slate-900/90 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" x-cloak>
         <div id="digital-slip-content" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden relative">
             <div class="bg-blue-600 p-6 text-center text-white"><div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold mx-auto mb-3 shadow-lg"><i data-lucide="check" class="w-6 h-6"></i></div><h2 class="text-lg font-bold uppercase tracking-wider">Selection Success</h2><p class="text-blue-100 text-xs mt-1" x-text="new Date().toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'})"></p></div>
@@ -828,7 +759,6 @@
         </div>
     </div>
 
-    <!-- LINE Bind Modal -->
     <div x-show="lineBindModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
         <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-enter">
             <div class="bg-[#06C755] p-6 text-center text-white"><svg viewBox="0 0 24 24" fill="white" class="w-12 h-12 mx-auto mb-3"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><h3 class="text-lg font-bold">เชื่อมต่อบัญชี LINE</h3><p class="text-green-100 text-xs mt-1">ผูก LINE กับรหัสประจำตัวของคุณ</p></div>
@@ -851,7 +781,7 @@
                 <div x-show="lineBindStep === 2" class="space-y-4 text-center">
                     <div class="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center mx-auto"><i data-lucide="link" class="w-8 h-8 text-green-600 dark:text-green-400"></i></div>
                     <div><div class="font-bold text-slate-800 dark:text-white text-lg" x-text="lineBindUserName"></div><div class="text-slate-400 text-sm">พร้อมเชื่อมต่อกับบัญชี LINE</div></div>
-                    <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-left"><div class="flex items-center gap-2 text-sm"><svg viewBox="0 0 24 24" fill="#06C755" class="w-5 h-5 shrink-0"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><span class="font-bold text-green-700 dark:text-green-400" x-text="lineProfile.displayName || 'LINE User'"></span></div></div>
+                    <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-left"><div class="flex items-center gap-2 text-sm"><svg viewBox="0 0 24 24" fill="#06C755" class="w-5 h-5 shrink-0"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><span class="font-bold text-green-700 dark:text-green-400" x-text="lineProfile && lineProfile.displayName ? lineProfile.displayName : 'LINE User'"></span></div></div>
                     <button @click="confirmLineBind()" :disabled="lineLoading" class="w-full line-btn">
                         <span x-show="lineLoading"><i data-lucide="loader-2" class="w-5 h-5 animate-spin text-white"></i></span>
                         <span x-show="!lineLoading"><i data-lucide="check" class="w-5 h-5 text-white"></i></span>
@@ -868,15 +798,10 @@
         </div>
     </div>
 
-    <!-- ===============================================================
-         BOTTOM NAV - แสดงทุก device (ย้ายจาก header nav มาที่นี่)
-    ================================================================ -->
     <nav class="mobile-bottom-nav">
         <div class="flex max-w-lg mx-auto">
-            <!-- [NEW] เพิ่ม badge สีเขียวบน tab เลือก เมื่อถึงคิว -->
             <button @click="switchPage('home')" class="mobile-nav-item relative" :class="currentPage === 'home' ? 'active' : ''">
                 <i data-lucide="list-todo"></i><span>เลือก</span>
-                <!-- Badge แดงปกติ / เขียวเมื่อถึงคิว -->
                 <span x-show="isMyTurn" class="nav-badge-turn"></span>
             </button>
             <button @click="switchPage('monitor')" class="mobile-nav-item relative" :class="currentPage === 'monitor' ? 'active' : ''">
@@ -898,31 +823,20 @@
         </div>
     </nav>
 
-    <!-- Connection Error Banner -->
     <div x-show="connectionError" class="connection-error-banner" x-cloak>
         <i data-lucide="wifi-off" class="w-6 h-6 shrink-0"></i>
         <div class="flex-1"><div class="font-bold text-sm">เชื่อมต่อไม่ได้</div><div class="text-xs text-red-100">กำลังลองใหม่อัตโนมัติ...</div></div>
         <button @click="fetchData()" class="bg-white text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">ลองใหม่</button>
     </div>
 
-    <!-- ================================================================
-         [NEW] TOAST NOTIFICATION CONTAINER
-    ================================================================ -->
     <div class="toast-container" id="toast-container"></div>
 
-    <!-- ================================================================
-         [NEW] MY TURN BOTTOM SHEET
-         เปิดขึ้นอัตโนมัติเมื่อถึงคิว แสดงตำแหน่ง wishlist + ว่างทั้งหมด
-    ================================================================ -->
     <div x-show="myTurnSheetOpen && isMyTurn" class="my-turn-sheet" x-cloak>
-        <!-- Backdrop - กดปิดได้ -->
         <div class="my-turn-sheet-backdrop" @click="myTurnSheetOpen = false"></div>
 
         <div class="my-turn-sheet-content dark:bg-slate-800">
-            <!-- Handle bar -->
             <div class="my-turn-sheet-handle"></div>
 
-            <!-- Header ของ Sheet -->
             <div class="px-5 pt-4 pb-3 border-b border-slate-100 dark:border-slate-700 shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
@@ -939,10 +853,7 @@
                 </div>
             </div>
 
-            <!-- Body: Wishlist ก่อน แล้วตามด้วยตำแหน่งว่างทั้งหมด -->
             <div class="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-
-                <!-- Wishlist section (ถ้ามี) -->
                 <div x-show="wishlistAvailable.length > 0">
                     <div class="flex items-center gap-2 mb-2">
                         <i data-lucide="star" class="w-4 h-4 text-yellow-400"></i>
@@ -968,7 +879,6 @@
                     </div>
                 </div>
 
-                <!-- ตำแหน่งว่างทั้งหมด (ไม่รวม wishlist) -->
                 <div>
                     <div class="flex items-center gap-2 mb-2">
                         <i data-lucide="list" class="w-4 h-4 text-blue-500"></i>
@@ -1003,7 +913,6 @@
                 </div>
             </div>
 
-            <!-- Footer: ปุ่มปิด -->
             <div class="px-4 pb-6 pt-3 border-t border-slate-100 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
                 <button @click="myTurnSheetOpen = false" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-3 rounded-xl font-bold text-sm transition hover:bg-slate-300">
                     ปิด — ดูรายการจากหน้าหลัก
@@ -1012,12 +921,14 @@
         </div>
     </div>
 
+    <!-- [FIX] เปลี่ยนวิธีการต่อ String ป้องกัน HTML Parsing Bugs -->
     <script>
         const SUPABASE_URL = "https://izujreipvtsnldgpdynu.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_p7MUWJqXpImPGqkGEfbiow_EDC1iRK2"; 
         const LIFF_ID = "2010015310-qHlFgmRX";
 
         const API_URL = "https://script.google.com/macros/s/AKfycby6olYjXjpHDp5aVeE2BTzTC6vp34cgeaA4CAmUKr3om1kG-0d9dKcSbm3WaaYjBtVr/exec"; 
+        
         async function callAPI(action, params = {}) {
             const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action, ...params }) });
             if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1057,10 +968,7 @@
                 adminAssignPosId: '',
                 posDetailModalOpen: false,
                 selectedDetailPos: null,
-
-                // [NEW] My Turn Bottom Sheet state
                 myTurnSheetOpen: false,
-                // [NEW] track previous queue to detect turn change
                 _prevQueue: null,
 
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
@@ -1087,18 +995,18 @@
                 isWishlist(id) { return this.wishlist.includes(id); },
                 toggleWishlist(id) { if (this.wishlist.includes(id)) this.wishlist = this.wishlist.filter(w => w !== id); else this.wishlist.push(id); localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); },
 
-                // [NEW] ตำแหน่งว่างทั้งหมด (เรียงตามภาค > ชื่อ)
                 get availablePositions() {
                     return this.positions
                         .filter(p => p[3] === 'AVAILABLE')
                         .sort((a, b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]));
                 },
-                // [NEW] ตำแหน่งที่อยู่ใน wishlist และยังว่างอยู่
+                
                 get wishlistAvailable() {
                     return this.positions
                         .filter(p => p[3] === 'AVAILABLE' && this.wishlist.includes(p[0]))
                         .sort((a, b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]));
                 },
+                
                 get groupedPositions() {
                     let filtered = this.positions.filter(p => {
                         const matchesSearch = p[1].toLowerCase().includes(this.search.toLowerCase()) || (p[2] && p[2].toLowerCase().includes(this.search.toLowerCase()));
@@ -1114,55 +1022,17 @@
                     return Object.keys(groups).sort().map(region => ({ name: region, items: groups[region] }));
                 },
 
-                // ============================================================
-                // [FIX CRITICAL] isMyTurn getter - แก้ปัญหาหลัก
-                // 
-                // ปัญหาเดิม: config โหลดมาจาก Supabase เป็น object จริง แต่
-                //   - config.system_status อาจเป็น undefined ช่วง initial load
-                //   - String(undefined) = "undefined" → ≠ "OPEN" → return false
-                //   - ทำให้ปุ่มเลือกไม่แสดง แม้ว่าถึงคิวแล้ว
-                //
-                // แก้:
-                //   1. ตรวจสอบ isInitialLoading ก่อน (ถ้ายังโหลดไม่เสร็จ → false)
-                //   2. ใช้ || 'OPEN' เป็น default ถ้า system_status ยังไม่มีค่า
-                //      (เพราะถ้าระบบ config ยังไม่โหลด ไม่ควร block user)
-                //   3. เพิ่ม Number() แทน parseInt() เพื่อ type-safe comparison
-                // ============================================================
                 get isMyTurn() {
-                    // ยังไม่ login → false
                     if (!this.user.id || this.user.role !== 'USER') return false;
-
-                    // ยังโหลดข้อมูลไม่เสร็จ → false (ป้องกัน NaN comparison)
                     if (this.isInitialLoading) return false;
-
                     const myId = Number(this.user.id);
                     const currentQ = Number(this.config.current_queue);
-
-                    // NaN guard: ถ้า parse ไม่ได้ → false
                     if (!myId || !currentQ || isNaN(myId) || isNaN(currentQ)) return false;
-
-                    // ตรวจสอบ system_status: ถ้าไม่มีค่า (config ยังไม่โหลด) ให้ default เป็น OPEN
-                    // เพราะ system_status จะมีค่าแน่นอนหลัง fetchData() เสร็จ
                     const rawStatus = this.config.system_status;
                     const systemOpen = !rawStatus || String(rawStatus).trim().toUpperCase() === 'OPEN';
-
-                    // ตรวจสอบว่า user ยังไม่ได้เลือก
                     const rawUserStatus = this.user.status;
                     const notYetSelected = String(rawUserStatus || 'WAITING').trim().toUpperCase() !== 'SELECTED';
-
-                    const result = myId === currentQ && systemOpen && notYetSelected;
-
-                    // Debug log (ลบออกได้หลัง test)
-                    if (myId === currentQ) {
-                        console.log('[isMyTurn debug]', {
-                            myId, currentQ,
-                            rawStatus, systemOpen,
-                            rawUserStatus, notYetSelected,
-                            result
-                        });
-                    }
-
-                    return result;
+                    return myId === currentQ && systemOpen && notYetSelected;
                 },
 
                 get nextUser() { const nextId = parseInt(this.config.current_queue) + 1; const u = this.users.find(u => parseInt(u[0]) === nextId); return u ? {id: u[0], name: u[1]} : null; },
@@ -1216,15 +1086,14 @@
                     setInterval(() => { if (!document.hidden) this.fetchData(); }, 60000);
                 },
 
-                // [NEW] Toast Notification System
                 showToast(message, type = 'info', duration = 3500) {
                     const container = document.getElementById('toast-container');
                     if (!container) return;
                     const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
                     const toast = document.createElement('div');
-                    toast.className = `toast toast-${type}`;
-                    toast.style.gap = '10px';
-                    toast.innerHTML = `<span style="font-size:16px;flex-shrink:0">${icons[type]||'ℹ️'}</span><span style="flex:1">${message}</span>`;
+                    toast.className = 'toast toast-' + type;
+                    // [FIX] ใช้การต่อสตริงแบบปกติ
+                    toast.innerHTML = '<span style="font-size:16px;flex-shrink:0">' + (icons[type] || 'ℹ️') + '</span><span style="flex:1">' + message + '</span>';
                     container.appendChild(toast);
                     setTimeout(() => {
                         toast.classList.add('toast-exit');
@@ -1232,12 +1101,10 @@
                     }, duration);
                 },
 
-                // [NEW] เปิด My Turn Sheet อัตโนมัติ พร้อม vibrate + toast
                 triggerMyTurn() {
                     if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]);
                     this.myTurnSheetOpen = true;
                     this.showToast('🔔 ถึงคิวของคุณแล้ว! กรุณาเลือกตำแหน่ง', 'success', 5000);
-                    // [NEW] Auto scroll ไปด้านบน + ไป tab home ถ้าไม่ได้อยู่
                     if (this.currentPage !== 'home') this.switchPage('home');
                     else window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
@@ -1252,7 +1119,6 @@
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => { debouncedFetch(); })
                         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'config' }, payload => {
                             const oldQueue = this.config.current_queue;
-                            // [FIX] อัปเดต config ทันทีจาก realtime payload ไม่ต้องรอ fetchData
                             if (payload.new) {
                                 if (payload.new.current_queue !== undefined) this.config.current_queue = payload.new.current_queue;
                                 if (payload.new.system_status !== undefined) this.config.system_status = payload.new.system_status;
@@ -1288,7 +1154,7 @@
                         if (logsRes.data) this.serverLogs = logsRes.data.map(l => [l.created_at, l.user_id, l.user_name, l.pos_id, l.pos_name, l.pos_region]);
                         this.isInitialLoading = false;
                         this.connectionError = false;
-                        // [FIX] sync user status จาก DB หลังโหลดเสร็จ
+                        
                         if(this.user.id && this.user.role === 'USER') {
                             const u = this.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
                             if(u) {
@@ -1315,10 +1181,9 @@
                 switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
 
                 confirmSelect(pos) {
-                    Swal.fire({ title: 'ยืนยันเลือก?', text: `${pos[1]} (${pos[2]})`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async (result) => {
+                    Swal.fire({ title: 'ยืนยันเลือก?', text: pos[1] + ' (' + pos[2] + ')', icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async (result) => {
                         if (result.isConfirmed) {
                             if (this.isSubmitting) return;
-                            // [FIX] Pre-flight: ตรวจสอบสิทธิ์ก่อน submit
                             if (!this.isMyTurn) {
                                 Swal.fire('หมดสิทธิ์', 'ไม่ใช่คิวของคุณหรือระบบปิดอยู่', 'warning');
                                 return;
@@ -1430,12 +1295,22 @@
                     });
                 },
 
+                // [FIX] เปลี่ยนการใช้ Regex / Backtick ที่อาจตีรวน เป็น String Contatenation
                 formatTime(dateStr) {
                     if(!dateStr) return '-';
                     const s = String(dateStr).trim();
                     if(s.match(/^\d{1,2}:\d{2}/)) return s.substring(0, 5);
-                    const converted = s.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, (_, d, m, y) => `${m}/${d}/${parseInt(y) > 2400 ? parseInt(y) - 543 : y}`);
-                    try { let d = new Date(converted); if (isNaN(d.getTime())) d = new Date(new Date().toDateString() + ' ' + s); return isNaN(d.getTime()) ? s : d.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}); } catch(e) { return s; }
+                    const converted = s.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, function(_, d, m, y) {
+                        const year = parseInt(y) > 2400 ? parseInt(y) - 543 : y;
+                        return m + '/' + d + '/' + year;
+                    });
+                    try { 
+                        let d = new Date(converted); 
+                        if (isNaN(d.getTime())) d = new Date(new Date().toDateString() + ' ' + s); 
+                        return isNaN(d.getTime()) ? s : d.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}); 
+                    } catch(e) { 
+                        return s; 
+                    }
                 },
 
                 async initLiff() {
@@ -1457,6 +1332,7 @@
                         }
                     } catch(e) { console.warn('LIFF init skipped:', e.message); }
                 },
+                
                 async loginWithLine() {
                     if (!LIFF_ID_CONFIGURED) { Swal.fire('แจ้งเตือน', 'กรุณาตั้งค่า LIFF_ID ก่อนใช้งาน', 'warning'); return; }
                     this.lineLoading = true;
@@ -1472,11 +1348,13 @@
                         } else { this.openLineBindModal(); }
                     } catch(e) { this.lineLoading = false; Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
                 },
+                
                 openLineBindModal() {
                     this.lineBindModalOpen = true;
-                    if (this.user.id && this.lineProfile.userId) { this.lineBindUserName = this.user.name; this.lineBindStep = 2; }
+                    if (this.user.id && this.lineProfile && this.lineProfile.userId) { this.lineBindUserName = this.user.name; this.lineBindStep = 2; }
                     else { this.lineBindStep = 1; this.lineBindCode = ''; }
                 },
+                
                 async proceedLineStep1() {
                     if (!this.lineBindCode) return;
                     this.lineLoading = true;
@@ -1487,6 +1365,7 @@
                         else { this.lineBindUserName = res.name; this._pendingBindUser = res; this.lineBindStep = 2; }
                     } catch(e) { this.lineLoading = false; }
                 },
+                
                 async confirmLineBind() {
                     this.lineLoading = true;
                     const userId = this.user.id || (this._pendingBindUser && this._pendingBindUser.id);
@@ -1498,12 +1377,13 @@
                         this.lineLoading = false;
                         if (!error) {
                             this.lineBindStep = 3; this.user.lineLinked = true; this.user.lineUserId = lineUserId; this.user.pictureUrl = this.lineProfile.pictureUrl;
-                            if (this._pendingBindUser) { this.user = { ...this._pendingBindUser, lineLinked: true, lineUserId, pictureUrl: this.lineProfile.pictureUrl }; this._pendingBindUser = null; }
+                            if (this._pendingBindUser) { this.user = { ...this._pendingBindUser, lineLinked: true, lineUserId: lineUserId, pictureUrl: this.lineProfile.pictureUrl }; this._pendingBindUser = null; }
                             localStorage.setItem('user_session', JSON.stringify(this.user));
                         } else { Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
                     } catch(e) { this.lineLoading = false; Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
+                // [FIX] เลี่ยงการใช้ Backtick ซับซ้อนใน doc.save
                 async exportPDF() {
                     this.isPdfExporting = true;
                     try {
@@ -1528,7 +1408,7 @@
                         doc.setFillColor(248, 250, 252); doc.rect(margin, secY - 5, pageW - margin*2, 8, 'F');
                         doc.setTextColor(37, 99, 235); doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('สรุปรายภาค', margin + 2, secY); secY += 6;
                         const regions = this.regionDashboardStats; const colW = (pageW - margin*2 - 6) / 2;
-                        regions.forEach((r, i) => { const col = i % 2, row = Math.floor(i / 2); const rx = margin + col * (colW + 6); const ry = secY + row * 14; doc.setTextColor(51, 65, 85); doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text(r.name, rx, ry); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139); doc.text(`${r.taken}/${r.total}`, rx + colW - 10, ry, { align: 'right' }); doc.setFillColor(226, 232, 240); doc.roundedRect(rx, ry + 2, colW - 14, 3, 1, 1, 'F'); if (r.percent > 0) { doc.setFillColor(r.percent >= 100 ? 239 : 59, r.percent >= 100 ? 68 : 130, r.percent >= 100 ? 68 : 246); doc.roundedRect(rx, ry + 2, (colW - 14) * (r.percent/100), 3, 1, 1, 'F'); } });
+                        regions.forEach((r, i) => { const col = i % 2, row = Math.floor(i / 2); const rx = margin + col * (colW + 6); const ry = secY + row * 14; doc.setTextColor(51, 65, 85); doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text(r.name, rx, ry); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139); doc.text(r.taken + '/' + r.total, rx + colW - 10, ry, { align: 'right' }); doc.setFillColor(226, 232, 240); doc.roundedRect(rx, ry + 2, colW - 14, 3, 1, 1, 'F'); if (r.percent > 0) { doc.setFillColor(r.percent >= 100 ? 239 : 59, r.percent >= 100 ? 68 : 130, r.percent >= 100 ? 68 : 246); doc.roundedRect(rx, ry + 2, (colW - 14) * (r.percent/100), 3, 1, 1, 'F'); } });
                         doc.addPage();
                         doc.setFillColor(37, 99, 235); doc.rect(0, 0, pageW, 20, 'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text('รายชื่อผู้เลือกตำแหน่ง', margin, 13);
                         let tableY = 26; const cols = [{ label: '#', w: 12 },{ label: 'ชื่อ-สกุล', w: 55 },{ label: 'ตำแหน่งที่เลือก', w: 80 },{ label: 'ภาค', w: 22 },{ label: 'เวลา', w: 24 }];
@@ -1542,9 +1422,15 @@
                             doc.setDrawColor(226, 232, 240); doc.line(margin, tableY + 6, pageW - margin, tableY + 6); tableY += 7;
                         });
                         const totalPages = doc.getNumberOfPages();
-                        for (let p = 1; p <= totalPages; p++) { doc.setPage(p); doc.setFillColor(248, 250, 252); doc.rect(0, pageH - 10, pageW, 10, 'F'); doc.setTextColor(148, 163, 184); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text('RPCA79 - ระบบทดลองเลือกตำแหน่ง', margin, pageH - 4); doc.text(`หน้า ${p}/${totalPages}`, pageW - margin, pageH - 4, { align: 'right' }); }
-                        doc.save(`RPCA79_ผลการเลือก_${new Date().toLocaleDateString('th-TH').replace(/\//g,'-')}.pdf`);
-                    } catch(e) { Swal.fire('Error', 'ไม่สามารถสร้าง PDF ได้: ' + e.message, 'error'); } finally { this.isPdfExporting = false; }
+                        for (let p = 1; p <= totalPages; p++) { doc.setPage(p); doc.setFillColor(248, 250, 252); doc.rect(0, pageH - 10, pageW, 10, 'F'); doc.setTextColor(148, 163, 184); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text('RPCA79 - ระบบทดลองเลือกตำแหน่ง', margin, pageH - 4); doc.text('หน้า ' + p + '/' + totalPages, pageW - margin, pageH - 4, { align: 'right' }); }
+                        
+                        const dateString = new Date().toLocaleDateString('th-TH').replace(/\//g, '-');
+                        doc.save('RPCA79_ผลการเลือก_' + dateString + '.pdf');
+                    } catch(e) { 
+                        Swal.fire('Error', 'ไม่สามารถสร้าง PDF ได้: ' + e.message, 'error'); 
+                    } finally { 
+                        this.isPdfExporting = false; 
+                    }
                 },
             }
         }
