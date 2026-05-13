@@ -1354,61 +1354,92 @@
 
                 logout() { this.user = {id: null, pictureUrl: null}; localStorage.removeItem('user_session'); this.lineProfile = {}; this.switchPage('login'); },
 
-                adminAction(action) {
+adminAction(action) {
                     Swal.fire({title: 'Confirm?', text: action, icon: 'warning', showCancelButton: true}).then(async r => {
                         if(r.isConfirmed) {
                             Swal.fire({title: 'Processing...', didOpen:()=>Swal.showLoading()});
                             try { 
-                                if (action === 'SKIP') {
-                                    const { data } = await db.from('config').select('current_queue').eq('id', 1).single();
-                                    await db.from('config').update({ current_queue: data.current_queue + 1 }).eq('id', 1);
-                                } else if (action === 'TOGGLE_STATUS') {
-                                    const { data } = await db.from('config').select('system_status').eq('id', 1).single();
-                                    // ป้องกันบั๊กกรณีฐานข้อมูลเริ่มต้นเป็น null ให้ถือว่าเปิดอยู่ ถ้ากดจะเป็น PAUSE
-                                    const currentStatus = (data && data.system_status) ? String(data.system_status).trim().toUpperCase() : 'OPEN';
-                                    const nextStatus = currentStatus === 'OPEN' ? 'PAUSE' : 'OPEN';
-                                    await db.from('config').update({ system_status: nextStatus }).eq('id', 1);
-                                    // บังคับสร้าง Object ใหม่เพื่อให้ UI ตอบสนองทันที
-                                    this.config = { ...this.config, system_status: nextStatus };
-                                } else if (action === 'BACKUP') {
-                                    Swal.fire('Info', 'ใน Supabase การ Backup จะทำแบบอัตโนมัติ (PITR) ผ่านหน้า Dashboard', 'info'); return;
-                                } else if (action === 'RESET') {
-                                    await db.from('users').update({ status: 'WAITING', selected_pos_name: null, selected_at: null }).neq('status', 'SYSTEM');
-                                    await db.from('positions').update({ status: 'AVAILABLE', taken_by_user_id: null }).neq('status', 'X');
-                                    await db.from('config').update({ current_queue: 1, system_status: 'OPEN' }).eq('id', 1);
+                                if (action === 'BACKUP') {
+                                    Swal.fire('Info', 'การ Backup ระบบของ Supabase จะทำให้อัตโนมัติในระบบหลังบ้านครับ', 'info'); return;
                                 }
+                                // เรียกใช้ RPC จัดการคำสั่งระบบ
+                                const { error } = await db.rpc('exec_admin_action', { p_action: action });
+                                if (error) throw error;
+                                
                                 Swal.close(); this.fetchData(); 
-                            } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
+                            } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด: ' + e.message, 'error'); }
                         }
                     });
-                },
-                adminReset() { this.adminAction('RESET'); },
-                triggerBackup() { this.adminAction('BACKUP'); },
-
-                openAdminModal(action, data = null, type = 'USER') {
-                    this.adminModalAction = action; this.adminModalOpen = true;
-                    if(action === 'CREATE') this.adminFormData = {id:'', name:'', code:'', region:''};
-                    else this.adminFormData = type === 'USER' ? {id: data[0], name: data[1], code: data[2], region:''} : {id: data[0], name: data[1], region: data[2], code:''};
                 },
 
                 async saveAdminData() {
                     const type = this.adminTab === 'users' ? 'USER' : 'POSITION';
+                    Swal.fire({title: 'Saving...', didOpen:()=>Swal.showLoading()});
                     try { 
-                        if (this.adminModalAction === 'CREATE') {
-                            if (type === 'USER') await db.from('users').insert({ id: parseInt(this.adminFormData.id), name: this.adminFormData.name, code: this.adminFormData.code, status: 'WAITING' });
-                            else await db.from('positions').insert({ id: this.adminFormData.id, name: this.adminFormData.name, region: this.adminFormData.region, status: 'AVAILABLE' });
+                        let error = null;
+                        if (type === 'USER') {
+                            const { error: err } = await db.rpc('admin_manage_user', { 
+                                p_action: this.adminModalAction, 
+                                p_id: parseInt(this.adminFormData.id), 
+                                p_name: this.adminFormData.name, 
+                                p_code: this.adminFormData.code 
+                            });
+                            error = err;
                         } else {
-                            if (type === 'USER') await db.from('users').update({ name: this.adminFormData.name, code: this.adminFormData.code }).eq('id', parseInt(this.adminFormData.id));
-                            else await db.from('positions').update({ name: this.adminFormData.name, region: this.adminFormData.region }).eq('id', this.adminFormData.id);
+                            const { error: err } = await db.rpc('admin_manage_position', { 
+                                p_action: this.adminModalAction, 
+                                p_id: String(this.adminFormData.id), 
+                                p_name: this.adminFormData.name, 
+                                p_region: this.adminFormData.region 
+                            });
+                            error = err;
                         }
-                        this.adminModalOpen = false; this.fetchData(); 
-                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
+                        if (error) throw error;
+                        
+                        this.adminModalOpen = false; 
+                        Swal.close();
+                        this.fetchData(); 
+                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด: ' + e.message, 'error'); }
                 },
 
                 deleteAdminData(id, type) {
                     Swal.fire({title: 'Delete?', icon:'error', showCancelButton:true}).then(async r => {
-                        if(r.isConfirmed) { try { const table = type === 'USER' ? 'users' : 'positions'; await db.from(table).delete().eq('id', type === 'USER' ? parseInt(id) : id); this.fetchData(); } catch(e) {} }
+                        if(r.isConfirmed) { 
+                            Swal.fire({title: 'Deleting...', didOpen:()=>Swal.showLoading()});
+                            try { 
+                                let error = null;
+                                if (type === 'USER') {
+                                    const { error: err } = await db.rpc('admin_manage_user', { p_action: 'DELETE', p_id: parseInt(id), p_name: '', p_code: '' });
+                                    error = err;
+                                } else {
+                                    const { error: err } = await db.rpc('admin_manage_position', { p_action: 'DELETE', p_id: String(id), p_name: '', p_region: '' });
+                                    error = err;
+                                }
+                                if (error) throw error;
+                                
+                                Swal.close();
+                                this.fetchData(); 
+                            } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด: ' + e.message, 'error'); } 
+                        }
                     });
+                },
+
+                async submitAdminAssign() {
+                    if(!this.adminAssignUserId || !this.adminAssignPosId) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้ใช้งานและตำแหน่งให้ครบถ้วน', 'warning');
+                    Swal.fire({title: 'กำลังบันทึกข้อมูล...', didOpen:()=>Swal.showLoading()});
+                    try {
+                        const { error } = await db.rpc('admin_assign_position', {
+                            p_user_id: parseInt(this.adminAssignUserId),
+                            p_pos_id: String(this.adminAssignPosId)
+                        });
+                        if (error) throw error;
+                        
+                        this.adminAssignModalOpen = false;
+                        this.adminAssignUserId = '';
+                        this.adminAssignPosId = '';
+                        Swal.fire('สำเร็จ', 'บันทึกการเลือกตำแหน่งแทนเรียบร้อยแล้ว', 'success');
+                        this.fetchData();
+                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + e.message, 'error'); }
                 },
 
                 formatTime(dateStr) {
