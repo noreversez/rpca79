@@ -50,9 +50,7 @@
         .bureau-card.active { border-color: #2563eb; background-color: #eff6ff; }
         .dark .bureau-card.active { border-color: #3b82f6; background-color: #1e293b; }
 
-        .marquee-container { overflow: hidden; white-space: nowrap; }
-        .marquee-content { display: inline-block; padding-left: 100%; animation: marquee 20s linear infinite; }
-        @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+        /* marquee - เก็บไว้ในกรณีใช้ที่อื่น */
 
         .timeline-line { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: #e2e8f0; z-index: 0; transform: translateY(-50%); }
         .dark .timeline-line { background: #334155; }
@@ -94,14 +92,125 @@
 
         @media print { body * { visibility: hidden; } #digital-slip-content, #digital-slip-content * { visibility: visible; } #digital-slip-content { position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-shadow: none !important; } .no-print { display: none !important; } }
 
-        /* [FIX] Debug indicator - ลบออกได้หลัง test */
-        .debug-turn-badge {
-            position: fixed; top: 70px; right: 12px; z-index: 999;
-            background: #10b981; color: white; padding: 4px 10px;
-            border-radius: 20px; font-size: 10px; font-weight: 700;
-            box-shadow: 0 2px 8px rgba(16,185,129,0.4);
-            pointer-events: none;
+        /* ================================================================
+           [NEW] UX IMPROVEMENTS STYLES
+        ================================================================ */
+
+        /* 1. Sticky Queue Status Bar - แสดงคิวตลอดเวลาใต้ header */
+        .queue-status-bar {
+            position: sticky; top: 57px; z-index: 40;
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
         }
+        .dark .queue-status-bar { background: rgba(15,23,42,0.97); border-bottom-color: rgba(255,255,255,0.07); }
+        .queue-status-bar.my-turn-active {
+            background: linear-gradient(135deg, #059669, #10b981);
+            border-bottom-color: rgba(16,185,129,0.3);
+            animation: queueBarPulse 2s ease-in-out infinite;
+        }
+        @keyframes queueBarPulse { 0%,100% { box-shadow: 0 4px 20px rgba(16,185,129,0.25); } 50% { box-shadow: 0 4px 30px rgba(16,185,129,0.5); } }
+
+        /* 2. My Turn Bottom Sheet Modal */
+        .my-turn-sheet {
+            position: fixed; inset: 0; z-index: 150;
+            display: flex; flex-direction: column; justify-content: flex-end;
+        }
+        .my-turn-sheet-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .my-turn-sheet-content {
+            position: relative; z-index: 1;
+            background: white; border-radius: 28px 28px 0 0;
+            max-height: 88vh; overflow: hidden; display: flex; flex-direction: column;
+            animation: sheetSlideUp 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .dark .my-turn-sheet-content { background: #1e293b; }
+        @keyframes sheetSlideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .my-turn-sheet-handle { width: 40px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; }
+        .dark .my-turn-sheet-handle { background: #475569; }
+
+        /* ปุ่มเลือกใหญ่ใน My Turn Sheet */
+        .select-btn-large {
+            display: flex; align-items: center; justify-content: space-between;
+            background: white; border: 2px solid #e2e8f0; border-radius: 16px;
+            padding: 14px 16px; cursor: pointer; transition: all 0.2s ease;
+            text-align: left; width: 100%;
+        }
+        .dark .select-btn-large { background: #0f172a; border-color: #334155; }
+        .select-btn-large:hover { border-color: #2563eb; background: #eff6ff; transform: scale(1.01); }
+        .dark .select-btn-large:hover { background: #1e3a5f; border-color: #3b82f6; }
+        .select-btn-large:active { transform: scale(0.98); }
+        .select-btn-action {
+            min-width: 80px; background: #2563eb; color: white;
+            border-radius: 12px; padding: 10px 16px; font-weight: 700;
+            font-size: 13px; border: none; cursor: pointer;
+            transition: all 0.15s ease; white-space: nowrap;
+        }
+        .select-btn-action:hover { background: #1d4ed8; }
+        .select-btn-action:active { transform: scale(0.95); }
+        .select-btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* 3. Skeleton Loading */
+        .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 8px; }
+        .dark .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; }
+        @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* 4. Toast Notification */
+        .toast-container { position: fixed; top: 70px; right: 16px; z-index: 300; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast {
+            background: white; border-radius: 14px; padding: 12px 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15); display: flex; align-items: center; gap-10px;
+            font-size: 13px; font-weight: 600; min-width: 220px; max-width: 320px;
+            pointer-events: all; border-left: 4px solid #2563eb;
+            animation: toastSlideIn 0.35s cubic-bezier(0.16,1,0.3,1);
+        }
+        .dark .toast { background: #1e293b; color: #e2e8f0; }
+        .toast.toast-success { border-left-color: #10b981; }
+        .toast.toast-error { border-left-color: #ef4444; }
+        .toast.toast-warning { border-left-color: #f59e0b; }
+        .toast.toast-exit { animation: toastSlideOut 0.3s ease forwards; }
+        @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+
+        /* 5. Active Filter Chips */
+        .filter-chip { display: inline-flex; align-items: center; gap: 5px; background: #dbeafe; color: #1d4ed8; padding: 4px 10px 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .dark .filter-chip { background: #1e3a5f; color: #60a5fa; }
+        .filter-chip button { background: #93c5fd; border-radius: 50%; width: 16px; height: 16px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #1d4ed8; transition: background 0.15s; }
+        .filter-chip button:hover { background: #2563eb; color: white; }
+
+        /* 6. Onboarding Steps (Login Page) */
+        .onboarding-step { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+        .onboarding-step-num { width: 28px; height: 28px; border-radius: 50%; background: #dbeafe; color: #2563eb; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .dark .onboarding-step-num { background: #1e3a5f; color: #60a5fa; }
+
+        /* 7. Position card สีชัดขึ้น ปุ่มใหญ่ขึ้น */
+        .pos-card-available { background: white; border: 2px solid #86efac; }
+        .dark .pos-card-available { background: #0f172a; border-color: #166534; }
+        .pos-card-taken { background: #f8fafc; border: 2px solid #e2e8f0; }
+        .dark .pos-card-taken { background: #0f172a; border-color: #1e293b; }
+        .pos-card-my-turn { background: #eff6ff; border: 2px solid #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+        .dark .pos-card-my-turn { background: #1e293b; border-color: #3b82f6 !important; }
+
+        /* ปุ่มเลือกใหญ่ขึ้น min 44px */
+        .btn-select-main {
+            width: 100%; background: #2563eb; color: white;
+            padding: 12px 8px; border-radius: 10px; font-weight: 700;
+            font-size: 13px; border: none; cursor: pointer;
+            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.35); min-height: 44px;
+        }
+        .btn-select-main:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,0.4); }
+        .btn-select-main:active { transform: scale(0.97); }
+        .btn-select-main:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* 8. Bottom Nav badge เมื่อถึงคิว */
+        .nav-badge-turn { position: absolute; top: 6px; right: 20%; width: 8px; height: 8px; background: #10b981; border-radius: 50%; border: 2px solid white; animation: navBadgePulse 1.5s infinite; }
+        .dark .nav-badge-turn { border-color: #0f172a; }
+        @keyframes navBadgePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.4); } }
+
+        /* 9. Empty state ที่ดีขึ้น */
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; gap: 12px; }
+        .empty-state-icon { width: 64px; height: 64px; background: #f1f5f9; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: #94a3b8; }
+        .dark .empty-state-icon { background: #1e293b; }
     </style>
 </head>
 
@@ -112,17 +221,12 @@
 -->
 <body class="text-slate-800 dark:text-slate-100 bg-pattern min-h-screen transition-colors duration-300" x-init="initApp()" x-cloak>
 
-    <!-- Announcement Bar -->
-    <div x-show="config.announcement" class="fixed top-0 left-0 right-0 z-[60] bg-yellow-400 text-yellow-900 text-xs font-bold py-1.5 shadow-sm">
-        <div class="marquee-container"><div class="marquee-content" x-text="'📢 ' + config.announcement"></div></div>
-    </div>
+    <!-- [REMOVED] Announcement Bar สีเหลืองถูกลบออกตามที่ร้องขอ -->
 
     <!-- ===============================================================
          HEADER - ลบ nav tabs ออก เหลือแค่ Logo + Status + Controls
-         [CHANGED] เอา <div class="hidden md:flex ..."> nav tabs ออก
-         [CHANGED] ปรับ layout เป็น justify-between แบบ 2 ฝั่ง
     ================================================================ -->
-    <header class="fixed top-0 left-0 right-0 z-50 glass-header shadow-sm transition-all duration-300" :class="config.announcement ? 'top-6' : 'top-0'">
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header shadow-sm transition-all duration-300">
         <div class="container mx-auto px-4 h-14 flex justify-between items-center">
 
             <!-- Left: Logo + Status -->
@@ -182,13 +286,71 @@
         </div>
     </header>
 
-    <!-- [CHANGED] Spacer: ปรับให้พอดีกับ header ที่ไม่มี nav แล้ว (h-14 header + h-1 progress) -->
-    <div class="h-16" :class="config.announcement ? 'mt-6' : 'mt-0'"></div>
+    <!-- Spacer: ชดเชยความสูง header (h-14 + h-1 progress bar) -->
+    <div class="h-16"></div>
 
     <!-- ===============================================================
          HOME PAGE
     ================================================================ -->
-    <div x-show="currentPage === 'home'" class="container mx-auto px-4 pb-28 grid grid-cols-1 lg:grid-cols-12 gap-6 animate-enter safe-pb">
+    <div x-show="currentPage === 'home'" class="animate-enter safe-pb">
+
+        <!-- [NEW] Sticky Queue Status Bar - แสดงคิวตลอดเวลา -->
+        <div class="queue-status-bar" :class="isMyTurn ? 'my-turn-active' : ''">
+            <div class="container mx-auto px-4 py-2.5">
+                <!-- สถานะปกติ: แสดงคิว -->
+                <div x-show="!isMyTurn" class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">คิวปัจจุบัน</span>
+                            <span class="text-lg font-black text-blue-600 dark:text-blue-400" x-text="config.current_queue || '...'"></span>
+                        </div>
+                        <div x-show="user.id && user.role === 'USER' && user.status !== 'SELECTED'" class="flex items-center gap-2">
+                            <div class="w-px h-5 bg-slate-200 dark:bg-slate-700"></div>
+                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">คิวคุณ</span>
+                            <span class="text-lg font-black text-slate-700 dark:text-slate-200" x-text="user.id"></span>
+                            <div x-show="!isInitialLoading && user.status !== 'SELECTED' && parseInt(user.id) > parseInt(config.current_queue)" class="flex items-center gap-1 text-[11px] font-bold text-orange-500">
+                                <span>อีก</span>
+                                <span x-text="Math.max(0, parseInt(user.id) - parseInt(config.current_queue))"></span>
+                                <span>คิว</span>
+                            </div>
+                        </div>
+                        <div x-show="user.status === 'SELECTED'" class="flex items-center gap-1.5 text-[11px] font-bold text-green-600 dark:text-green-400">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                            <span>เลือกตำแหน่งแล้ว</span>
+                        </div>
+                    </div>
+                    <!-- Progress mini -->
+                    <div class="flex items-center gap-2">
+                        <div class="hidden sm:flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                            <span x-text="positions.filter(p=>p[3]!=='AVAILABLE').length"></span>
+                            <span>/</span>
+                            <span x-text="positions.length"></span>
+                            <span>ตำแหน่ง</span>
+                        </div>
+                        <div class="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 rounded-full transition-all duration-700" :style="`width:${progressPercent}%`"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- สถานะถึงคิว: แสดง banner -->
+                <div x-show="isMyTurn" class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                            <i data-lucide="bell-ring" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <div>
+                            <div class="font-black text-white text-sm">ถึงคิวของคุณแล้ว!</div>
+                            <div class="text-green-100 text-[11px]">แตะเพื่อเลือกตำแหน่ง</div>
+                        </div>
+                    </div>
+                    <button @click="myTurnSheetOpen = true" class="bg-white text-green-700 px-4 py-2 rounded-xl font-black text-sm shadow-md active:scale-95 transition">
+                        เลือกเลย →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 pb-28 grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
         <div class="lg:col-span-4 space-y-4 order-1 lg:order-2">
              <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg p-5 border border-slate-100 dark:border-slate-700">
                 <div x-show="!user.id" class="text-center py-4">
@@ -273,7 +435,57 @@
                 </div>
                 
                 <div class="min-h-[50vh]">
-                    <div x-show="isInitialLoading" class="flex flex-col items-center justify-center py-20 text-slate-400 opacity-60"><i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-3 text-blue-500"></i><p class="text-xs">Loading...</p></div>
+                    <!-- [ORIGINAL] Spinner loading -->
+                    <div x-show="isInitialLoading" class="space-y-3">
+                        <!-- [NEW] Skeleton cards แทน spinner เดิม -->
+                        <div class="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-200/50 dark:border-slate-700/50">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="skeleton w-1 h-4 rounded-full"></div>
+                                <div class="skeleton h-4 w-20 rounded"></div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+                                <template x-for="i in [1,2,3,4,5,6]" :key="i">
+                                    <div class="rounded-lg p-3 border border-slate-100 dark:border-slate-700 space-y-2">
+                                        <div class="skeleton h-3 w-12 rounded"></div>
+                                        <div class="skeleton h-4 w-full rounded"></div>
+                                        <div class="skeleton h-3 w-3/4 rounded"></div>
+                                        <div class="skeleton h-9 w-full rounded-md mt-1"></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- [NEW] Active Filter Chips Summary - แสดงเมื่อมี filter active -->
+                    <div x-show="!isInitialLoading && (filterRegion || filterStatus !== 'ALL' || search)" class="flex items-center gap-2 flex-wrap mb-3 px-1">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">กำลังกรอง:</span>
+                        <span x-show="filterRegion" class="filter-chip">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>
+                            <span x-text="filterRegion"></span>
+                            <button @click="filterRegion = ''" title="ลบตัวกรอง">×</button>
+                        </span>
+                        <span x-show="filterStatus === 'AVAILABLE'" class="filter-chip" style="background:#dcfce7;color:#15803d;">
+                            <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                            <span>ว่างเท่านั้น</span>
+                            <button @click="filterStatus = 'ALL'" style="background:#86efac;color:#15803d;">×</button>
+                        </span>
+                        <span x-show="filterStatus === 'TAKEN'" class="filter-chip" style="background:#f1f5f9;color:#475569;">
+                            <i data-lucide="lock" class="w-3 h-3"></i>
+                            <span>เลือกแล้ว</span>
+                            <button @click="filterStatus = 'ALL'" style="background:#cbd5e1;color:#475569;">×</button>
+                        </span>
+                        <span x-show="filterStatus === 'WISHLIST'" class="filter-chip" style="background:#fef9c3;color:#92400e;">
+                            <i data-lucide="star" class="w-3 h-3"></i>
+                            <span>ที่ติดดาว</span>
+                            <button @click="filterStatus = 'ALL'" style="background:#fde68a;color:#92400e;">×</button>
+                        </span>
+                        <span x-show="search" class="filter-chip" style="background:#f3e8ff;color:#7c3aed;">
+                            <i data-lucide="search" class="w-3 h-3"></i>
+                            <span x-text="'\"' + search + '\"'"></span>
+                            <button @click="search = ''" style="background:#d8b4fe;color:#7c3aed;">×</button>
+                        </span>
+                        <button @click="filterRegion=''; filterStatus='ALL'; search='';" class="text-[10px] font-bold text-red-500 hover:text-red-700 underline ml-1">ล้างทั้งหมด</button>
+                    </div>
                     
                     <div x-show="!isInitialLoading && viewMode === 'grid'" class="space-y-4">
                         <template x-for="group in groupedPositions" :key="group.name">
@@ -281,13 +493,26 @@
                                 <div class="flex items-center gap-2 mb-2"><span class="w-1 h-4 rounded-full bg-blue-500"></span><h3 class="font-bold text-sm text-slate-700 dark:text-slate-200" x-text="group.name"></h3><span class="ml-auto text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-2 rounded-full" x-text="group.items.length"></span></div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
                                     <template x-for="pos in group.items" :key="pos[0]">
-                                        <div class="rounded-lg p-3 border relative overflow-hidden card-interaction transition-colors" :class="pos[3] === 'AVAILABLE' ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm' : 'bg-slate-100 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 opacity-90'">
+                                        <!-- [NEW] ปรับสีการ์ดให้ชัดขึ้น: ว่าง=green border, ถูกเลือก=slate, ถึงคิว=blue glow -->
+                                        <div class="rounded-lg p-3 border-2 relative overflow-hidden card-interaction transition-all"
+                                             :class="[
+                                                isMyTurn && pos[3]==='AVAILABLE' ? 'pos-card-my-turn' :
+                                                pos[3]==='AVAILABLE' ? 'pos-card-available shadow-sm' :
+                                                'pos-card-taken opacity-80'
+                                             ]">
                                             <button @click.stop="toggleWishlist(pos[0])" class="absolute top-2 right-2 z-20 hover:scale-110 transition" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i data-lucide="star" class="w-4 h-4"></i></button>
                                             
-                                            <!-- [FIX] Pulse border แสดงเมื่อถึงคิว -->
-                                            <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="absolute inset-0 border-2 border-blue-500 rounded-lg animate-pulse pointer-events-none z-10"></div>
+                                            <!-- Pulse border แสดงเมื่อถึงคิว -->
+                                            <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="absolute inset-0 border-2 border-blue-400 rounded-lg animate-pulse pointer-events-none z-10 opacity-50"></div>
                                             
-                                            <div class="flex justify-between items-start mb-1"><span class="text-[9px] font-bold px-1.5 rounded uppercase tracking-wide flex items-center gap-1" :class="pos[3] === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'"><span x-show="pos[3] === 'AVAILABLE'"><i data-lucide="check-circle-2" class="w-3 h-3 inline"></i></span><span x-show="pos[3] !== 'AVAILABLE'"><i data-lucide="lock" class="w-3 h-3 inline"></i></span> <span x-text="pos[3] === 'AVAILABLE' ? 'ว่าง' : 'ถูกเลือก'"></span></span></div>
+                                            <div class="flex justify-between items-start mb-1">
+                                                <span class="text-[9px] font-bold px-1.5 rounded uppercase tracking-wide flex items-center gap-1"
+                                                      :class="pos[3] === 'AVAILABLE' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'">
+                                                    <span x-show="pos[3] === 'AVAILABLE'"><i data-lucide="check-circle-2" class="w-3 h-3 inline"></i></span>
+                                                    <span x-show="pos[3] !== 'AVAILABLE'"><i data-lucide="lock" class="w-3 h-3 inline"></i></span>
+                                                    <span x-text="pos[3] === 'AVAILABLE' ? 'ว่าง' : 'ถูกเลือก'"></span>
+                                                </span>
+                                            </div>
                                             
                                             <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight mb-2 pr-6 truncate" x-text="pos[1]" :title="pos[1]"></h3>
                                             
@@ -296,23 +521,18 @@
                                                 <template x-if="pos[3] !== 'AVAILABLE'"><div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-700/50 px-1.5 py-1 rounded w-full"><i data-lucide="user-check" class="w-3 h-3 text-slate-400"></i> <span class="truncate" x-text="getUserName(pos[4])"></span></div></template>
                                             </div>
 
-                                            <!--
-                                                [FIX CRITICAL] ปุ่มเลือก
-                                                ปัญหาเดิม: x-show="isMyTurn && pos[3] === 'AVAILABLE'"
-                                                ถ้า isMyTurn = false เพราะ config โหลดไม่ทัน → ปุ่มหาย
-                                                แก้: แยก condition ชัดเจน + เพิ่ม :disabled ป้องกัน double-click
-                                            -->
+                                            <!-- [NEW] ปุ่มเลือก ใหญ่ขึ้น min-height 44px ตาม Apple HIG -->
                                             <button
                                                 x-show="isMyTurn && pos[3] === 'AVAILABLE'"
                                                 @click="confirmSelect(pos)"
                                                 :disabled="isSubmitting"
-                                                :class="isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 active:scale-95'"
-                                                class="w-full bg-blue-600 text-white py-2 rounded-md font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1">
-                                                <span x-show="!isSubmitting"><i data-lucide="check" class="w-3 h-3"></i></span>
-                                                <span x-show="isSubmitting"><i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i></span>
+                                                class="btn-select-main"
+                                                :class="isSubmitting ? 'opacity-50 cursor-not-allowed' : ''">
+                                                <span x-show="!isSubmitting"><i data-lucide="check" class="w-4 h-4"></i></span>
+                                                <span x-show="isSubmitting"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></span>
                                                 <span x-text="isSubmitting ? 'กำลังบันทึก...' : 'เลือกตำแหน่งนี้'"></span>
                                             </button>
-                                            <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-50 dark:bg-slate-700 text-slate-400 py-1.5 rounded-md text-[10px] font-bold border border-slate-100 dark:border-slate-600 cursor-not-allowed">รอคิว</button>
+                                            <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-50 dark:bg-slate-700/50 text-slate-400 py-2 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 cursor-not-allowed">รอคิว</button>
                                         </div>
                                     </template>
                                 </div>
@@ -348,15 +568,23 @@
                             </div>
                         </template>
                     </div>
-                    <div x-show="groupedPositions.length === 0 && !isInitialLoading" class="text-center py-10 text-slate-400">ไม่พบข้อมูลตามเงื่อนไข</div>
+                    <!-- [NEW] Empty State ที่ดีขึ้น มี action -->
+                    <div x-show="groupedPositions.length === 0 && !isInitialLoading" class="empty-state">
+                        <div class="empty-state-icon">
+                            <i data-lucide="search-x" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-600 dark:text-slate-300 text-base mb-1">ไม่พบตำแหน่งตามเงื่อนไข</div>
+                            <div class="text-slate-400 text-sm">ลองปรับตัวกรองหรือคำค้นหาใหม่</div>
+                        </div>
+                        <button @click="filterRegion=''; filterStatus='ALL'; search='';" class="mt-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition">
+                            ล้างตัวกรองทั้งหมด
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- ===============================================================
-         MONITOR PAGE
-    ================================================================ -->
+    </div><!-- end home page wrapper -->
     <div x-show="currentPage === 'monitor'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="radio" class="w-6 h-6 text-red-500"></i> Live Monitor</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-md border border-slate-100 dark:border-slate-700 mb-8 overflow-hidden relative">
@@ -526,7 +754,24 @@
                 <div x-show="!user.id" class="text-center">
                     <div class="w-20 h-20 bg-[#06C755]/10 text-[#06C755] rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner"><i data-lucide="message-circle" class="w-10 h-10"></i></div>
                     <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">เข้าสู่ระบบด้วย LINE</h2>
-                    <p class="text-slate-400 text-sm mb-6">เพื่อความปลอดภัยและเชื่อมข้อมูลเข้ากับรหัสของคุณ</p>
+                    <p class="text-slate-400 text-sm mb-4">เพื่อความปลอดภัยและเชื่อมข้อมูลเข้ากับรหัสของคุณ</p>
+
+                    <!-- [NEW] Onboarding Steps สำหรับผู้ใช้ใหม่ -->
+                    <div class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 mb-6 text-left border border-slate-100 dark:border-slate-600">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">วิธีใช้งานระบบ</div>
+                        <div class="onboarding-step">
+                            <div class="onboarding-step-num">1</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-300"><span class="font-bold">เข้าสู่ระบบ</span> ด้วย LINE หรือรหัสประจำตัว</div>
+                        </div>
+                        <div class="onboarding-step border-t border-slate-200 dark:border-slate-600">
+                            <div class="onboarding-step-num">2</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-300"><span class="font-bold">รอคิว</span> ระบบจะแจ้งเตือนเมื่อถึงลำดับของคุณ</div>
+                        </div>
+                        <div class="onboarding-step border-t border-slate-200 dark:border-slate-600">
+                            <div class="onboarding-step-num">3</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-300"><span class="font-bold">เลือกตำแหน่ง</span> เมื่อถึงคิวจะมีปุ่มให้กดเลือกได้ทันที</div>
+                        </div>
+                    </div>
                     <button @click="loginWithLine()" :disabled="lineLoading" class="line-btn w-full mb-8 py-4 text-lg">
                         <span x-show="lineLoading"><i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i></span>
                         <span x-show="!lineLoading"><svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.41-.101-.539-.29l-2.531-3.426v3.089c0 .345-.283.63-.63.63-.344 0-.627-.285-.627-.63V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .41.105.539.291l2.532 3.42V8.108c0-.345.282-.63.63-.63.346 0 .629.285.629.63v4.771zm-5.741 0c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg></span>
@@ -628,8 +873,11 @@
     ================================================================ -->
     <nav class="mobile-bottom-nav">
         <div class="flex max-w-lg mx-auto">
-            <button @click="switchPage('home')" class="mobile-nav-item" :class="currentPage === 'home' ? 'active' : ''">
+            <!-- [NEW] เพิ่ม badge สีเขียวบน tab เลือก เมื่อถึงคิว -->
+            <button @click="switchPage('home')" class="mobile-nav-item relative" :class="currentPage === 'home' ? 'active' : ''">
                 <i data-lucide="list-todo"></i><span>เลือก</span>
+                <!-- Badge แดงปกติ / เขียวเมื่อถึงคิว -->
+                <span x-show="isMyTurn" class="nav-badge-turn"></span>
             </button>
             <button @click="switchPage('monitor')" class="mobile-nav-item relative" :class="currentPage === 'monitor' ? 'active' : ''">
                 <i data-lucide="radio"></i><span>Live</span>
@@ -655,6 +903,113 @@
         <i data-lucide="wifi-off" class="w-6 h-6 shrink-0"></i>
         <div class="flex-1"><div class="font-bold text-sm">เชื่อมต่อไม่ได้</div><div class="text-xs text-red-100">กำลังลองใหม่อัตโนมัติ...</div></div>
         <button @click="fetchData()" class="bg-white text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">ลองใหม่</button>
+    </div>
+
+    <!-- ================================================================
+         [NEW] TOAST NOTIFICATION CONTAINER
+    ================================================================ -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ================================================================
+         [NEW] MY TURN BOTTOM SHEET
+         เปิดขึ้นอัตโนมัติเมื่อถึงคิว แสดงตำแหน่ง wishlist + ว่างทั้งหมด
+    ================================================================ -->
+    <div x-show="myTurnSheetOpen && isMyTurn" class="my-turn-sheet" x-cloak>
+        <!-- Backdrop - กดปิดได้ -->
+        <div class="my-turn-sheet-backdrop" @click="myTurnSheetOpen = false"></div>
+
+        <div class="my-turn-sheet-content dark:bg-slate-800">
+            <!-- Handle bar -->
+            <div class="my-turn-sheet-handle"></div>
+
+            <!-- Header ของ Sheet -->
+            <div class="px-5 pt-4 pb-3 border-b border-slate-100 dark:border-slate-700 shrink-0">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
+                            <span class="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">ถึงคิวของคุณแล้ว!</span>
+                        </div>
+                        <h2 class="text-xl font-black text-slate-800 dark:text-white leading-tight" x-text="user.name"></h2>
+                        <p class="text-xs text-slate-400 mt-0.5">กรุณาเลือกตำแหน่งที่ต้องการ</p>
+                    </div>
+                    <button @click="myTurnSheetOpen = false" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-600 transition">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Body: Wishlist ก่อน แล้วตามด้วยตำแหน่งว่างทั้งหมด -->
+            <div class="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+
+                <!-- Wishlist section (ถ้ามี) -->
+                <div x-show="wishlistAvailable.length > 0">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400"></i>
+                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">ตำแหน่งที่ติดดาวไว้</span>
+                        <span class="ml-auto text-[10px] bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded-full font-bold" x-text="wishlistAvailable.length + ' ว่าง'"></span>
+                    </div>
+                    <div class="space-y-2">
+                        <template x-for="pos in wishlistAvailable" :key="'ws-' + pos[0]">
+                            <div class="select-btn-large" style="border-color:#fbbf24; background: #fffbeb;" x-bind:class="$el.classList">
+                                <div class="flex-1 min-w-0 mr-3">
+                                    <div class="font-bold text-slate-800 dark:text-slate-100 text-sm truncate" x-text="pos[1]"></div>
+                                    <div class="flex items-center gap-1 mt-0.5">
+                                        <i data-lucide="map-pin" class="w-3 h-3 text-blue-400 shrink-0"></i>
+                                        <span class="text-[11px] text-slate-500 dark:text-slate-400" x-text="pos[2]"></span>
+                                    </div>
+                                </div>
+                                <button class="select-btn-action" @click="myTurnSheetOpen=false; confirmSelect(pos)" :disabled="isSubmitting" style="background:#d97706;">
+                                    <span x-show="!isSubmitting">⭐ เลือก</span>
+                                    <span x-show="isSubmitting">...</span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- ตำแหน่งว่างทั้งหมด (ไม่รวม wishlist) -->
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="list" class="w-4 h-4 text-blue-500"></i>
+                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">ตำแหน่งว่างทั้งหมด</span>
+                        <span class="ml-auto text-[10px] bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold" x-text="availablePositions.length + ' ตำแหน่ง'"></span>
+                    </div>
+                    <template x-if="availablePositions.length === 0">
+                        <div class="text-center py-6 text-slate-400 text-sm">ไม่มีตำแหน่งว่างแล้ว</div>
+                    </template>
+                    <div class="space-y-2" x-show="availablePositions.length > 0">
+                        <template x-for="pos in availablePositions" :key="'av-' + pos[0]">
+                            <div class="select-btn-large">
+                                <div class="flex items-center gap-2 mr-3 flex-1 min-w-0">
+                                    <div class="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+                                        <i data-lucide="building" class="w-4 h-4 text-green-600 dark:text-green-400"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-slate-800 dark:text-slate-100 text-sm truncate" x-text="pos[1]"></div>
+                                        <div class="flex items-center gap-1 mt-0.5">
+                                            <span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-1.5 rounded font-semibold" x-text="pos[2]"></span>
+                                            <span x-show="isWishlist(pos[0])" class="text-yellow-400"><i data-lucide="star" class="w-3 h-3 inline"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="select-btn-action" @click="myTurnSheetOpen=false; confirmSelect(pos)" :disabled="isSubmitting">
+                                    <span x-show="!isSubmitting">เลือก</span>
+                                    <span x-show="isSubmitting"><i data-lucide="loader-2" class="w-3 h-3 animate-spin inline"></i></span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer: ปุ่มปิด -->
+            <div class="px-4 pb-6 pt-3 border-t border-slate-100 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
+                <button @click="myTurnSheetOpen = false" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-3 rounded-xl font-bold text-sm transition hover:bg-slate-300">
+                    ปิด — ดูรายการจากหน้าหลัก
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -703,6 +1058,11 @@
                 posDetailModalOpen: false,
                 selectedDetailPos: null,
 
+                // [NEW] My Turn Bottom Sheet state
+                myTurnSheetOpen: false,
+                // [NEW] track previous queue to detect turn change
+                _prevQueue: null,
+
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
                 get uniqueRegions() { return [...new Set(this.positions.map(p => p[2]))].sort(); },
                 get progressPercent() { return this.positions.length ? (this.positions.filter(p => p[3]!=='AVAILABLE').length/this.positions.length)*100 : 0; },
@@ -726,6 +1086,19 @@
                 
                 isWishlist(id) { return this.wishlist.includes(id); },
                 toggleWishlist(id) { if (this.wishlist.includes(id)) this.wishlist = this.wishlist.filter(w => w !== id); else this.wishlist.push(id); localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); },
+
+                // [NEW] ตำแหน่งว่างทั้งหมด (เรียงตามภาค > ชื่อ)
+                get availablePositions() {
+                    return this.positions
+                        .filter(p => p[3] === 'AVAILABLE')
+                        .sort((a, b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]));
+                },
+                // [NEW] ตำแหน่งที่อยู่ใน wishlist และยังว่างอยู่
+                get wishlistAvailable() {
+                    return this.positions
+                        .filter(p => p[3] === 'AVAILABLE' && this.wishlist.includes(p[0]))
+                        .sort((a, b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]));
+                },
                 get groupedPositions() {
                     let filtered = this.positions.filter(p => {
                         const matchesSearch = p[1].toLowerCase().includes(this.search.toLowerCase()) || (p[2] && p[2].toLowerCase().includes(this.search.toLowerCase()));
@@ -841,6 +1214,32 @@
                     document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
                     this.initLiff();
                     setInterval(() => { if (!document.hidden) this.fetchData(); }, 60000);
+                },
+
+                // [NEW] Toast Notification System
+                showToast(message, type = 'info', duration = 3500) {
+                    const container = document.getElementById('toast-container');
+                    if (!container) return;
+                    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+                    const toast = document.createElement('div');
+                    toast.className = `toast toast-${type}`;
+                    toast.style.gap = '10px';
+                    toast.innerHTML = `<span style="font-size:16px;flex-shrink:0">${icons[type]||'ℹ️'}</span><span style="flex:1">${message}</span>`;
+                    container.appendChild(toast);
+                    setTimeout(() => {
+                        toast.classList.add('toast-exit');
+                        setTimeout(() => { if(toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+                    }, duration);
+                },
+
+                // [NEW] เปิด My Turn Sheet อัตโนมัติ พร้อม vibrate + toast
+                triggerMyTurn() {
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]);
+                    this.myTurnSheetOpen = true;
+                    this.showToast('🔔 ถึงคิวของคุณแล้ว! กรุณาเลือกตำแหน่ง', 'success', 5000);
+                    // [NEW] Auto scroll ไปด้านบน + ไป tab home ถ้าไม่ได้อยู่
+                    if (this.currentPage !== 'home') this.switchPage('home');
+                    else window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
 
                 initRealtime() {
