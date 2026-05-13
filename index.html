@@ -142,7 +142,6 @@
         .dark .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; }
         @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-        /* [FIX] แก้ไข gap-10px เป็น gap: 10px; */
         .toast-container { position: fixed; top: 70px; right: 16px; z-index: 300; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
         .toast {
             background: white; border-radius: 14px; padding: 12px 16px;
@@ -243,7 +242,6 @@
                 </div>
             </div>
         </div>
-        <!-- [FIX] เปลี่ยน backtick เป็นเครื่องหมายต่อ string ธรรมดาป้องกัน HTML Parser error -->
         <div class="h-1 bg-slate-100 dark:bg-slate-800 w-full">
             <div class="h-full bg-blue-500 transition-all duration-1000" :style="'width: ' + progressPercent + '%'"></div>
         </div>
@@ -251,6 +249,9 @@
 
     <div class="h-16"></div>
 
+    <!-- ===============================================================
+         HOME PAGE
+    ================================================================ -->
     <div x-show="currentPage === 'home'" class="animate-enter safe-pb">
         <div class="queue-status-bar" :class="isMyTurn ? 'my-turn-active' : ''">
             <div class="container mx-auto px-4 py-2.5">
@@ -282,7 +283,6 @@
                             <span x-text="positions.length"></span>
                             <span>ตำแหน่ง</span>
                         </div>
-                        <!-- [FIX] เปลี่ยน backtick -->
                         <div class="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                             <div class="h-full bg-blue-500 rounded-full transition-all duration-700" :style="'width:' + progressPercent + '%'"></div>
                         </div>
@@ -431,7 +431,6 @@
                             <span>ที่ติดดาว</span>
                             <button @click="filterStatus = 'ALL'" style="background:#fde68a;color:#92400e;">×</button>
                         </span>
-                        <!-- [FIX] เปลี่ยนวิธีการแสดงโควตสำหรับ Search เพื่อหลีกเลี่ยง SyntaxError แบบเด็ดขาด -->
                         <span x-show="search" class="filter-chip" style="background:#f3e8ff;color:#7c3aed;">
                             <i data-lucide="search" class="w-3 h-3"></i>
                             <span>"</span><span x-text="search"></span><span>"</span>
@@ -529,7 +528,12 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> <!-- [FIX] สิ้นสุดกรอบ Grid คอลัมน์ -->
+    </div> <!-- [FIX] เพิ่ม </div> ตัวนี้เพื่อปิดแท็บ Home อย่างสมบูรณ์! -->
+
+    <!-- ===============================================================
+         MONITOR PAGE
+    ================================================================ -->
     <div x-show="currentPage === 'monitor'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="radio" class="w-6 h-6 text-red-500"></i> Live Monitor</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-md border border-slate-100 dark:border-slate-700 mb-8 overflow-hidden relative">
@@ -558,6 +562,9 @@
         </div>
     </div>
 
+    <!-- ===============================================================
+         DASHBOARD PAGE
+    ================================================================ -->
     <div x-show="currentPage === 'dashboard'" 
          :class="isDashboardFullscreen ? 'fixed inset-0 z-[100] bg-slate-100 dark:bg-slate-900 p-2 md:p-4 flex flex-col h-screen' : 'container mx-auto px-4 py-6 pb-28 animate-enter safe-pb'">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 shrink-0">
@@ -602,6 +609,9 @@
         </div>
     </div>
 
+    <!-- ===============================================================
+         ADMIN PANEL PAGE
+    ================================================================ -->
     <div x-show="currentPage === 'admin_panel'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="settings" class="w-6 h-6 text-red-500"></i> Admin Panel</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
@@ -680,6 +690,9 @@
         </div>
     </div>
 
+    <!-- ===============================================================
+         LOGIN PAGE
+    ================================================================ -->
     <div x-show="currentPage === 'login'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb flex flex-col items-center justify-center min-h-[70vh]">
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 w-full max-w-md overflow-hidden relative">
             <div class="h-2 bg-blue-600 w-full"></div>
@@ -747,6 +760,9 @@
         </div>
     </div>
 
+    <!-- ===============================================================
+         MODALS
+    ================================================================ -->
     <div x-show="showSlip" class="fixed inset-0 bg-slate-900/90 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" x-cloak>
         <div id="digital-slip-content" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden relative">
             <div class="bg-blue-600 p-6 text-center text-white"><div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold mx-auto mb-3 shadow-lg"><i data-lucide="check" class="w-6 h-6"></i></div><h2 class="text-lg font-bold uppercase tracking-wider">Selection Success</h2><p class="text-blue-100 text-xs mt-1" x-text="new Date().toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'})"></p></div>
@@ -798,6 +814,7 @@
         </div>
     </div>
 
+    <!-- BOTTOM NAV -->
     <nav class="mobile-bottom-nav">
         <div class="flex max-w-lg mx-auto">
             <button @click="switchPage('home')" class="mobile-nav-item relative" :class="currentPage === 'home' ? 'active' : ''">
@@ -921,7 +938,6 @@
         </div>
     </div>
 
-    <!-- [FIX] เปลี่ยนวิธีการต่อ String ป้องกัน HTML Parsing Bugs -->
     <script>
         const SUPABASE_URL = "https://izujreipvtsnldgpdynu.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_p7MUWJqXpImPGqkGEfbiow_EDC1iRK2"; 
@@ -1092,7 +1108,6 @@
                     const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
                     const toast = document.createElement('div');
                     toast.className = 'toast toast-' + type;
-                    // [FIX] ใช้การต่อสตริงแบบปกติ
                     toast.innerHTML = '<span style="font-size:16px;flex-shrink:0">' + (icons[type] || 'ℹ️') + '</span><span style="flex:1">' + message + '</span>';
                     container.appendChild(toast);
                     setTimeout(() => {
@@ -1295,7 +1310,6 @@
                     });
                 },
 
-                // [FIX] เปลี่ยนการใช้ Regex / Backtick ที่อาจตีรวน เป็น String Contatenation
                 formatTime(dateStr) {
                     if(!dateStr) return '-';
                     const s = String(dateStr).trim();
@@ -1383,7 +1397,6 @@
                     } catch(e) { this.lineLoading = false; Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
-                // [FIX] เลี่ยงการใช้ Backtick ซับซ้อนใน doc.save
                 async exportPDF() {
                     this.isPdfExporting = true;
                     try {
