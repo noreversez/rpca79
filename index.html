@@ -1013,7 +1013,15 @@
                 get regionDashboardStats() { const stats = {}; this.positions.forEach(p => { const r = p[2]; if(!stats[r]) stats[r] = { name: r, total: 0, taken: 0 }; stats[r].total++; if(p[3] !== 'AVAILABLE') stats[r].taken++; }); return Object.values(stats).map(s => ({...s, percent: (s.taken/s.total)*100})).sort((a,b) => a.name.localeCompare(b.name)); },
                 
                 isWishlist(id) { return this.wishlist.includes(id); },
-                toggleWishlist(id) { if (this.wishlist.includes(id)) this.wishlist = this.wishlist.filter(w => w !== id); else this.wishlist.push(id); localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); },
+                toggleWishlist(id) { 
+                    if (this.wishlist.includes(id)) {
+                        this.wishlist = this.wishlist.filter(w => w !== id); 
+                    } else {
+                        this.wishlist.push(id); 
+                        this.wishlist = [...this.wishlist]; // บังคับให้ Alpine รับรู้การเปลี่ยนแปลง Array
+                    }
+                    localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); 
+                },
 
                 get availablePositions() {
                     return this.positions
@@ -1150,6 +1158,7 @@
                                     newPosArray[3] = updatedPos.status;
                                     newPosArray[4] = updatedPos.taken_by_user_id;
                                     this.positions.splice(index, 1, newPosArray);
+                                    this.positions = [...this.positions]; // บังคับให้ Alpine.js รับรู้การเปลี่ยนแปลงของ Array
                                 }
                             }
                         })
@@ -1160,8 +1169,8 @@
                         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'config' }, payload => {
                             const oldQueue = this.config.current_queue;
                             if (payload.new) {
-                                if (payload.new.current_queue !== undefined) this.config.current_queue = payload.new.current_queue;
-                                if (payload.new.system_status !== undefined) this.config.system_status = payload.new.system_status;
+                                // กระจาย Object ใหม่ทั้งหมดเพื่อบังคับให้ Alpine.js รับรู้การเปลี่ยนแปลง (สำคัญมากในการแก้บัค UI ค้าง)
+                                this.config = { ...this.config, ...payload.new };
                             }
                             if (parseInt(this.user.id) === payload.new.current_queue && oldQueue !== payload.new.current_queue) {
                                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
@@ -1181,6 +1190,18 @@
                                      newUserArray[6] = updatedUser.line_user_id;
                                      newUserArray[7] = updatedUser.line_display_name;
                                      this.users.splice(index, 1, newUserArray);
+                                     this.users = [...this.users]; // บังคับให้ Alpine.js รับรู้การเปลี่ยนแปลงของ Array
+                                 }
+                                 
+                                 // สำคัญ: อัปเดต Object ข้อมูลของคนที่ล็อกอินอยู่ด้วย แบบกระจาย Object ใหม่เพื่อ Force UI Update
+                                 if (this.user && this.user.role === 'USER' && String(this.user.id) === String(updatedUser.id)) {
+                                     this.user = {
+                                         ...this.user,
+                                         status: updatedUser.status,
+                                         selectedPosName: updatedUser.selected_pos_name,
+                                         selectedAt: updatedUser.selected_at
+                                     };
+                                     localStorage.setItem('user_session', JSON.stringify(this.user));
                                  }
                              }
                         })
@@ -1191,6 +1212,7 @@
                                 const l = payload.new;
                                 this.serverLogs.unshift([l.created_at, l.user_id, l.user_name, l.pos_id, l.pos_name, l.pos_region]);
                                 if (this.serverLogs.length > 50) this.serverLogs.pop();
+                                this.serverLogs = [...this.serverLogs]; // บังคับให้ Alpine.js รับรู้การเปลี่ยนแปลง
                             }
                         })
                         
@@ -1225,7 +1247,8 @@
                             db.from('positions').select('*'),
                             db.from('logs').select('*').order('created_at', { ascending: false }).limit(5)
                         ]);
-                        if (configRes.data) this.config = configRes.data;
+                        // กระจาย Object ใหม่ทั้งหมดเพื่อบังคับให้ Alpine.js รับรู้การเปลี่ยนแปลง
+                        if (configRes.data) this.config = { ...configRes.data };
                         if (posRes.data) this.positions = posRes.data.map(p => [p.id, p.name, p.region, p.status, p.taken_by_user_id]);
                         // อัปเดตการดึง index 7 เป็น line_display_name
                         if (usersRes.data) this.users = usersRes.data.map(u => [u.id, u.name, u.code, u.status, u.selected_pos_name, u.selected_at, u.line_user_id, u.line_display_name]);
@@ -1236,14 +1259,18 @@
                         if(this.user.id && this.user.role === 'USER') {
                             const u = this.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
                             if(u) {
-                                this.user.status = String(u[3] || 'WAITING').trim();
-                                this.user.name = u[1] || this.user.name;
-                                this.user.lineLinked = !!u[6];
-                                this.user.lineDisplayName = u[7] || this.lineProfile?.displayName || null; // เอาชื่อไลน์มาเซฟเก็บไว้
-                                this.user.selectedPosName = u[4] || null;
-                                this.user.selectedAt = u[5] || null;
                                 const selectedPos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim());
-                                this.user.selectedRegion = selectedPos ? selectedPos[2] : null;
+                                // สร้าง Object user ขึ้นมาใหม่ทั้งก้อน เพื่อให้ Alpine รับรู้ว่ามีตัวแปรถูกแก้ไขแม้หลังการ Refresh
+                                this.user = {
+                                    ...this.user,
+                                    status: String(u[3] || 'WAITING').trim(),
+                                    name: u[1] || this.user.name,
+                                    lineLinked: !!u[6],
+                                    lineDisplayName: u[7] || this.lineProfile?.displayName || null, // เอาชื่อไลน์มาเซฟเก็บไว้
+                                    selectedPosName: u[4] || null,
+                                    selectedAt: u[5] || null,
+                                    selectedRegion: selectedPos ? selectedPos[2] : null
+                                };
                                 localStorage.setItem('user_session', JSON.stringify(this.user));
                             }
                         }
@@ -1283,7 +1310,8 @@
                                 if (error) throw error;
                                 this.isSubmitting = false;
                                 if(data.status === 'SUCCESS') {
-                                    this.config.current_queue = parseInt(this.config.current_queue) + 1;
+                                    // สร้าง Object config ใหม่เพื่อ Force UI Update
+                                    this.config = { ...this.config, current_queue: parseInt(this.config.current_queue) + 1 };
                                     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
                                     this.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
                                     this.showSlip = true; 
@@ -1340,7 +1368,8 @@
                                     const currentStatus = (data && data.system_status) ? String(data.system_status).trim().toUpperCase() : 'OPEN';
                                     const nextStatus = currentStatus === 'OPEN' ? 'PAUSE' : 'OPEN';
                                     await db.from('config').update({ system_status: nextStatus }).eq('id', 1);
-                                    this.config.system_status = nextStatus; // บังคับเปลี่ยน Local ให้ UI ตอบสนองทันที
+                                    // บังคับสร้าง Object ใหม่เพื่อให้ UI ตอบสนองทันที
+                                    this.config = { ...this.config, system_status: nextStatus };
                                 } else if (action === 'BACKUP') {
                                     Swal.fire('Info', 'ใน Supabase การ Backup จะทำแบบอัตโนมัติ (PITR) ผ่านหน้า Dashboard', 'info'); return;
                                 } else if (action === 'RESET') {
