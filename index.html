@@ -1131,14 +1131,32 @@
                     else window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
 
+                // ปรับปรุง initRealtime แบบ Delta Update แทนการ Fetch ใหม่ทั้งหมด (ลดภาระฐานข้อมูลมหาศาล)
                 initRealtime() {
                     if (!db) return;
                     const debouncedFetch = () => {
                         clearTimeout(this._fetchTimeout);
-                        this._fetchTimeout = setTimeout(() => { this.fetchData(); }, 300);
+                        this._fetchTimeout = setTimeout(() => { this.fetchData(); }, 500);
                     };
+                    
                     db.channel('public-db-changes')
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => { debouncedFetch(); })
+                        // 1. Delta Update สำหรับ Positions
+                        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'positions' }, payload => {
+                            if (payload.new) {
+                                const updatedPos = payload.new;
+                                const index = this.positions.findIndex(p => p[0] == updatedPos.id);
+                                if (index !== -1) {
+                                    const newPosArray = [...this.positions[index]];
+                                    newPosArray[3] = updatedPos.status;
+                                    newPosArray[4] = updatedPos.taken_by_user_id;
+                                    this.positions.splice(index, 1, newPosArray);
+                                }
+                            }
+                        })
+                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'positions' }, () => { debouncedFetch(); })
+                        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'positions' }, () => { debouncedFetch(); })
+                        
+                        // 2. Delta Update สำหรับ Config
                         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'config' }, payload => {
                             const oldQueue = this.config.current_queue;
                             if (payload.new) {
@@ -1148,10 +1166,47 @@
                             if (parseInt(this.user.id) === payload.new.current_queue && oldQueue !== payload.new.current_queue) {
                                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                             }
-                            debouncedFetch();
                         })
-                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logs' }, () => { debouncedFetch(); })
-                        .subscribe();
+
+                        // 3. Delta Update สำหรับ Users
+                        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users' }, payload => {
+                             if (payload.new) {
+                                 const updatedUser = payload.new;
+                                 const index = this.users.findIndex(u => u[0] == updatedUser.id);
+                                 if(index !== -1) {
+                                     const newUserArray = [...this.users[index]];
+                                     newUserArray[3] = updatedUser.status;
+                                     newUserArray[4] = updatedUser.selected_pos_name;
+                                     newUserArray[5] = updatedUser.selected_at;
+                                     newUserArray[6] = updatedUser.line_user_id;
+                                     newUserArray[7] = updatedUser.line_display_name;
+                                     this.users.splice(index, 1, newUserArray);
+                                 }
+                             }
+                        })
+
+                        // 4. Delta Update สำหรับ Logs
+                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logs' }, payload => {
+                            if (payload.new) {
+                                const l = payload.new;
+                                this.serverLogs.unshift([l.created_at, l.user_id, l.user_name, l.pos_id, l.pos_name, l.pos_region]);
+                                if (this.serverLogs.length > 50) this.serverLogs.pop();
+                            }
+                        })
+                        
+                        // จัดการการเชื่อมต่อและ Reconnect อัตโนมัติเมื่อ Websocket มีปัญหา (จอดับ/เน็ตหลุด)
+                        .subscribe((status) => {
+                            if (status === 'SUBSCRIBED') {
+                                this.connectionError = false;
+                            } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+                                this.connectionError = true;
+                                setTimeout(() => { 
+                                    db.removeAllChannels(); 
+                                    this.initRealtime(); 
+                                    this.fetchData(); 
+                                }, 5000); // พยายามเชื่อมต่อและ Sync ใหม่ทุก 5 วินาที
+                            }
+                        });
                 },
 
                 async fetchData() {
