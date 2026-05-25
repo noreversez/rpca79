@@ -1095,6 +1095,7 @@
                     const nextLineId = nextU ? nextU[6] : null; 
 
                     const userPicUrl = this.user.pictureUrl || "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+                    
                     const messages = [
                         {
                             type: "flex",
@@ -1102,29 +1103,22 @@
                             contents: {
                                 type: "bubble",
                                 size: "mega",
-                                hero: {
-                                    type: "image",
-                                    url: "https://img2.pic.in.th/S__30990508.jpg",
-                                    size: "full",
-                                    aspectRatio: "20:8",
-                                    aspectMode: "cover"
-                                },
                                 body: {
                                     type: "box",
                                     layout: "vertical",
-                                    paddingAll: "15px",
+                                    paddingAll: "md",
                                     contents: [
                                         {
                                             type: "box",
                                             layout: "horizontal",
-                                            spacing: "lg",
+                                            spacing: "md",
                                             alignItems: "center",
                                             contents: [
                                                 {
                                                     type: "box",
                                                     layout: "vertical",
-                                                    width: "60px",
-                                                    height: "60px",
+                                                    width: "45px",
+                                                    height: "45px",
                                                     cornerRadius: "100px",
                                                     contents: [
                                                         {
@@ -1139,92 +1133,81 @@
                                                 {
                                                     type: "box",
                                                     layout: "vertical",
-                                                    flex: 1,
                                                     contents: [
                                                         {
                                                             type: "text",
                                                             text: `ลำดับคิวที่ ${this.user.id}`,
-                                                            weight: "bold",
-                                                            color: "#2563eb",
-                                                            size: "sm"
+                                                            size: "xs",
+                                                            color: "#42659c",
+                                                            weight: "bold"
                                                         },
                                                         {
                                                             type: "text",
                                                             text: `${this.user.name}`,
+                                                            size: "sm",
                                                             weight: "bold",
-                                                            size: "xl",
-                                                            color: "#1e293b",
                                                             wrap: true
                                                         },
                                                         {
                                                             type: "text",
                                                             text: "RPCA 79 - SELECTION",
                                                             size: "xxs",
-                                                            color: "#94a3b8",
-                                                            weight: "bold"
+                                                            color: "#aaaaaa",
+                                                            margin: "none"
                                                         }
                                                     ]
                                                 }
                                             ]
                                         },
-                                        { type: "separator", margin: "lg", color: "#e2e8f0" },
                                         {
                                             type: "box",
                                             layout: "vertical",
-                                            margin: "lg",
-                                            backgroundColor: "#f8fafc",
-                                            cornerRadius: "lg",
-                                            paddingAll: "12px",
-                                            borderColor: "#e2e8f0",
-                                            borderWidth: "1px",
+                                            margin: "md",
+                                            backgroundColor: "#f4f6f8",
+                                            cornerRadius: "md",
+                                            paddingAll: "sm",
+                                            spacing: "xs",
                                             contents: [
                                                 {
                                                     type: "text",
-                                                    text: "ตำแหน่งที่เลือก (Selected Position)",
-                                                    size: "xs",
-                                                    color: "#64748b",
-                                                    weight: "bold"
+                                                    text: "ตำแหน่งที่เลือก (Selected)",
+                                                    size: "xxs",
+                                                    color: "#8c8c8c"
                                                 },
                                                 {
                                                     type: "text",
                                                     text: `${pos[1]}`,
-                                                    size: "md",
+                                                    size: "sm",
                                                     weight: "bold",
-                                                    color: "#0f172a",
-                                                    wrap: true,
-                                                    margin: "sm"
+                                                    color: "#111111"
                                                 },
                                                 {
                                                     type: "text",
                                                     text: `📍 สังกัด: ${pos[2]}`,
                                                     size: "xs",
-                                                    color: "#3b82f6",
-                                                    weight: "bold",
-                                                    margin: "sm"
+                                                    color: "#42659c"
                                                 }
                                             ]
                                         },
-                                        { type: "separator", margin: "lg", color: "#e2e8f0" },
                                         {
                                             type: "box",
                                             layout: "vertical",
-                                            margin: "lg",
+                                            margin: "md",
                                             contents: [
                                                 {
                                                     type: "text",
                                                     text: "👉 ลำดับต่อไป (Next Queue)",
-                                                    color: "#ef4444",
-                                                    weight: "bold",
-                                                    size: "xs"
+                                                    size: "xs",
+                                                    color: "#d9534f",
+                                                    weight: "bold"
                                                 },
                                                 {
                                                     type: "text",
                                                     text: `คิวที่ ${currentQ} : ${nextName}`,
-                                                    color: "#000000",
+                                                    size: "xs",
                                                     weight: "bold",
-                                                    size: "md",
-                                                    margin: "sm",
-                                                    wrap: true
+                                                    wrap: true,
+                                                    margin: "xs"
                                                 }
                                             ]
                                         }
@@ -1237,8 +1220,8 @@
                     if (nextLineId) {
                         messages.push({
                             type: "text",
-                            text: "@nextuser ถึงคิวของคุณแล้วครับ เข้ามาเลือกตำแหน่งในระบบได้เลย!",
-                            mentions: {
+                            text: `@NextUser ถึงคิวของคุณแล้วครับ ลำดับที่ ${currentQ} รีบเข้ามาเลือกตำแหน่งได้เลย!`,
+                            mention: {
                                 mentionees: [
                                     {
                                         index: 0,
