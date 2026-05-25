@@ -186,11 +186,9 @@
 
 <body class="text-slate-800 dark:text-slate-100 bg-pattern min-h-screen transition-colors duration-300" x-init="initApp()" x-cloak>
 
-    <!-- HEADER: Consolidated Single Line -->
     <header class="fixed top-0 left-0 right-0 z-50 glass-header shadow-sm transition-all duration-300 border-b border-slate-200 dark:border-slate-700">
         <div class="container mx-auto px-4 h-16 flex justify-between items-center gap-2">
             
-            <!-- Left: Logo & Online Status -->
             <div class="flex items-center gap-2 shrink-0">
                 <div class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
                     <i data-lucide="shield-half" class="w-5 h-5"></i>
@@ -206,7 +204,6 @@
                 </div>
             </div>
 
-            <!-- Middle: Queue Status & Progress (Combined) -->
             <div x-show="!isMyTurn && config.current_queue" class="flex-1 max-w-2xl flex items-center justify-between bg-slate-100/70 dark:bg-slate-800/70 rounded-full px-3 md:px-5 py-1.5 border border-slate-200/80 dark:border-slate-700/80 transition-all mx-1 md:mx-4">
                 <div class="flex items-center gap-2 md:gap-4">
                     <div class="flex items-center gap-1.5">
@@ -229,13 +226,11 @@
                 </div>
             </div>
 
-            <!-- Middle: My Turn Banner -->
             <div x-show="isMyTurn" @click="myTurnSheetOpen = true" class="flex-1 max-w-xl flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-600 rounded-full px-4 py-1.5 shadow-md shadow-green-500/30 cursor-pointer animate-pulse mx-1 md:mx-4">
                 <i data-lucide="bell-ring" class="w-4 h-4 text-white mr-1.5 shrink-0"></i>
                 <span class="text-[11px] md:text-sm font-black text-white truncate">ถึงคิวคุณแล้ว! เลือกเลย →</span>
             </div>
 
-            <!-- Right: Actions -->
             <div class="flex items-center gap-1.5 md:gap-2 shrink-0">
                 <button @click="toggleDarkMode" class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 flex items-center justify-center transition border border-slate-200 dark:border-slate-700">
                     <span x-show="darkMode"><i data-lucide="sun" class="w-4 h-4"></i></span>
@@ -257,9 +252,6 @@
 
     <div class="h-20"></div>
 
-    <!-- ===============================================================
-         HOME PAGE
-    ================================================================ -->
     <div x-show="currentPage === 'home'" class="animate-enter safe-pb">
         <div class="container mx-auto px-4 pb-28 grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
             <div class="lg:col-span-4 space-y-4 order-1 lg:order-2">
@@ -290,7 +282,6 @@
                         </div>
                         <div x-show="isMyTurn" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-2xl text-center shadow-lg animate-pulse cursor-pointer" @click="myTurnSheetOpen = true">ถึงคิวของคุณแล้ว! กดเลือกตำแหน่งได้เลย</div>
                         
-                        <!-- Wait Message Blocks with precise conditions -->
                         <div x-show="!isMyTurn && user.status === 'WAITING' && parseInt(user.id) > parseInt(config.current_queue)" class="bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl text-center">
                             <p class="text-slate-500 dark:text-slate-300 font-bold text-xs">รออีก <span class="text-xl text-blue-600 dark:text-blue-400 mx-1" x-text="Math.max(0, parseInt(user.id) - parseInt(config.current_queue))"></span> คิว</p>
                         </div>
@@ -331,7 +322,6 @@
                         <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2"><i data-lucide="network" class="w-5 h-5 text-blue-600"></i> เลือกกองบัญชาการ (ภาค)</h3>
                         <button x-show="filterRegion" class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/30 px-3 py-1.5 rounded-lg hover:bg-red-100 transition flex items-center" @click="filterRegion=''">ล้างตัวกรอง <i data-lucide="x" class="w-3 h-3 ml-1"></i></button>
                     </div>
-                    <!-- DYNAMIC REGIONS rendering -->
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
                         <template x-for="bureau in uniqueRegions" :key="bureau">
                             <button @click="filterRegion = (filterRegion === bureau ? '' : bureau)" :class="filterRegion === bureau ? 'active ring-2 ring-blue-500' : 'bg-slate-50 dark:bg-slate-700/50'" class="bureau-card rounded-2xl p-3 flex flex-col items-center justify-center gap-2 relative overflow-hidden group">
@@ -502,20 +492,15 @@
         </div>
     </div>
 
-    <!-- ===============================================================
-         MONITOR PAGE
-    ================================================================ -->
     <div x-show="currentPage === 'monitor'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="radio" class="w-6 h-6 text-red-500"></i> Live Monitor</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 md:p-8 shadow-md border border-slate-100 dark:border-slate-700 mb-8 overflow-hidden relative">
             <div class="text-center mb-6 md:mb-10"><div class="inline-block px-4 py-1 rounded-full bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 text-xs font-bold uppercase tracking-wider animate-pulse">Real-time Feed</div></div>
             
-            <!-- ปรับปรุง Live Monitor ให้แสดงผล Responsive ได้ดีขึ้นสำหรับมือถือ -->
             <div class="relative flex items-center justify-center overflow-hidden w-full pb-6 pt-2">
                 <div class="timeline-line"></div>
                 <div class="flex items-center z-10 w-full justify-center px-1 md:px-4 transition-all duration-500 ease-in-out">
                     
-                    <!-- Prev Users (ซ่อนตัวที่ 1 ในหน้าจอมือถือ) -->
                     <template x-for="(u, index) in prev3Users" :key="u[0]">
                         <div class="flex flex-col items-center gap-1 md:gap-2 opacity-50 scale-75 md:scale-90 transition-transform duration-300"
                              :class="(index === 0 && prev3Users.length === 3) ? 'hidden sm:flex' : ''">
@@ -524,7 +509,6 @@
                         </div>
                     </template>
                     
-                    <!-- CURRENT USER -->
                     <div class="flex flex-col items-center gap-2 md:gap-3 mx-2 md:mx-4 scale-100 md:scale-110 shrink-0 z-20">
                         <div class="relative">
                             <div class="absolute inset-0 bg-blue-500 rounded-2xl blur opacity-30 animate-ping"></div>
@@ -538,7 +522,6 @@
                         </div>
                     </div>
                     
-                    <!-- Next Users (ซ่อนตัวที่ 3 ในหน้าจอมือถือ) -->
                     <template x-for="(u, index) in next3Users" :key="u[0]">
                         <div class="flex flex-col items-center gap-1 md:gap-2 opacity-60 scale-75 md:scale-90 transition-transform duration-300"
                              :class="index === 2 ? 'hidden sm:flex' : ''">
@@ -565,9 +548,6 @@
         </div>
     </div>
 
-    <!-- ===============================================================
-         DASHBOARD PAGE
-    ================================================================ -->
     <div x-show="currentPage === 'dashboard'" 
          :class="isDashboardFullscreen ? 'fixed inset-0 z-[100] bg-slate-100 dark:bg-slate-900 p-2 md:p-4 flex flex-col h-screen' : 'container mx-auto px-4 py-6 pb-28 animate-enter safe-pb'">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 shrink-0">
@@ -587,7 +567,6 @@
         </div>
         <div class="flex-1 overflow-y-auto bg-slate-200/50 dark:bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
-                <!-- DYNAMIC REGIONS rendering -->
                 <template x-for="region in uniqueRegions" :key="region">
                     <div x-show="getRegionStats(region).total > 0" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm h-[450px]">
                         <div class="py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0" :class="getRegionColorClass(region)"><span x-text="region"></span></div>
@@ -613,9 +592,6 @@
         </div>
     </div>
 
-    <!-- ===============================================================
-         ADMIN PANEL PAGE
-    ================================================================ -->
     <div x-show="currentPage === 'admin_panel'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="settings" class="w-6 h-6 text-red-500"></i> Admin Panel</h2>
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
@@ -641,7 +617,6 @@
         </div>
     </div>
 
-    <!-- ADMIN MODALS -->
     <div x-show="adminModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-cloak><div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl animate-enter"><h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4" x-text="adminModalAction === 'CREATE' ? 'Add New' : 'Edit Data'"></h3><div class="space-y-4"><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">ID</label><input x-model="adminFormData.id" :disabled="adminModalAction === 'UPDATE'" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Name</label><input x-model="adminFormData.name" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'users'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Code</label><input x-model="adminFormData.code" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div><div x-show="adminTab === 'positions'"><label class="text-xs font-bold text-slate-500 dark:text-slate-400">Region</label><input x-model="adminFormData.region" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:text-white"></div></div><div class="flex gap-2 mt-6"><button @click="saveAdminData" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold text-sm">Save</button><button @click="adminModalOpen = false" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-2 rounded-lg font-bold text-sm">Cancel</button></div></div></div>
 
     <div x-show="adminAssignModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
@@ -674,7 +649,6 @@
         </div>
     </div>
 
-    <!-- DETAIL MODAL -->
     <div x-show="posDetailModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
         <div @click.away="posDetailModalOpen = false" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-enter relative text-center">
             <button @click="posDetailModalOpen = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -701,14 +675,10 @@
         </div>
     </div>
 
-    <!-- ===============================================================
-         LOGIN PAGE
-    ================================================================ -->
     <div x-show="currentPage === 'login'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb flex flex-col items-center justify-center min-h-[70vh]">
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 w-full max-w-md overflow-hidden relative">
             <div class="h-2 bg-blue-600 w-full"></div>
             <div class="p-8">
-                <!-- NOT LOGGED IN -->
                 <div x-show="!user.id" class="text-center">
                     <div class="w-20 h-20 bg-[#06C755]/10 text-[#06C755] rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner"><i data-lucide="message-circle" class="w-10 h-10"></i></div>
                     <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">เข้าสู่ระบบด้วย LINE</h2>
@@ -743,7 +713,6 @@
                     </div>
                 </div>
 
-                <!-- LOGGED IN -->
                 <div x-show="user.id" class="text-center relative">
                     <template x-if="user.pictureUrl">
                         <img :src="user.pictureUrl" class="w-24 h-24 rounded-full border-4 border-blue-500 mx-auto mb-4 object-cover shadow-lg relative z-10">
@@ -759,7 +728,6 @@
                         </div>
                     </div>
 
-                    <!-- Card สำหรับคนรอคิว (ยังไม่ถึงคิว) -->
                     <div x-show="user.status === 'WAITING' && !isMyTurn && parseInt(user.id) > parseInt(config.current_queue)" class="mb-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-600">
                         <div class="inline-block px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 rounded-full text-xs font-bold mb-3"><i data-lucide="clock" class="w-3 h-3 inline"></i> กำลังรอคิวเลือกตำแหน่ง</div>
                         <div class="flex justify-between items-center border-t border-slate-200 dark:border-slate-600 pt-3">
@@ -771,16 +739,13 @@
                         </div>
                     </div>
 
-                    <!-- Card สำหรับคนรอคิว (ถึงคิวแล้ว แต่ระบบปิด) -->
                     <div x-show="user.status === 'WAITING' && !isMyTurn && parseInt(user.id) <= parseInt(config.current_queue)" class="mb-6 bg-red-50 dark:bg-red-900/50 rounded-2xl p-4 border border-red-100 dark:border-red-600">
                         <div class="inline-block px-3 py-1 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-full text-xs font-bold mb-2"><i data-lucide="lock" class="w-3 h-3 inline"></i> ระบบยังไม่เปิดให้เลือก</div>
                         <div class="text-sm font-bold text-red-600 dark:text-red-400">ถึงคิวของคุณแล้ว แต่ระบบถูกพักชั่วคราวโดยผู้ดูแลระบบ กรุณารอสักครู่...</div>
                     </div>
 
-                    <!-- Card สำหรับคนเลือกตำแหน่งแล้ว (Story Export) -->
                     <div x-show="user.status === 'SELECTED'" class="mt-2 mb-6 animate-enter">
                         <div class="story-card-bg rounded-3xl p-1 shadow-2xl relative overflow-hidden text-left border border-slate-700">
-                            <!-- Decor -->
                             <div class="absolute -top-10 -right-10 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl pointer-events-none"></div>
                             <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500 opacity-20 rounded-full blur-2xl pointer-events-none"></div>
 
@@ -841,7 +806,6 @@
         </div>
     </div>
 
-    <!-- MODALS (Slip, LINE Bind) -->
     <div x-show="showSlip" class="fixed inset-0 bg-slate-900/90 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" x-cloak>
         <div id="digital-slip-content" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden relative">
             <div class="bg-blue-600 p-6 text-center text-white"><div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold mx-auto mb-3 shadow-lg"><i data-lucide="check" class="w-6 h-6"></i></div><h2 class="text-lg font-bold uppercase tracking-wider">Selection Success</h2><p class="text-blue-100 text-xs mt-1" x-text="new Date().toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'})"></p></div>
@@ -893,7 +857,6 @@
         </div>
     </div>
 
-    <!-- BOTTOM NAV -->
     <nav class="mobile-bottom-nav">
         <div class="flex max-w-lg mx-auto">
             <button @click="switchPage('home')" class="mobile-nav-item relative" :class="currentPage === 'home' ? 'active' : ''">
@@ -1131,31 +1094,140 @@
                     const nextName = nextU ? nextU[1] : "ไม่ระบุชื่อ";
                     const nextLineId = nextU ? nextU[6] : null; 
 
+                    const userPicUrl = this.user.pictureUrl || "https://cdn-icons-png.flaticon.com/512/847/847969.png";
                     const messages = [
                         {
                             type: "flex",
                             altText: `อัปเดต: คิวที่ ${this.user.id} เลือกตำแหน่งแล้ว`,
                             contents: {
                                 type: "bubble",
-                                size: "kilo",
-                                header: {
-                                    type: "box",
-                                    layout: "vertical",
-                                    backgroundColor: "#2563eb",
-                                    contents: [
-                                        { type: "text", text: "อัปเดตการเลือกตำแหน่ง", weight: "bold", color: "#ffffff", size: "sm" }
-                                    ]
+                                size: "mega",
+                                hero: {
+                                    type: "image",
+                                    url: "https://img2.pic.in.th/S__30990508.jpg",
+                                    size: "full",
+                                    aspectRatio: "20:8",
+                                    aspectMode: "cover"
                                 },
                                 body: {
                                     type: "box",
                                     layout: "vertical",
+                                    paddingAll: "15px",
                                     contents: [
-                                        { type: "text", text: `คิวที่ ${this.user.id} - ${this.user.name}`, weight: "bold", size: "md" },
-                                        { type: "text", text: `เลือก: ${pos[1]}`, margin: "md", color: "#666666", wrap: true },
-                                        { type: "text", text: `สังกัด: ${pos[2]}`, size: "xs", color: "#999999", wrap: true },
-                                        { type: "separator", margin: "lg" },
-                                        { type: "text", text: "📍 ลำดับต่อไป:", margin: "lg", weight: "bold", color: "#ef4444" },
-                                        { type: "text", text: `คิวที่ ${currentQ} - ${nextName}`, weight: "bold", size: "lg", color: "#000000" }
+                                        {
+                                            type: "box",
+                                            layout: "horizontal",
+                                            spacing: "lg",
+                                            alignItems: "center",
+                                            contents: [
+                                                {
+                                                    type: "box",
+                                                    layout: "vertical",
+                                                    width: "60px",
+                                                    height: "60px",
+                                                    cornerRadius: "100px",
+                                                    contents: [
+                                                        {
+                                                            type: "image",
+                                                            url: userPicUrl,
+                                                            size: "full",
+                                                            aspectMode: "cover",
+                                                            aspectRatio: "1:1"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    type: "box",
+                                                    layout: "vertical",
+                                                    flex: 1,
+                                                    contents: [
+                                                        {
+                                                            type: "text",
+                                                            text: `ลำดับคิวที่ ${this.user.id}`,
+                                                            weight: "bold",
+                                                            color: "#2563eb",
+                                                            size: "sm"
+                                                        },
+                                                        {
+                                                            type: "text",
+                                                            text: `${this.user.name}`,
+                                                            weight: "bold",
+                                                            size: "xl",
+                                                            color: "#1e293b",
+                                                            wrap: true
+                                                        },
+                                                        {
+                                                            type: "text",
+                                                            text: "RPCA 79 - SELECTION",
+                                                            size: "xxs",
+                                                            color: "#94a3b8",
+                                                            weight: "bold"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        { type: "separator", margin: "lg", color: "#e2e8f0" },
+                                        {
+                                            type: "box",
+                                            layout: "vertical",
+                                            margin: "lg",
+                                            backgroundColor: "#f8fafc",
+                                            cornerRadius: "lg",
+                                            paddingAll: "12px",
+                                            borderColor: "#e2e8f0",
+                                            borderWidth: "1px",
+                                            contents: [
+                                                {
+                                                    type: "text",
+                                                    text: "ตำแหน่งที่เลือก (Selected Position)",
+                                                    size: "xs",
+                                                    color: "#64748b",
+                                                    weight: "bold"
+                                                },
+                                                {
+                                                    type: "text",
+                                                    text: `${pos[1]}`,
+                                                    size: "md",
+                                                    weight: "bold",
+                                                    color: "#0f172a",
+                                                    wrap: true,
+                                                    margin: "sm"
+                                                },
+                                                {
+                                                    type: "text",
+                                                    text: `📍 สังกัด: ${pos[2]}`,
+                                                    size: "xs",
+                                                    color: "#3b82f6",
+                                                    weight: "bold",
+                                                    margin: "sm"
+                                                }
+                                            ]
+                                        },
+                                        { type: "separator", margin: "lg", color: "#e2e8f0" },
+                                        {
+                                            type: "box",
+                                            layout: "vertical",
+                                            margin: "lg",
+                                            contents: [
+                                                {
+                                                    type: "text",
+                                                    text: "👉 ลำดับต่อไป (Next Queue)",
+                                                    color: "#ef4444",
+                                                    weight: "bold",
+                                                    size: "xs"
+                                                },
+                                                {
+                                                    type: "text",
+                                                    text: `คิวที่ ${currentQ} : ${nextName}`,
+                                                    color: "#000000",
+                                                    weight: "bold",
+                                                    size: "md",
+                                                    margin: "sm",
+                                                    wrap: true
+                                                }
+                                            ]
+                                        }
                                     ]
                                 }
                             }
