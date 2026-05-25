@@ -1119,6 +1119,121 @@
                     else window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
 
+                async sendGroupNotification(pos) {
+                    if (!window.liff || !liff.isLoggedIn() || liff.getContext().type === "none") {
+                        console.log("ไม่ได้เปิด LIFF ผ่านห้องแชท ข้ามการส่งข้อความ");
+                        return;
+                    }
+
+                    const currentQ = parseInt(this.config.current_queue);
+                    const nextU = this.users.find(u => parseInt(u[0]) === currentQ);
+
+                    const nextName = nextU ? nextU[1] : "ไม่ระบุชื่อ";
+                    const nextLineId = nextU ? nextU[6] : null; 
+
+                    const messages = [
+                        {
+                            type: "flex",
+                            altText: `อัปเดต: คิวที่ ${this.user.id} เลือกตำแหน่งแล้ว`,
+                            contents: {
+                                type: "bubble",
+                                size: "kilo",
+                                header: {
+                                    type: "box",
+                                    layout: "vertical",
+                                    backgroundColor: "#2563eb",
+                                    contents: [
+                                        { type: "text", text: "อัปเดตการเลือกตำแหน่ง", weight: "bold", color: "#ffffff", size: "sm" }
+                                    ]
+                                },
+                                body: {
+                                    type: "box",
+                                    layout: "vertical",
+                                    contents: [
+                                        { type: "text", text: `คิวที่ ${this.user.id} - ${this.user.name}`, weight: "bold", size: "md" },
+                                        { type: "text", text: `เลือก: ${pos[1]}`, margin: "md", color: "#666666", wrap: true },
+                                        { type: "text", text: `สังกัด: ${pos[2]}`, size: "xs", color: "#999999", wrap: true },
+                                        { type: "separator", margin: "lg" },
+                                        { type: "text", text: "📍 ลำดับต่อไป:", margin: "lg", weight: "bold", color: "#ef4444" },
+                                        { type: "text", text: `คิวที่ ${currentQ} - ${nextName}`, weight: "bold", size: "lg", color: "#000000" }
+                                    ]
+                                }
+                            }
+                        }
+                    ];
+
+                    if (nextLineId) {
+                        messages.push({
+                            type: "text",
+                            text: "@nextuser ถึงคิวของคุณแล้วครับ เข้ามาเลือกตำแหน่งในระบบได้เลย!",
+                            mentions: {
+                                mentionees: [
+                                    {
+                                        index: 0,
+                                        length: 9,
+                                        userId: nextLineId
+                                    }
+                                ]
+                            }
+                        });
+                    } else if (nextU) {
+                        messages.push({
+                            type: "text",
+                            text: `ถึงคิวของคุณแล้วครับ ลำดับที่ ${currentQ} รีบเข้ามาเลือกตำแหน่งได้เลย!`
+                        });
+                    }
+
+                    try {
+                        await liff.sendMessages(messages);
+                        this.showToast('ส่งแจ้งเตือนเข้ากลุ่มสำเร็จ', 'success');
+                    } catch (err) {
+                        console.error("LIFF Send Messages Error: ", err);
+                    }
+                },
+
+                confirmSelect(pos) {
+                    Swal.fire({ title: 'ยืนยันเลือก?', text: pos[1] + ' (' + pos[2] + ')', icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            if (this.isSubmitting) return;
+                            if (!this.isMyTurn) {
+                                Swal.fire('หมดสิทธิ์', 'ไม่ใช่คิวของคุณหรือระบบปิดอยู่', 'warning');
+                                return;
+                            }
+                            const currentPos = this.positions.find(p => p[0] == pos[0]);
+                            if (!currentPos || currentPos[3] !== 'AVAILABLE') {
+                                Swal.fire('เสียใจด้วย', 'ตำแหน่งนี้ถูกเลือกไปแล้ว', 'error');
+                                return;
+                            }
+                            this.isSubmitting = true;
+                            Swal.fire({title: 'Saving...', didOpen:()=>Swal.showLoading()});
+                            try {
+                                const { data, error } = await db.rpc('select_position', { p_user_id: parseInt(this.user.id), p_pos_id: String(pos[0]) });
+                                if (error) throw error;
+                                this.isSubmitting = false;
+                                if(data.status === 'SUCCESS') {
+                                    // สร้าง Object config ใหม่เพื่อ Force UI Update
+                                    this.config = { ...this.config, current_queue: parseInt(this.config.current_queue) + 1 };
+                                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
+                                    this.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
+                                    this.showSlip = true; 
+                                    Swal.close(); 
+                                    this.switchPage('dashboard'); 
+                                    this.fetchData(); 
+                                    this.sendGroupNotification(pos);
+                                } else { 
+                                    Swal.fire('ไม่สำเร็จ', data.msg || 'กรุณาลองใหม่', 'error');
+                                    this.fetchData();
+                                }
+                            } catch(e) { 
+                                this.isSubmitting = false;
+                                console.error('[RPCA79] confirmSelect error:', e);
+                                Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+                                this.fetchData();
+                            }
+                        }
+                    });
+                },
+
                 // ปรับปรุง initRealtime แบบ Delta Update แทนการ Fetch ใหม่ทั้งหมด (ลดภาระฐานข้อมูลมหาศาล)
                 initRealtime() {
                     if (!db) return;
@@ -1269,48 +1384,6 @@
                 },
 
                 switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
-
-                confirmSelect(pos) {
-                    Swal.fire({ title: 'ยืนยันเลือก?', text: pos[1] + ' (' + pos[2] + ')', icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            if (this.isSubmitting) return;
-                            if (!this.isMyTurn) {
-                                Swal.fire('หมดสิทธิ์', 'ไม่ใช่คิวของคุณหรือระบบปิดอยู่', 'warning');
-                                return;
-                            }
-                            const currentPos = this.positions.find(p => p[0] == pos[0]);
-                            if (!currentPos || currentPos[3] !== 'AVAILABLE') {
-                                Swal.fire('เสียใจด้วย', 'ตำแหน่งนี้ถูกเลือกไปแล้ว', 'error');
-                                return;
-                            }
-                            this.isSubmitting = true;
-                            Swal.fire({title: 'Saving...', didOpen:()=>Swal.showLoading()});
-                            try {
-                                const { data, error } = await db.rpc('select_position', { p_user_id: parseInt(this.user.id), p_pos_id: String(pos[0]) });
-                                if (error) throw error;
-                                this.isSubmitting = false;
-                                if(data.status === 'SUCCESS') {
-                                    // สร้าง Object config ใหม่เพื่อ Force UI Update
-                                    this.config = { ...this.config, current_queue: parseInt(this.config.current_queue) + 1 };
-                                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
-                                    this.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
-                                    this.showSlip = true; 
-                                    Swal.close(); 
-                                    this.switchPage('dashboard'); 
-                                    this.fetchData(); 
-                                } else { 
-                                    Swal.fire('ไม่สำเร็จ', data.msg || 'กรุณาลองใหม่', 'error');
-                                    this.fetchData();
-                                }
-                            } catch(e) { 
-                                this.isSubmitting = false;
-                                console.error('[RPCA79] confirmSelect error:', e);
-                                Swal.fire('Error', 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
-                                this.fetchData();
-                            }
-                        }
-                    });
-                },
 
                 async login() {
                     if(!this.loginCode) return;
