@@ -1252,30 +1252,6 @@
                             }
                         });
 
-                        messages.push({
-                            type: "flex",
-                            altText: `คิวต่อไป: ลำดับที่ ${currentQ}`,
-                            contents: {
-                                type: "bubble",
-                                size: "mega",
-                                body: {
-                                    type: "box",
-                                    layout: "vertical",
-                                    paddingAll: "md",
-                                    contents: [
-                                        {
-                                            type: "box",
-                                            layout: "vertical",
-                                            margin: "sm",
-                                            contents: [
-                                                { type: "text", text: "👉 ลำดับต่อไป (Next Queue)", size: "sm", color: "#d9534f", weight: "bold" },
-                                                { type: "text", text: `คิวที่ ${currentQ} : ${nextName}`, size: "md", weight: "bold", wrap: true, margin: "xs" }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            }
-                        });
                     } else {
                         // รูปแบบ 2: ซ่อนสถานที่ + แจ้งแค่คิวถัดไป
                         messages.push({
@@ -1318,28 +1294,7 @@
                             }
                         });
                     }
-
-                    if (nextLineId) {
-                        messages.push({
-                            type: "text",
-                            text: `@NextUser ถึงคิวของคุณแล้วครับ ลำดับที่ ${currentQ} รีบเข้ามาเลือกตำแหน่งได้เลย!`,
-                            mention: {
-                                mentionees: [
-                                    {
-                                        index: 0,
-                                        length: 9,
-                                        userId: nextLineId
-                                    }
-                                ]
-                            }
-                        });
-                    } else if (nextU) {
-                        messages.push({
-                            type: "text",
-                            text: `ถึงคิวของคุณแล้วครับ ลำดับที่ ${currentQ} รีบเข้ามาเลือกตำแหน่งได้เลย!`
-                        });
-                    }
-
+                    
                     try {
                         await liff.sendMessages(messages);
                         this.showToast('ส่งแจ้งเตือนเข้ากลุ่มสำเร็จ', 'success');
