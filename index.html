@@ -247,8 +247,8 @@
         <div class="container mx-auto px-4 h-16 flex justify-between items-center gap-2">
             
             <div class="flex items-center gap-2 shrink-0">
-                <div class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                    <i data-lucide="shield-half" class="w-5 h-5"></i>
+                <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg shadow-blue-500/30 shrink-0 border border-slate-200 dark:border-slate-700">
+                    <img src="https://img2.pic.in.th/S__30990508.jpg" alt="RPCA Logo" class="w-full h-full object-cover">
                 </div>
                 <div class="hidden sm:block">
                     <h1 class="text-sm font-bold leading-none text-slate-800 dark:text-white">RPCA79</h1>
@@ -651,6 +651,19 @@
 
     <div x-show="currentPage === 'admin_panel'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="settings" class="w-6 h-6 text-red-500"></i> Admin Panel</h2>
+        
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
+            <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2 flex items-center gap-2"><i data-lucide="message-square" class="w-5 h-5 text-green-500"></i> LINE Notification Settings</h3>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <label class="text-sm font-bold text-slate-600 dark:text-slate-300 min-w-max">รูปแบบการแจ้งเตือน:</label>
+                <select x-model="config.flex_format" @change="saveFlexFormat()" class="flex-1 w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm dark:text-white font-bold outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="1">รูปแบบ 1: แสดงสถานที่ที่เลือก และแยกแจ้งเตือนคิวถัดไป</option>
+                    <option value="2">รูปแบบ 2: ซ่อนสถานที่ และแจ้งเตือนให้คิวถัดไปเตรียมตัวเท่านั้น</option>
+                </select>
+            </div>
+            <div class="mt-2 text-[10px] text-slate-400">* หมายเหตุ: โปรดเพิ่ม Column ชื่อ <code>flex_format</code> (ชนิด text) ในตาราง <code>config</code> บน Supabase เพื่อให้การตั้งค่าบันทึกไปถึงผู้ใช้ทุกคน</div>
+        </div>
+
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
             <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">System Controls</h3>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -1031,7 +1044,6 @@
 
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
                 
-                // ดึงรายชื่อภาคอัตโนมัติจากฐานข้อมูล เรียง บช.น., ภ.1-9 ไว้แรกสุด ที่เหลือตามอักษร
                 get uniqueRegions() { 
                     const regions = [...new Set(this.positions.map(p => p[2]))].filter(Boolean);
                     return regions.sort((a, b) => {
@@ -1071,7 +1083,7 @@
                         this.wishlist = this.wishlist.filter(w => w !== id); 
                     } else {
                         this.wishlist.push(id); 
-                        this.wishlist = [...this.wishlist]; // บังคับให้ Alpine รับรู้การเปลี่ยนแปลง Array
+                        this.wishlist = [...this.wishlist]; 
                     }
                     localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); 
                 },
@@ -1103,7 +1115,6 @@
                     return Object.keys(groups).sort().map(region => ({ name: region, items: groups[region] }));
                 },
 
-                // ปรับปรุง logic isMyTurn ให้พิจารณาให้แม่นยำขึ้น แก้ปัญหา รอ 0 คิว
                 get isMyTurn() {
                     if (!this.user || !this.user.id || this.user.role !== 'USER') return false;
                     const myId = Number(this.user.id);
@@ -1185,9 +1196,13 @@
                     const nextLineId = nextU ? nextU[6] : null; 
 
                     const userPicUrl = this.user.pictureUrl || "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+                    const format = String(this.config.flex_format || localStorage.getItem('flex_format') || '1');
                     
-                    const messages = [
-                        {
+                    let messages = [];
+
+                    if (format === '1') {
+                        // รูปแบบ 1: แสดงสถานที่ที่เลือก + แยกข้อมูลคิวถัดไปใน Flex กล่องที่ 2
+                        messages.push({
                             type: "flex",
                             altText: `อัปเดต: คิวที่ ${this.user.id} เลือกตำแหน่งแล้ว`,
                             contents: {
@@ -1205,46 +1220,15 @@
                                             alignItems: "center",
                                             contents: [
                                                 {
-                                                    type: "box",
-                                                    layout: "vertical",
-                                                    width: "45px",
-                                                    height: "45px",
-                                                    cornerRadius: "100px",
-                                                    contents: [
-                                                        {
-                                                            type: "image",
-                                                            url: userPicUrl,
-                                                            size: "full",
-                                                            aspectMode: "cover",
-                                                            aspectRatio: "1:1"
-                                                        }
-                                                    ]
+                                                    type: "box", layout: "vertical", width: "45px", height: "45px", cornerRadius: "100px",
+                                                    contents: [{ type: "image", url: userPicUrl, size: "full", aspectMode: "cover", aspectRatio: "1:1" }]
                                                 },
                                                 {
-                                                    type: "box",
-                                                    layout: "vertical",
+                                                    type: "box", layout: "vertical",
                                                     contents: [
-                                                        {
-                                                            type: "text",
-                                                            text: `ลำดับคิวที่ ${this.user.id}`,
-                                                            size: "xs",
-                                                            color: "#42659c",
-                                                            weight: "bold"
-                                                        },
-                                                        {
-                                                            type: "text",
-                                                            text: `${this.user.name}`,
-                                                            size: "sm",
-                                                            weight: "bold",
-                                                            wrap: true
-                                                        },
-                                                        {
-                                                            type: "text",
-                                                            text: "RPCA 79 - SELECTION",
-                                                            size: "xxs",
-                                                            color: "#aaaaaa",
-                                                            margin: "none"
-                                                        }
+                                                        { type: "text", text: `ลำดับคิวที่ ${this.user.id}`, size: "xs", color: "#42659c", weight: "bold" },
+                                                        { type: "text", text: `${this.user.name}`, size: "sm", weight: "bold", wrap: true },
+                                                        { type: "text", text: "RPCA 79 - SELECTION", size: "xxs", color: "#aaaaaa", margin: "none" }
                                                     ]
                                                 }
                                             ]
@@ -1258,54 +1242,82 @@
                                             paddingAll: "sm",
                                             spacing: "xs",
                                             contents: [
-                                                {
-                                                    type: "text",
-                                                    text: "ตำแหน่งที่เลือก (Selected)",
-                                                    size: "xxs",
-                                                    color: "#8c8c8c"
-                                                },
-                                                {
-                                                    type: "text",
-                                                    text: `${pos[1]}`,
-                                                    size: "sm",
-                                                    weight: "bold",
-                                                    color: "#111111"
-                                                },
-                                                {
-                                                    type: "text",
-                                                    text: `📍 สังกัด: ${pos[2]}`,
-                                                    size: "xs",
-                                                    color: "#42659c"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            type: "box",
-                                            layout: "vertical",
-                                            margin: "md",
-                                            contents: [
-                                                {
-                                                    type: "text",
-                                                    text: "👉 ลำดับต่อไป (Next Queue)",
-                                                    size: "xs",
-                                                    color: "#d9534f",
-                                                    weight: "bold"
-                                                },
-                                                {
-                                                    type: "text",
-                                                    text: `คิวที่ ${currentQ} : ${nextName}`,
-                                                    size: "xs",
-                                                    weight: "bold",
-                                                    wrap: true,
-                                                    margin: "xs"
-                                                }
+                                                { type: "text", text: "ตำแหน่งที่เลือก (Selected)", size: "xxs", color: "#8c8c8c" },
+                                                { type: "text", text: `${pos[1]}`, size: "sm", weight: "bold", color: "#111111" },
+                                                { type: "text", text: `📍 สังกัด: ${pos[2]}`, size: "xs", color: "#42659c" }
                                             ]
                                         }
                                     ]
                                 }
                             }
-                        }
-                    ];
+                        });
+
+                        messages.push({
+                            type: "flex",
+                            altText: `คิวต่อไป: ลำดับที่ ${currentQ}`,
+                            contents: {
+                                type: "bubble",
+                                size: "mega",
+                                body: {
+                                    type: "box",
+                                    layout: "vertical",
+                                    paddingAll: "md",
+                                    contents: [
+                                        {
+                                            type: "box",
+                                            layout: "vertical",
+                                            margin: "sm",
+                                            contents: [
+                                                { type: "text", text: "👉 ลำดับต่อไป (Next Queue)", size: "sm", color: "#d9534f", weight: "bold" },
+                                                { type: "text", text: `คิวที่ ${currentQ} : ${nextName}`, size: "md", weight: "bold", wrap: true, margin: "xs" }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        });
+                    } else {
+                        // รูปแบบ 2: ซ่อนสถานที่ + แจ้งแค่คิวถัดไป
+                        messages.push({
+                            type: "flex",
+                            altText: `อัปเดตสถานะการเลือกตำแหน่ง`,
+                            contents: {
+                                type: "bubble",
+                                size: "mega",
+                                body: {
+                                    type: "box",
+                                    layout: "vertical",
+                                    paddingAll: "md",
+                                    contents: [
+                                        {
+                                            type: "box",
+                                            layout: "vertical",
+                                            alignItems: "center",
+                                            margin: "sm",
+                                            contents: [
+                                                { type: "text", text: "✅ เสร็จสิ้นการเลือกตำแหน่ง", size: "sm", color: "#10b981", weight: "bold" },
+                                                { type: "text", text: `คิวที่ ${this.user.id}`, size: "xl", weight: "bold", margin: "sm", color: "#1e293b" },
+                                                { type: "text", text: `${this.user.name}`, size: "xs", color: "#64748b" }
+                                            ]
+                                        },
+                                        { type: "separator", margin: "md" },
+                                        {
+                                            type: "box",
+                                            layout: "vertical",
+                                            margin: "md",
+                                            backgroundColor: "#fff1f2",
+                                            cornerRadius: "md",
+                                            paddingAll: "sm",
+                                            contents: [
+                                                { type: "text", text: "👉 ลำดับต่อไป (Next Queue)", size: "xs", color: "#e11d48", weight: "bold" },
+                                                { type: "text", text: `คิวที่ ${currentQ} : ${nextName}`, size: "sm", weight: "bold", wrap: true, margin: "xs", color: "#881337" }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        });
+                    }
 
                     if (nextLineId) {
                         messages.push({
@@ -1356,7 +1368,6 @@
                                 if (error) throw error;
                                 this.isSubmitting = false;
                                 if(data.status === 'SUCCESS') {
-                                    // สร้าง Object config ใหม่เพื่อ Force UI Update
                                     this.config = { ...this.config, current_queue: parseInt(this.config.current_queue) + 1 };
                                     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
                                     this.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
@@ -1379,7 +1390,23 @@
                     });
                 },
 
-                // ปรับปรุง initRealtime แบบ Delta Update แทนการ Fetch ใหม่ทั้งหมด (ลดภาระฐานข้อมูลมหาศาล)
+                // NEW: ฟังก์ชันบันทึกการตั้งค่ารูปแบบการแจ้งเตือน
+                async saveFlexFormat() {
+                    try {
+                        const format = this.config.flex_format || '1';
+                        const { error } = await db.from('config').update({ flex_format: format }).eq('id', 1);
+                        if (error) {
+                            console.warn('Column flex_format does not exist in config table. Storing in localStorage instead.');
+                            localStorage.setItem('flex_format', format);
+                            this.showToast('บันทึกในเครื่องของคุณแล้ว (กรุณาเพิ่ม Column ใน DB หากต้องการให้ครอบคลุมทุกคน)', 'warning', 5000);
+                        } else {
+                            this.showToast('บันทึกรูปแบบการแจ้งเตือนเรียบร้อยแล้ว', 'success');
+                        }
+                    } catch(e) {
+                        console.error('saveFlexFormat Error:', e);
+                    }
+                },
+
                 initRealtime() {
                     if (!db) return;
                     const debouncedFetch = () => {
@@ -1388,7 +1415,6 @@
                     };
                     
                     db.channel('public-db-changes')
-                        // 1. Delta Update สำหรับ Positions
                         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'positions' }, payload => {
                             if (payload.new) {
                                 const updatedPos = payload.new;
@@ -1398,18 +1424,16 @@
                                     newPosArray[3] = updatedPos.status;
                                     newPosArray[4] = updatedPos.taken_by_user_id;
                                     this.positions.splice(index, 1, newPosArray);
-                                    this.positions = [...this.positions]; // บังคับให้ Alpine.js รับรู้การเปลี่ยนแปลงของ Array
+                                    this.positions = [...this.positions];
                                 }
                             }
                         })
                         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'positions' }, () => { debouncedFetch(); })
                         .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'positions' }, () => { debouncedFetch(); })
                         
-                        // 2. Delta Update สำหรับ Config
                         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'config' }, payload => {
                             const oldQueue = this.config.current_queue;
                             if (payload.new) {
-                                // กระจาย Object ใหม่ทั้งหมดเพื่อบังคับให้ Alpine.js รับรู้การเปลี่ยนแปลง (สำคัญมากในการแก้บัค UI ค้าง)
                                 this.config = { ...this.config, ...payload.new };
                             }
                             if (parseInt(this.user.id) === payload.new.current_queue && oldQueue !== payload.new.current_queue) {
@@ -1417,7 +1441,6 @@
                             }
                         })
 
-                        // 3. Delta Update สำหรับ Users
                         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users' }, payload => {
                              if (payload.new) {
                                  const updatedUser = payload.new;
@@ -1430,10 +1453,9 @@
                                      newUserArray[6] = updatedUser.line_user_id;
                                      newUserArray[7] = updatedUser.line_display_name;
                                      this.users.splice(index, 1, newUserArray);
-                                     this.users = [...this.users]; // บังคับให้ Alpine.js รับรู้การเปลี่ยนแปลงของ Array
+                                     this.users = [...this.users];
                                  }
                                  
-                                 // สำคัญ: อัปเดต Object ข้อมูลของคนที่ล็อกอินอยู่ด้วย แบบกระจาย Object ใหม่เพื่อ Force UI Update
                                  if (this.user && this.user.role === 'USER' && String(this.user.id) === String(updatedUser.id)) {
                                      this.user = {
                                          ...this.user,
@@ -1446,17 +1468,15 @@
                              }
                         })
 
-                        // 4. Delta Update สำหรับ Logs
                         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logs' }, payload => {
                             if (payload.new) {
                                 const l = payload.new;
                                 this.serverLogs.unshift([l.created_at, l.user_id, l.user_name, l.pos_id, l.pos_name, l.pos_region]);
                                 if (this.serverLogs.length > 50) this.serverLogs.pop();
-                                this.serverLogs = [...this.serverLogs]; // บังคับให้ Alpine.js รับรู้การเปลี่ยนแปลง
+                                this.serverLogs = [...this.serverLogs];
                             }
                         })
                         
-                        // จัดการการเชื่อมต่อและ Reconnect อัตโนมัติเมื่อ Websocket มีปัญหา (จอดับ/เน็ตหลุด)
                         .subscribe((status) => {
                             if (status === 'SUBSCRIBED') {
                                 this.connectionError = false;
@@ -1466,7 +1486,7 @@
                                     db.removeAllChannels(); 
                                     this.initRealtime(); 
                                     this.fetchData(); 
-                                }, 5000); // พยายามเชื่อมต่อและ Sync ใหม่ทุก 5 วินาที
+                                }, 5000); 
                             }
                         });
                 },
@@ -1487,10 +1507,14 @@
                             db.from('positions').select('*'),
                             db.from('logs').select('*').order('created_at', { ascending: false }).limit(5)
                         ]);
-                        // กระจาย Object ใหม่ทั้งหมดเพื่อบังคับให้ Alpine.js รับรู้การเปลี่ยนแปลง
-                        if (configRes.data) this.config = { ...configRes.data };
+                        
+                        if (configRes.data) {
+                            this.config = { ...configRes.data };
+                            if (!this.config.flex_format) {
+                                this.config.flex_format = localStorage.getItem('flex_format') || '1';
+                            }
+                        }
                         if (posRes.data) this.positions = posRes.data.map(p => [p.id, p.name, p.region, p.status, p.taken_by_user_id]);
-                        // อัปเดตการดึง index 7 เป็น line_display_name
                         if (usersRes.data) this.users = usersRes.data.map(u => [u.id, u.name, u.code, u.status, u.selected_pos_name, u.selected_at, u.line_user_id, u.line_display_name]);
                         if (logsRes.data) this.serverLogs = logsRes.data.map(l => [l.created_at, l.user_id, l.user_name, l.pos_id, l.pos_name, l.pos_region]);
                         this.isInitialLoading = false;
@@ -1500,13 +1524,12 @@
                             const u = this.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
                             if(u) {
                                 const selectedPos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim());
-                                // สร้าง Object user ขึ้นมาใหม่ทั้งก้อน เพื่อให้ Alpine รับรู้ว่ามีตัวแปรถูกแก้ไขแม้หลังการ Refresh
                                 this.user = {
                                     ...this.user,
                                     status: String(u[3] || 'WAITING').trim(),
                                     name: u[1] || this.user.name,
                                     lineLinked: !!u[6],
-                                    lineDisplayName: u[7] || this.lineProfile?.displayName || null, // เอาชื่อไลน์มาเซฟเก็บไว้
+                                    lineDisplayName: u[7] || this.lineProfile?.displayName || null,
                                     selectedPosName: u[4] || null,
                                     selectedAt: u[5] || null,
                                     selectedRegion: selectedPos ? selectedPos[2] : null
@@ -1560,7 +1583,6 @@
                                 if (action === 'BACKUP') {
                                     Swal.fire('Info', 'การ Backup ระบบของ Supabase จะทำให้อัตโนมัติในระบบหลังบ้านครับ', 'info'); return;
                                 }
-                                // เรียกใช้ RPC จัดการคำสั่งระบบ
                                 const { error } = await db.rpc('exec_admin_action', { p_action: action });
                                 if (error) throw error;
                                 
@@ -1630,7 +1652,6 @@
                     });
                 },
 
-                // NEW: ฟังก์ชัน Unlink LINE ในส่วนของ Admin
                 async unlinkUserLine(userId, userName) {
                     Swal.fire({
                         title: 'รีเซ็ตบัญชี LINE?',
@@ -1761,12 +1782,10 @@
                     } catch(e) { this.lineLoading = false; Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
-                // NEW: แก้ไขระบบอัปเดต Export PDF เป็น HTML Template + html2canvas แทน jsPDF ตรงๆ ป้องกันฟอนต์ไทยเพี้ยน
                 async exportPDF() {
                     this.isPdfExporting = true;
                     Swal.fire({ title: 'กำลังสร้างเอกสาร PDF...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     try {
-                        // 1. สร้าง HTML Container จำลองสำหรับ Render
                         const printContainer = document.createElement('div');
                         printContainer.style.width = '800px';
                         printContainer.style.padding = '40px';
@@ -1827,12 +1846,10 @@
                         printContainer.innerHTML = htmlContent;
                         document.body.appendChild(printContainer);
 
-                        // 2. แปลง HTML เป็นรูปภาพ Canvas (ความละเอียด x2)
                         const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
                         document.body.removeChild(printContainer);
                         const imgData = canvas.toDataURL('image/png');
 
-                        // 3. นำรูปลง jsPDF (รองรับการตัดหน้าอัตโนมัติหากตารางยาว)
                         const { jsPDF } = window.jspdf;
                         const doc = new jsPDF('p', 'mm', 'a4');
                         const pdfWidth = doc.internal.pageSize.getWidth();
@@ -1851,7 +1868,6 @@
                             heightLeft -= doc.internal.pageSize.getHeight();
                         }
 
-                        // 4. บันทึกไฟล์
                         const dateString = new Date().toLocaleDateString('th-TH').replace(/\//g, '-');
                         doc.save('RPCA79_Summary_' + dateString + '.pdf');
                         Swal.close();
