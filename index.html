@@ -181,6 +181,63 @@
             background-color: #0f172a;
             background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
         }
+
+        /* -------------------------------------
+           NEW: Notion Style SweetAlert2 CSS
+        -------------------------------------- */
+        div:where(.swal2-container) div:where(.swal2-popup) {
+            border-radius: 12px !important;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+            font-family: 'Sarabun', sans-serif !important;
+            padding: 1.5rem !important;
+        }
+        .dark div:where(.swal2-container) div:where(.swal2-popup) {
+            background: #1e293b !important;
+            border-color: #334155;
+            color: #f1f5f9;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+        div:where(.swal2-container) h2:where(.swal2-title) {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #0f172a;
+        }
+        .dark div:where(.swal2-container) h2:where(.swal2-title) {
+            color: #f8fafc;
+        }
+        div:where(.swal2-container) div:where(.swal2-html-container) {
+            font-size: 0.95rem;
+            color: #475569;
+        }
+        .dark div:where(.swal2-container) div:where(.swal2-html-container) {
+            color: #cbd5e1;
+        }
+        div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm {
+            background-color: #2563eb !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            padding: 0.6rem 1.5rem !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel {
+            background-color: #f1f5f9 !important;
+            color: #475569 !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            padding: 0.6rem 1.5rem !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        .dark div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel {
+            background-color: #334155 !important;
+            color: #cbd5e1 !important;
+        }
+        div:where(.swal2-container) div:where(.swal2-actions) {
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
     </style>
 </head>
 
@@ -548,7 +605,7 @@
         </div>
     </div>
 
-    <div x-show="currentPage === 'dashboard'" 
+    <div id="dashboard-container" x-show="currentPage === 'dashboard'" 
          :class="isDashboardFullscreen ? 'fixed inset-0 z-[100] bg-slate-100 dark:bg-slate-900 p-2 md:p-4 flex flex-col h-screen' : 'container mx-auto px-4 py-6 pb-28 animate-enter safe-pb'">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 shrink-0">
             <h2 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="pie-chart" class="w-6 h-6 text-blue-500"></i> สถานะการเลือกตำแหน่ง</h2>
@@ -612,7 +669,40 @@
         <div class="flex gap-2 mb-4 overflow-x-auto"><button @click="adminTab = 'users'" :class="adminTab === 'users' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400'" class="px-6 py-2 rounded-xl font-bold shadow-sm transition">Users</button><button @click="adminTab = 'positions'" :class="adminTab === 'positions' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400'" class="px-6 py-2 rounded-xl font-bold shadow-sm transition">Positions</button></div>
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 overflow-hidden">
             <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg text-slate-800 dark:text-white" x-text="adminTab === 'users' ? 'จัดการรายชื่อ (Users)' : 'จัดการตำแหน่ง (Positions)'"></h3><button @click="openAdminModal('CREATE')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow flex items-center gap-1"><i data-lucide="plus" class="w-4 h-4"></i> Add New</button></div>
-            <div x-show="adminTab === 'users'" class="overflow-x-auto"><table class="w-full text-left text-sm text-slate-600 dark:text-slate-300"><thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Code</th><th class="p-3">Action</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-slate-700"><template x-for="u in users" :key="u[0]"><tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3 font-mono" x-text="u[0]"></td><td class="p-3 font-bold" x-text="u[1]"></td><td class="p-3 font-mono text-xs" x-text="u[2]"></td><td class="p-3 flex gap-2"><button @click="openAdminModal('UPDATE', u, 'USER')" class="text-blue-500 hover:text-blue-700"><i data-lucide="edit" class="w-4 h-4"></i></button><button @click="deleteAdminData(u[0], 'USER')" class="text-red-500 hover:text-red-700"><i data-lucide="trash" class="w-4 h-4"></i></button></td></tr></template></tbody></table></div>
+            
+            <div x-show="adminTab === 'users'" class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                    <thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs">
+                        <tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Code</th><th class="p-3">LINE Linked</th><th class="p-3">Action</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                        <template x-for="u in users" :key="u[0]">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+                                <td class="p-3 font-mono" x-text="u[0]"></td>
+                                <td class="p-3 font-bold" x-text="u[1]"></td>
+                                <td class="p-3 font-mono text-xs" x-text="u[2]"></td>
+                                <td class="p-3">
+                                    <template x-if="u[6]">
+                                        <div class="flex flex-col gap-0.5">
+                                            <span class="inline-flex w-fit items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold px-2 py-0.5 rounded-full"><i data-lucide="check-circle-2" class="w-3 h-3"></i> เชื่อมต่อแล้ว</span>
+                                            <span class="text-[10px] text-slate-500 truncate w-32" x-text="u[7] || 'LINE User'"></span>
+                                        </div>
+                                    </template>
+                                    <template x-if="!u[6]">
+                                        <span class="text-[10px] text-slate-400 italic">ยังไม่เชื่อมต่อ</span>
+                                    </template>
+                                </td>
+                                <td class="p-3 flex gap-2">
+                                    <button @click="openAdminModal('UPDATE', u, 'USER')" class="text-blue-500 hover:text-blue-700" title="แก้ไข"><i data-lucide="edit" class="w-4 h-4"></i></button>
+                                    <button x-show="u[6]" @click="unlinkUserLine(u[0], u[1])" class="text-orange-500 hover:text-orange-700" title="รีเซ็ต LINE"><i data-lucide="link-2-off" class="w-4 h-4"></i></button>
+                                    <button @click="deleteAdminData(u[0], 'USER')" class="text-red-500 hover:text-red-700" title="ลบข้อมูล"><i data-lucide="trash" class="w-4 h-4"></i></button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
             <div x-show="adminTab === 'positions'" class="overflow-x-auto"><table class="w-full text-left text-sm text-slate-600 dark:text-slate-300"><thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Region</th><th class="p-3">Action</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-slate-700"><template x-for="p in positions" :key="p[0]"><tr class="hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3 font-mono" x-text="p[0]"></td><td class="p-3 font-bold" x-text="p[1]"></td><td class="p-3 text-xs" x-text="p[2]"></td><td class="p-3 flex gap-2"><button @click="openAdminModal('UPDATE', p, 'POSITION')" class="text-blue-500 hover:text-blue-700"><i data-lucide="edit" class="w-4 h-4"></i></button><button @click="deleteAdminData(p[0], 'POSITION')" class="text-red-500 hover:text-red-700"><i data-lucide="trash" class="w-4 h-4"></i></button></td></tr></template></tbody></table></div>
         </div>
     </div>
@@ -1540,6 +1630,32 @@
                     });
                 },
 
+                // NEW: ฟังก์ชัน Unlink LINE ในส่วนของ Admin
+                async unlinkUserLine(userId, userName) {
+                    Swal.fire({
+                        title: 'รีเซ็ตบัญชี LINE?',
+                        text: `ต้องการยกเลิกการเชื่อมต่อ LINE ของ ${userName} ใช่หรือไม่?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#2563eb',
+                        cancelButtonColor: '#cbd5e1',
+                        confirmButtonText: 'ยืนยันรีเซ็ต',
+                        cancelButtonText: 'ยกเลิก'
+                    }).then(async r => {
+                        if(r.isConfirmed) {
+                            Swal.fire({title: 'กำลังดำเนินการ...', didOpen:()=>Swal.showLoading()});
+                            try {
+                                const { error } = await db.from('users').update({ line_user_id: null, line_display_name: null }).eq('id', parseInt(userId));
+                                if(error) throw error;
+                                Swal.fire('สำเร็จ', 'รีเซ็ตบัญชี LINE ของผู้ใช้นี้เรียบร้อยแล้ว', 'success');
+                                this.fetchData();
+                            } catch(e) {
+                                Swal.fire('Error', 'เกิดข้อผิดพลาด: ' + e.message, 'error');
+                            }
+                        }
+                    });
+                },
+
                 async submitAdminAssign() {
                     if(!this.adminAssignUserId || !this.adminAssignPosId) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้ใช้งานและตำแหน่งให้ครบถ้วน', 'warning');
                     Swal.fire({title: 'กำลังบันทึกข้อมูล...', didOpen:()=>Swal.showLoading()});
@@ -1645,50 +1761,102 @@
                     } catch(e) { this.lineLoading = false; Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
+                // NEW: แก้ไขระบบอัปเดต Export PDF เป็น HTML Template + html2canvas แทน jsPDF ตรงๆ ป้องกันฟอนต์ไทยเพี้ยน
                 async exportPDF() {
                     this.isPdfExporting = true;
+                    Swal.fire({ title: 'กำลังสร้างเอกสาร PDF...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     try {
-                        const { jsPDF } = window.jspdf;
-                        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-                        const pageW = 210, pageH = 297, margin = 14;
-                        const now = new Date().toLocaleString('th-TH', { dateStyle: 'full', timeStyle: 'short' });
-                        doc.setFillColor(37, 99, 235); doc.rect(0, 0, pageW, 28, 'F');
-                        doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text('RPCA79 - สรุปผลการเลือกตำแหน่ง', margin, 13);
-                        doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.text('พิมพ์เมื่อ: ' + now, margin, 21);
+                        // 1. สร้าง HTML Container จำลองสำหรับ Render
+                        const printContainer = document.createElement('div');
+                        printContainer.style.width = '800px';
+                        printContainer.style.padding = '40px';
+                        printContainer.style.background = '#ffffff';
+                        printContainer.style.position = 'absolute';
+                        printContainer.style.left = '-9999px';
+                        printContainer.style.top = '0';
+                        printContainer.style.fontFamily = "'Sarabun', sans-serif";
+                        printContainer.style.color = '#0f172a';
+
                         const totalPos = this.positions.length;
                         const takenPos = this.positions.filter(p => p[3] !== 'AVAILABLE').length;
-                        const leftPos = totalPos - takenPos;
-                        const progress = totalPos ? Math.round((takenPos/totalPos)*100) : 0;
-                        const stats = [{ label: 'ตำแหน่งทั้งหมด', value: String(totalPos), color: [71, 85, 105] },{ label: 'เลือกแล้ว', value: String(takenPos), color: [22, 163, 74] },{ label: 'คงเหลือ', value: String(leftPos), color: [239, 68, 68] },{ label: 'ความคืบหน้า', value: progress + '%', color: [37, 99, 235] }];
-                        const boxW = (pageW - margin*2 - 9) / 4;
-                        stats.forEach((s, i) => { const x = margin + i * (boxW + 3), y = 32; doc.setFillColor(...s.color); doc.roundedRect(x, y, boxW, 20, 3, 3, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text(s.value, x + boxW/2, y + 10, { align: 'center' }); doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.text(s.label, x + boxW/2, y + 16, { align: 'center' }); });
-                        let barY = 57;
-                        doc.setFillColor(226, 232, 240); doc.roundedRect(margin, barY, pageW - margin*2, 5, 2, 2, 'F');
-                        if (progress > 0) { doc.setFillColor(37, 99, 235); doc.roundedRect(margin, barY, (pageW - margin*2) * (progress/100), 5, 2, 2, 'F'); }
-                        let secY = barY + 12;
-                        doc.setFillColor(248, 250, 252); doc.rect(margin, secY - 5, pageW - margin*2, 8, 'F');
-                        doc.setTextColor(37, 99, 235); doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('สรุปรายภาค', margin + 2, secY); secY += 6;
-                        const regions = this.regionDashboardStats; const colW = (pageW - margin*2 - 6) / 2;
-                        regions.forEach((r, i) => { const col = i % 2, row = Math.floor(i / 2); const rx = margin + col * (colW + 6); const ry = secY + row * 14; doc.setTextColor(51, 65, 85); doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text(r.name, rx, ry); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139); doc.text(r.taken + '/' + r.total, rx + colW - 10, ry, { align: 'right' }); doc.setFillColor(226, 232, 240); doc.roundedRect(rx, ry + 2, colW - 14, 3, 1, 1, 'F'); if (r.percent > 0) { doc.setFillColor(r.percent >= 100 ? 239 : 59, r.percent >= 100 ? 68 : 130, r.percent >= 100 ? 68 : 246); doc.roundedRect(rx, ry + 2, (colW - 14) * (r.percent/100), 3, 1, 1, 'F'); } });
-                        doc.addPage();
-                        doc.setFillColor(37, 99, 235); doc.rect(0, 0, pageW, 20, 'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text('รายชื่อผู้เลือกตำแหน่ง', margin, 13);
-                        let tableY = 26; const cols = [{ label: '#', w: 12 },{ label: 'ชื่อ-สกุล', w: 55 },{ label: 'ตำแหน่งที่เลือก', w: 80 },{ label: 'ภาค', w: 22 },{ label: 'เวลา', w: 24 }];
-                        doc.setFillColor(51, 65, 85); doc.rect(margin, tableY, pageW - margin*2, 7, 'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica', 'bold'); doc.setFontSize(7);
-                        let cx = margin; cols.forEach(c => { doc.text(c.label, cx + 2, tableY + 4.5); cx += c.w; }); tableY += 8;
-                        this.dashboardList.forEach((u, idx) => {
-                            if (tableY > pageH - 20) { doc.addPage(); tableY = 14; }
-                            doc.setFillColor(...(idx % 2 === 0 ? [255,255,255] : [248,250,252])); doc.rect(margin, tableY - 1, pageW - margin*2, 7, 'F'); doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
-                            const rowData = [String(u.id), u.name, u.pos, u.region, this.formatTime(u.time)];
-                            cx = margin; cols.forEach((c, ci) => { let text = rowData[ci] || '-'; if (doc.getTextWidth(text) > c.w - 4) { while(doc.getTextWidth(text + '…') > c.w - 4 && text.length > 0) text = text.slice(0, -1); text += '…'; } doc.setTextColor(ci === 2 ? 37 : 51, ci === 2 ? 99 : 65, ci === 2 ? 235 : 85); doc.text(text, cx + 2, tableY + 4); cx += c.w; });
-                            doc.setDrawColor(226, 232, 240); doc.line(margin, tableY + 6, pageW - margin, tableY + 6); tableY += 7;
+
+                        let htmlContent = `
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <h1 style="font-size: 28px; font-weight: 700; color: #1e40af;">RPCA79 - สรุปผลการเลือกตำแหน่ง</h1>
+                                <p style="color: #64748b; font-size: 14px; margin-top: 5px;">พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 30px; gap: 15px;">
+                                <div style="flex: 1; text-align: center; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #334155;">${totalPos}</div>
+                                    <div style="font-size: 12px; color: #64748b; font-weight: 600;">ตำแหน่งทั้งหมด</div>
+                                </div>
+                                <div style="flex: 1; text-align: center; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f0fdf4;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #16a34a;">${takenPos}</div>
+                                    <div style="font-size: 12px; color: #15803d; font-weight: 600;">เลือกแล้ว</div>
+                                </div>
+                                <div style="flex: 1; text-align: center; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fef2f2;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #dc2626;">${totalPos - takenPos}</div>
+                                    <div style="font-size: 12px; color: #b91c1c; font-weight: 600;">คงเหลือ</div>
+                                </div>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                                <thead>
+                                    <tr style="background-color: #f1f5f9;">
+                                        <th style="padding: 12px; border-bottom: 2px solid #cbd5e1; text-align: left; font-weight: 700; width: 10%;">ลำดับ</th>
+                                        <th style="padding: 12px; border-bottom: 2px solid #cbd5e1; text-align: left; font-weight: 700; width: 30%;">ชื่อ-สกุล</th>
+                                        <th style="padding: 12px; border-bottom: 2px solid #cbd5e1; text-align: left; font-weight: 700; width: 40%;">ตำแหน่งที่เลือก</th>
+                                        <th style="padding: 12px; border-bottom: 2px solid #cbd5e1; text-align: left; font-weight: 700; width: 20%;">สังกัด</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+
+                        this.dashboardList.forEach((u, index) => {
+                            const bg = index % 2 === 0 ? '#ffffff' : '#f8fafc';
+                            htmlContent += `
+                                <tr style="background-color: ${bg};">
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">${u.id}</td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-weight: 700;">${u.name}</td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #2563eb; font-weight: 600;">${u.pos}</td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">${u.region}</td>
+                                </tr>
+                            `;
                         });
-                        const totalPages = doc.getNumberOfPages();
-                        for (let p = 1; p <= totalPages; p++) { doc.setPage(p); doc.setFillColor(248, 250, 252); doc.rect(0, pageH - 10, pageW, 10, 'F'); doc.setTextColor(148, 163, 184); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text('RPCA79 - ระบบทดลองเลือกตำแหน่ง', margin, pageH - 4); doc.text('หน้า ' + p + '/' + totalPages, pageW - margin, pageH - 4, { align: 'right' }); }
-                        
+
+                        htmlContent += `</tbody></table>`;
+                        printContainer.innerHTML = htmlContent;
+                        document.body.appendChild(printContainer);
+
+                        // 2. แปลง HTML เป็นรูปภาพ Canvas (ความละเอียด x2)
+                        const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+                        document.body.removeChild(printContainer);
+                        const imgData = canvas.toDataURL('image/png');
+
+                        // 3. นำรูปลง jsPDF (รองรับการตัดหน้าอัตโนมัติหากตารางยาว)
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF('p', 'mm', 'a4');
+                        const pdfWidth = doc.internal.pageSize.getWidth();
+                        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                        let heightLeft = pdfHeight;
+                        let position = 0;
+
+                        doc.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                        heightLeft -= doc.internal.pageSize.getHeight();
+
+                        while (heightLeft >= 0) {
+                            position = heightLeft - pdfHeight;
+                            doc.addPage();
+                            doc.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                            heightLeft -= doc.internal.pageSize.getHeight();
+                        }
+
+                        // 4. บันทึกไฟล์
                         const dateString = new Date().toLocaleDateString('th-TH').replace(/\//g, '-');
-                        doc.save('RPCA79_ผลการเลือก_' + dateString + '.pdf');
+                        doc.save('RPCA79_Summary_' + dateString + '.pdf');
+                        Swal.close();
                     } catch(e) { 
-                        Swal.fire('Error', 'ไม่สามารถสร้าง PDF ได้: ' + e.message, 'error'); 
+                        Swal.fire('Error', 'ไม่สามารถสร้างเอกสาร PDF ได้: ' + e.message, 'error'); 
                     } finally { 
                         this.isPdfExporting = false; 
                     }
