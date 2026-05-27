@@ -622,6 +622,93 @@
                 </button>
             </div>
         </div>
+        <!-- ===== CHARTS SECTION ===== -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 shrink-0 no-print">
+
+            <!-- Donut Chart Card -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center gap-3">
+                <div class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider flex items-center gap-1.5">
+                    <i data-lucide="activity" class="w-3.5 h-3.5 text-blue-500"></i> ภาพรวมทั้งหมด
+                </div>
+                <div class="relative w-40 h-40">
+                    <svg width="160" height="160" viewBox="0 0 160 160">
+                        <!-- Track circle -->
+                        <circle cx="80" cy="80" r="65" fill="none"
+                            :stroke="darkMode ? '#1e293b' : '#f1f5f9'"
+                            stroke-width="16"/>
+                        <!-- Progress circle -->
+                        <circle cx="80" cy="80" r="65" fill="none"
+                            stroke="#2563eb"
+                            stroke-width="16"
+                            stroke-linecap="round"
+                            :stroke-dasharray="408.41"
+                            :stroke-dashoffset="408.41 * (1 - progressPercent / 100)"
+                            transform="rotate(-90 80 80)"
+                            style="transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)"/>
+                        <!-- Remaining arc (green) -->
+                        <circle cx="80" cy="80" r="65" fill="none"
+                            :stroke="progressPercent < 100 ? (darkMode ? '#064e3b' : '#d1fae5') : 'transparent'"
+                            stroke-width="16"
+                            stroke-linecap="round"
+                            :stroke-dasharray="408.41"
+                            :stroke-dashoffset="408.41 * (0 - (1 - progressPercent / 100))"
+                            transform="rotate(-90 80 80)"
+                            style="transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <div class="text-3xl font-black text-slate-800 dark:text-white leading-none" x-text="Math.round(progressPercent) + '%'"></div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">เลือกแล้ว</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-center">
+                        <div class="text-xl font-black text-blue-600 dark:text-blue-400" x-text="positions.filter(p=>p[3]!=='AVAILABLE').length"></div>
+                        <div class="text-[9px] font-bold text-slate-400 uppercase">เลือกแล้ว</div>
+                    </div>
+                    <div class="w-px h-8 bg-slate-200 dark:bg-slate-700"></div>
+                    <div class="text-center">
+                        <div class="text-xl font-black text-emerald-500" x-text="positions.filter(p=>p[3]==='AVAILABLE').length"></div>
+                        <div class="text-[9px] font-bold text-slate-400 uppercase">คงเหลือ</div>
+                    </div>
+                    <div class="w-px h-8 bg-slate-200 dark:bg-slate-700"></div>
+                    <div class="text-center">
+                        <div class="text-xl font-black text-slate-700 dark:text-slate-200" x-text="positions.length"></div>
+                        <div class="text-[9px] font-bold text-slate-400 uppercase">ทั้งหมด</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regional Horizontal Bar Chart -->
+            <div class="md:col-span-2 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider flex items-center gap-1.5 mb-4">
+                    <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-blue-500"></i> สรุปรายภาค
+                </div>
+                <div class="space-y-2.5 overflow-y-auto no-scrollbar" style="max-height: 195px;">
+                    <template x-for="r in regionDashboardStats" :key="r.name">
+                        <div class="flex items-center gap-3">
+                            <div class="w-16 text-[10px] font-bold text-right shrink-0 text-slate-600 dark:text-slate-300 truncate" x-text="r.name"></div>
+                            <div class="flex-1 h-6 bg-slate-100 dark:bg-slate-700/70 rounded-full overflow-hidden relative">
+                                <div class="h-full rounded-full transition-all duration-700"
+                                     :style="'width:' + r.percent + '%; background-color:' + getRegionBarColor(r.name)"></div>
+                                <div class="absolute inset-0 flex items-center justify-between px-2.5">
+                                    <span class="text-[9px] font-black"
+                                          :class="r.percent > 38 ? 'text-white' : 'text-slate-500 dark:text-slate-400'"
+                                          x-text="r.taken + '/' + r.total + ' ตำแหน่ง'"></span>
+                                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500" x-text="Math.round(r.percent) + '%'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template x-if="regionDashboardStats.length === 0">
+                        <div class="flex items-center justify-center h-32 text-slate-400 text-sm font-bold">
+                            <i data-lucide="loader-2" class="w-5 h-5 animate-spin mr-2"></i> กำลังโหลดข้อมูล...
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+        <!-- ===== END CHARTS SECTION ===== -->
+
         <div class="flex-1 overflow-y-auto bg-slate-200/50 dark:bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
                 <template x-for="region in uniqueRegions" :key="region">
@@ -1145,6 +1232,25 @@
                 getRegionColorClass(region) {
                     const map = { 'บช.น.': 'bg-blue-600', 'ภ.1': 'bg-red-600', 'ภ.2': 'bg-orange-500', 'ภ.3': 'bg-green-600', 'ภ.4': 'bg-gradient-to-r from-purple-600 to-fuchsia-600', 'ภ.5': 'bg-pink-600', 'ภ.6': 'bg-teal-600', 'ภ.7': 'bg-yellow-600', 'ภ.8': 'bg-indigo-600', 'ภ.9': 'bg-cyan-600', 'ตชด.': 'bg-emerald-700', 'สพฐ.ตร.': 'bg-slate-700', 'บช.ก.': 'bg-yellow-700' };
                     return map[region] || 'bg-slate-700';
+                },
+
+                getRegionBarColor(region) {
+                    const map = {
+                        'บช.น.': '#2563eb',
+                        'ภ.1':   '#dc2626',
+                        'ภ.2':   '#f97316',
+                        'ภ.3':   '#16a34a',
+                        'ภ.4':   '#9333ea',
+                        'ภ.5':   '#ec4899',
+                        'ภ.6':   '#0d9488',
+                        'ภ.7':   '#ca8a04',
+                        'ภ.8':   '#4f46e5',
+                        'ภ.9':   '#0891b2',
+                        'ตชด.':  '#059669',
+                        'สพฐ.ตร.': '#475569',
+                        'บช.ก.': '#a16207'
+                    };
+                    return map[region] || '#2563eb';
                 },
                 
                 openPosDetail(pos) {
