@@ -1838,6 +1838,9 @@
                         const { data: res, error } = await db.from('users').select('*').eq('code', String(this.lineBindCode).trim()).single();
                         this.lineLoading = false;
                         if (error || !res) { Swal.fire('ไม่พบรหัส', 'โปรดตรวจสอบรหัสประจำตัว', 'error'); }
+                        else if (res.line_user_id && res.line_user_id !== this.lineProfile?.userId) {
+                            Swal.fire('เกิดข้อผิดพลาด', 'รหัสประจำตัวนี้ถูกผูกกับบัญชี LINE อื่นไปแล้ว (ติดต่อแอดมินหากต้องการรีเซ็ต)', 'error');
+                        }
                         else { this.lineBindUserName = res.name; this._pendingBindUser = res; this.lineBindStep = 2; }
                     } catch(e) { this.lineLoading = false; }
                 },
@@ -1845,10 +1848,19 @@
                 async confirmLineBind() {
                     this.lineLoading = true;
                     const userId = this.user.id || (this._pendingBindUser && this._pendingBindUser.id);
-                    const lineUserId = this.lineProfile.userId;
-                    const lineDisplayName = this.lineProfile.displayName;
+                    const lineUserId = this.lineProfile?.userId;
+                    const lineDisplayName = this.lineProfile?.displayName;
                     if (!userId || !lineUserId) { this.lineLoading = false; Swal.fire('Error', 'ข้อมูลไม่ครบถ้วน', 'error'); return; }
+                    
                     try {
+                        // Double check before saving
+                        const { data: checkUser } = await db.from('users').select('line_user_id').eq('id', parseInt(userId)).single();
+                        if (checkUser && checkUser.line_user_id && checkUser.line_user_id !== lineUserId) {
+                            this.lineLoading = false;
+                            Swal.fire('เกิดข้อผิดพลาด', 'บัญชีนี้ถูกผูกกับ LINE อื่นไปแล้ว', 'error');
+                            return;
+                        }
+
                         const { error } = await db.from('users').update({ line_user_id: lineUserId, line_display_name: lineDisplayName }).eq('id', parseInt(userId));
                         this.lineLoading = false;
                         if (!error) {
