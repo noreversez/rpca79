@@ -709,10 +709,22 @@
         </div>
         <!-- ===== END CHARTS SECTION ===== -->
 
-        <div class="flex-1 overflow-y-auto bg-slate-200/50 dark:bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
-                <template x-for="region in uniqueRegions" :key="region">
-                    <div x-show="getRegionStats(region).total > 0" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm h-[450px]">
+        <div class="flex-1 flex flex-col overflow-hidden bg-slate-200/50 dark:bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 border-b border-slate-300/50 dark:border-slate-700 pb-3 shrink-0">
+                <div class="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                    <i data-lucide="filter" class="w-4 h-4 text-blue-500"></i> แสดงผลข้อมูลแต่ละภาค
+                </div>
+                <select x-model="dashboardFilterRegion" class="w-full sm:w-auto bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2 text-sm font-bold outline-none text-slate-700 dark:text-white shadow-sm focus:ring-2 focus:ring-blue-500 transition">
+                    <option value="ALL">รวมทุกภาค (All Regions)</option>
+                    <template x-for="r in uniqueRegions" :key="r">
+                        <option :value="r" x-text="r"></option>
+                    </template>
+                </select>
+            </div>
+            <div class="flex-1 overflow-y-auto no-scrollbar">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
+                    <template x-for="region in uniqueRegions" :key="region">
+                        <div x-show="getRegionStats(region).total > 0 && (dashboardFilterRegion === 'ALL' || dashboardFilterRegion === region)" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm h-[450px]">
                         <div class="py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0" :class="getRegionColorClass(region)"><span x-text="region"></span></div>
                         <div class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 py-2 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
                             <i data-lucide="info" class="w-3 h-3 inline"></i> เลือกแล้ว <span x-text="getRegionStats(region).taken"></span>/<span x-text="getRegionStats(region).total"></span> ตำแหน่ง
@@ -735,8 +747,9 @@
             </div>
         </div>
     </div>
+</div>
 
-    <div x-show="currentPage === 'admin_panel'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
+<div x-show="currentPage === 'admin_panel'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="settings" class="w-6 h-6 text-red-500"></i> Admin Panel</h2>
         
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
@@ -1100,7 +1113,7 @@
             return {
                 darkMode: JSON.parse(localStorage.getItem('darkMode') || 'false'),
                 currentPage: 'home', viewMode: 'grid', config: {}, positions: [], users: [], serverLogs: [],
-                search: '', filterRegion: '', filterStatus: 'ALL',
+                search: '', filterRegion: '', filterStatus: 'ALL', dashboardFilterRegion: 'ALL',
                 adminTab: 'users', adminModalOpen: false, adminModalAction: 'CREATE', adminFormData: {id:'', name:'', code:'', region:''},
                 isInitialLoading: true, loginCode: '',
                 user: JSON.parse(localStorage.getItem('user_session') || '{"id": null, "pictureUrl": ""}'),
