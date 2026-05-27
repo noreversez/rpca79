@@ -22,8 +22,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         body { -webkit-tap-highlight-color: transparent; }
@@ -618,11 +616,6 @@
                     <span x-show="isDashboardFullscreen"><i data-lucide="minimize" class="w-4 h-4"></i></span>
                     <span class="hidden md:inline" x-text="isDashboardFullscreen ? 'ย่อหน้าต่าง' : 'เต็มจอ'"></span>
                 </button>
-                <button @click="exportPDF()" :disabled="isPdfExporting" class="pdf-export-btn no-print">
-                    <span x-show="isPdfExporting"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></span>
-                    <span x-show="!isPdfExporting"><i data-lucide="file-text" class="w-4 h-4"></i></span>
-                    <span x-text="isPdfExporting ? 'กำลัง Export...' : 'Export PDF'"></span>
-                </button>
             </div>
         </div>
         <!-- ===== CHARTS SECTION ===== -->
@@ -1016,14 +1009,58 @@
     </div>
 
     <div x-show="showSlip" class="fixed inset-0 bg-slate-900/90 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" x-cloak>
-        <div id="digital-slip-content" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden relative">
-            <div class="bg-blue-600 p-6 text-center text-white"><div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold mx-auto mb-3 shadow-lg"><i data-lucide="check" class="w-6 h-6"></i></div><h2 class="text-lg font-bold uppercase tracking-wider">Selection Success</h2><p class="text-blue-100 text-xs mt-1" x-text="new Date().toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'})"></p></div>
-            <div class="p-6 space-y-3 bg-slate-50 dark:bg-slate-700 text-center">
-                <div class="flex justify-around"><div><div class="text-[10px] text-slate-400 font-bold uppercase">ลำดับที่</div><div class="text-2xl font-black text-slate-700 dark:text-white" x-text="user.id"></div></div><div class="w-px bg-slate-200 dark:bg-slate-600"></div><div><div class="text-[10px] text-slate-400 font-bold uppercase">ภาค</div><div class="text-base font-black text-slate-700 dark:text-white" x-text="selectedSlipData.posRegion || '-'"></div></div></div>
-                <div class="pt-2 border-t border-slate-200 dark:border-slate-600"><div class="text-[10px] text-slate-400 font-bold uppercase mb-1">ชื่อ-สกุล</div><div class="text-sm font-bold text-slate-800 dark:text-white" x-text="user.name"></div></div>
-                <div class="bg-blue-50 dark:bg-blue-900/30 rounded-2xl p-4"><div class="text-[10px] text-blue-500 font-bold uppercase mb-1">ตำแหน่งที่เลือก</div><div class="text-lg font-black text-blue-700 dark:text-blue-300 leading-tight" x-text="selectedSlipData.posName"></div></div>
+        <div class="w-full max-w-sm flex flex-col gap-4 animate-enter">
+            <!-- Digital Slip Card (Same as Profile Summary) -->
+            <div id="digital-slip-content" class="story-card-bg rounded-3xl p-1 shadow-2xl relative overflow-hidden text-left border border-slate-700">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500 opacity-20 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="bg-slate-900/60 backdrop-blur-md rounded-[22px] p-6 text-white relative z-10 border border-white/10">
+                    <div class="flex justify-between items-start mb-5">
+                        <div>
+                            <div class="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1 flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> OFFICIAL SELECTION</div>
+                            <h3 class="text-xl font-black text-white leading-tight">RPCA 79</h3>
+                        </div>
+                        <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+                            <i data-lucide="check" class="w-5 h-5 text-white"></i>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase mb-0.5">ผู้บันทึก (Name)</div>
+                            <div class="text-sm font-bold text-white leading-snug" x-text="user.name"></div>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <div class="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">
+                                <div class="text-[10px] text-slate-400 font-bold uppercase mb-0.5">ลำดับ (Queue)</div>
+                                <div class="text-xl font-black text-white" x-text="user.id"></div>
+                            </div>
+                            <div class="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">
+                                <div class="text-[10px] text-slate-400 font-bold uppercase mb-0.5">ภาค (Region)</div>
+                                <div class="text-xl font-black text-yellow-400 drop-shadow-md" x-text="selectedSlipData.posRegion || '-'"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-600/30 to-indigo-600/30 rounded-xl p-4 border border-blue-500/30">
+                            <div class="text-[10px] text-blue-200 font-bold uppercase mb-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ตำแหน่งที่เลือก (Selected Position)</div>
+                            <div class="text-base md:text-lg font-black text-white leading-tight" x-text="selectedSlipData.posName || '-'"></div>
+                        </div>
+
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase mb-0.5 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> เวลาที่บันทึก (Timestamp)</div>
+                            <div class="text-[11px] font-mono text-slate-300" x-text="new Date().toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'}) + ' น.'"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="p-4 flex gap-2 no-print"><button @click="window.print()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i> Print</button><button @click="showSlip = false" class="flex-1 bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-200 py-3 rounded-xl font-bold text-sm">Close</button></div>
+            
+            <!-- Controls -->
+            <div class="flex gap-2 no-print">
+                <button @click="window.print()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i> Print</button>
+                <button @click="showSlip = false" class="flex-1 bg-slate-100/10 text-white border border-white/20 hover:bg-slate-100/20 py-3 rounded-xl font-bold text-sm transition">Close</button>
+            </div>
         </div>
     </div>
 
@@ -1126,8 +1163,7 @@
                 wishlist: JSON.parse(localStorage.getItem('wishlist') || '[]'),
                 showSlip: false, selectedSlipData: { posName: '', posRegion: '' },
                 isSubmitting: false,
-                connectionError: false,
-                isPdfExporting: false,
+                searchQuery: '',
                 lineLoading: false,
                 lineProfile: {},
                 lineBindModalOpen: false,
@@ -1874,101 +1910,7 @@
                     } catch(e) { this.lineLoading = false; Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
 
-                async exportPDF() {
-                    this.isPdfExporting = true;
-                    Swal.fire({ title: 'กำลังสร้างเอกสาร PDF...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                    try {
-                        const printContainer = document.createElement('div');
-                        printContainer.style.width = '800px';
-                        printContainer.style.padding = '40px';
-                        printContainer.style.background = '#ffffff';
-                        printContainer.style.position = 'absolute';
-                        printContainer.style.left = '-9999px';
-                        printContainer.style.top = '0';
-                        printContainer.style.fontFamily = "'Sarabun', sans-serif";
-                        printContainer.style.color = '#0f172a';
-
-                        const totalPos = this.positions.length;
-                        const takenPos = this.positions.filter(p => p[3] !== 'AVAILABLE').length;
-
-                        let htmlContent = `
-                            <div style="text-align: center; margin-bottom: 30px;">
-                                <h1 style="font-size: 28px; font-weight: 700; color: #1e40af;">RPCA79 - สรุปผลการเลือกตำแหน่ง</h1>
-                                <p style="color: #64748b; font-size: 14px; margin-top: 5px;">พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</p>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 30px; gap: 15px;">
-                                <div style="flex: 1; text-align: center; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">
-                                    <div style="font-size: 24px; font-weight: bold; color: #334155;">${totalPos}</div>
-                                    <div style="font-size: 12px; color: #64748b; font-weight: 600;">ตำแหน่งทั้งหมด</div>
-                                </div>
-                                <div style="flex: 1; text-align: center; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f0fdf4;">
-                                    <div style="font-size: 24px; font-weight: bold; color: #16a34a;">${takenPos}</div>
-                                    <div style="font-size: 12px; color: #15803d; font-weight: 600;">เลือกแล้ว</div>
-                                </div>
-                                <div style="flex: 1; text-align: center; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fef2f2;">
-                                    <div style="font-size: 24px; font-weight: bold; color: #dc2626;">${totalPos - takenPos}</div>
-                                    <div style="font-size: 12px; color: #b91c1c; font-weight: 600;">คงเหลือ</div>
-                                </div>
-                            </div>
-                            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                                <thead>
-                                    <tr style="background-color: #f1f5f9;">
-                                        <th style="padding: 12px; border-bottom: 2px solid #cbd5e1; text-align: left; font-weight: 700; width: 10%;">ลำดับ</th>
-                                        <th style="padding: 12px; border-bottom: 2px solid #cbd5e1; text-align: left; font-weight: 700; width: 30%;">ชื่อ-สกุล</th>
-                                        <th style="padding: 12px; border-bottom: 2px solid #cbd5e1; text-align: left; font-weight: 700; width: 40%;">ตำแหน่งที่เลือก</th>
-                                        <th style="padding: 12px; border-bottom: 2px solid #cbd5e1; text-align: left; font-weight: 700; width: 20%;">สังกัด</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                        `;
-
-                        this.dashboardList.forEach((u, index) => {
-                            const bg = index % 2 === 0 ? '#ffffff' : '#f8fafc';
-                            htmlContent += `
-                                <tr style="background-color: ${bg};">
-                                    <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">${u.id}</td>
-                                    <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-weight: 700;">${u.name}</td>
-                                    <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #2563eb; font-weight: 600;">${u.pos}</td>
-                                    <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">${u.region}</td>
-                                </tr>
-                            `;
-                        });
-
-                        htmlContent += `</tbody></table>`;
-                        printContainer.innerHTML = htmlContent;
-                        document.body.appendChild(printContainer);
-
-                        const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-                        document.body.removeChild(printContainer);
-                        const imgData = canvas.toDataURL('image/png');
-
-                        const { jsPDF } = window.jspdf;
-                        const doc = new jsPDF('p', 'mm', 'a4');
-                        const pdfWidth = doc.internal.pageSize.getWidth();
-                        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-                        let heightLeft = pdfHeight;
-                        let position = 0;
-
-                        doc.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-                        heightLeft -= doc.internal.pageSize.getHeight();
-
-                        while (heightLeft >= 0) {
-                            position = heightLeft - pdfHeight;
-                            doc.addPage();
-                            doc.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-                            heightLeft -= doc.internal.pageSize.getHeight();
-                        }
-
-                        const dateString = new Date().toLocaleDateString('th-TH').replace(/\//g, '-');
-                        doc.save('RPCA79_Summary_' + dateString + '.pdf');
-                        Swal.close();
-                    } catch(e) { 
-                        Swal.fire('Error', 'ไม่สามารถสร้างเอกสาร PDF ได้: ' + e.message, 'error'); 
-                    } finally { 
-                        this.isPdfExporting = false; 
-                    }
-                },
+                }
             }
         }
 
