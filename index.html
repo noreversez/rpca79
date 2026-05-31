@@ -1186,14 +1186,25 @@
         const db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
         function appData() {
+            function safeParse(key, fallback) {
+                try {
+                    const val = localStorage.getItem(key);
+                    if (val && val !== 'undefined' && val !== 'null') {
+                        const parsed = JSON.parse(val);
+                        if (parsed !== null) return parsed;
+                    }
+                } catch(e) {}
+                return fallback;
+            }
+
             return {
-                darkMode: JSON.parse(localStorage.getItem('darkMode') || 'false'),
+                darkMode: safeParse('darkMode', false),
                 currentPage: 'home', viewMode: 'grid', config: {}, positions: [], users: [], serverLogs: [],
                 search: '', filterRegion: '', filterStatus: 'ALL', dashboardFilterRegion: 'ALL',
                 adminTab: 'users', adminModalOpen: false, adminModalAction: 'CREATE', adminFormData: {id:'', name:'', code:'', region:''},
                 isInitialLoading: true, loginCode: '',
-                user: JSON.parse(localStorage.getItem('user_session') || '{"id": null, "pictureUrl": ""}'),
-                wishlist: JSON.parse(localStorage.getItem('wishlist') || '[]'),
+                user: safeParse('user_session', {id: null, pictureUrl: ""}),
+                wishlist: safeParse('wishlist', []),
                 showSlip: false, selectedSlipData: { posName: '', posRegion: '' },
                 isSubmitting: false,
                 searchQuery: '',
@@ -1868,7 +1879,12 @@
                         await liff.init({ liffId: LIFF_ID });
                         if (liff.isLoggedIn()) {
                             this.lineProfile = await liff.getProfile();
-                            const saved = JSON.parse(localStorage.getItem('user_session') || '{"id":null}');
+                            let saved = {id: null};
+                            try {
+                                const val = localStorage.getItem('user_session');
+                                if (val && val !== 'undefined' && val !== 'null') saved = JSON.parse(val) || {id: null};
+                            } catch(e) {}
+                            
                             if (!saved.id) {
                                 try { 
                                     const { data: res } = await db.from('users').select('*').eq('line_user_id', String(this.lineProfile.userId)).single();
