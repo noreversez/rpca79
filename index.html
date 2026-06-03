@@ -545,36 +545,39 @@
                         <div x-show="!isInitialLoading && viewMode === 'region'" class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                                 <template x-for="group in groupedPositions" :key="group.name">
-                                    <div class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm h-[450px]">
-                                        <div class="py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0 flex items-center justify-center gap-2 relative" :class="getRegionColorClass(group.name)">
+                                    <div x-data="{ expanded: true }" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-200" :class="expanded ? 'h-[450px]' : 'h-auto'">
+                                        <div @click="expanded = !expanded" class="cursor-pointer py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0 flex items-center justify-center gap-2 relative" :class="getRegionColorClass(group.name)">
+                                            <i data-lucide="chevron-down" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
                                             <span x-text="group.name"></span>
-                                            <button @click.stop="fullscreenRegion = group.name; $nextTick(() => lucide.createIcons())" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition" title="ดูเต็มจอ">
+                                            <button @click.stop="fullscreenRegion = group.name; $nextTick(() => lucide.createIcons())" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition z-10" title="ดูเต็มจอ">
                                                 <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-white"></i>
                                             </button>
                                         </div>
-                                        <div class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 py-2 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
-                                            <i data-lucide="info" class="w-3 h-3 inline"></i> ภาพรวม: ว่าง <span class="text-green-600 dark:text-green-400" x-text="getRegionStats(group.name).total - getRegionStats(group.name).taken"></span> / เลือกแล้ว <span class="text-slate-700 dark:text-slate-300" x-text="getRegionStats(group.name).taken"></span>
-                                        </div>
-                                        <div class="flex-1 overflow-y-auto p-2 no-scrollbar bg-slate-50/50 dark:bg-slate-800/50">
-                                            <div class="grid grid-cols-2 gap-2">
-                                                <template x-for="pos in group.items" :key="pos[0]">
-                                                    <div class="cursor-pointer hover:scale-105 p-2 border-2 rounded-lg text-center text-[10px] font-bold flex flex-col items-center justify-center min-h-[55px] transition-all leading-tight shadow-sm relative overflow-hidden"
-                                                         :class="pos[3] === 'AVAILABLE' ? 'border-green-500 bg-white dark:bg-slate-800 text-green-600 dark:text-green-400' : 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'">
-                                                        <button @click.stop="toggleWishlist(pos[0])" class="absolute top-1 right-1 z-10 scale-75" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i data-lucide="star" class="w-4 h-4"></i></button>
-                                                        
-                                                        <span class="px-2 w-full truncate" x-text="pos[1]" :title="pos[1]"></span>
-                                                        
-                                                        <div x-show="pos[3] !== 'AVAILABLE'" class="mt-1 w-full bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 rounded px-1 py-0.5 text-[8.5px] truncate flex items-center justify-center gap-0.5">
-                                                            <i data-lucide="user-check" class="w-2.5 h-2.5 shrink-0"></i> <span class="truncate" x-text="getUserName(pos[4])"></span>
+                                        <div x-show="expanded" class="flex-1 flex flex-col min-h-0">
+                                            <div class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 py-2 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
+                                                <i data-lucide="info" class="w-3 h-3 inline"></i> ภาพรวม: ว่าง <span class="text-green-600 dark:text-green-400" x-text="getRegionStats(group.name).total - getRegionStats(group.name).taken"></span> / เลือกแล้ว <span class="text-slate-700 dark:text-slate-300" x-text="getRegionStats(group.name).taken"></span>
+                                            </div>
+                                            <div class="flex-1 overflow-y-auto p-2 no-scrollbar bg-slate-50/50 dark:bg-slate-800/50">
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <template x-for="pos in group.items" :key="pos[0]">
+                                                        <div class="cursor-pointer hover:scale-105 p-2 border-2 rounded-lg text-center text-[10px] font-bold flex flex-col items-center justify-center min-h-[55px] transition-all leading-tight shadow-sm relative overflow-hidden"
+                                                             :class="pos[3] === 'AVAILABLE' ? 'border-green-500 bg-white dark:bg-slate-800 text-green-600 dark:text-green-400' : 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'">
+                                                            <button @click.stop="toggleWishlist(pos[0])" class="absolute top-1 right-1 z-10 scale-75" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i data-lucide="star" class="w-4 h-4"></i></button>
+                                                            
+                                                            <span class="px-2 w-full truncate" x-text="pos[1]" :title="pos[1]"></span>
+                                                            
+                                                            <div x-show="pos[3] !== 'AVAILABLE'" class="mt-1 w-full bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 rounded px-1 py-0.5 text-[8.5px] truncate flex items-center justify-center gap-0.5">
+                                                                <i data-lucide="user-check" class="w-2.5 h-2.5 shrink-0"></i> <span class="truncate" x-text="getUserName(pos[4])"></span>
+                                                            </div>
+                                                            
+                                                            <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="mt-1.5 w-full px-1">
+                                                                <button @click.stop="confirmSelect(pos)" :disabled="isSubmitting" class="bg-blue-600 text-white w-full rounded py-1 text-[9px] shadow-sm hover:bg-blue-700 transition disabled:opacity-50">
+                                                                    <span x-text="isSubmitting ? '...' : 'เลือก'"></span>
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                        
-                                                        <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="mt-1.5 w-full px-1">
-                                                            <button @click.stop="confirmSelect(pos)" :disabled="isSubmitting" class="bg-blue-600 text-white w-full rounded py-1 text-[9px] shadow-sm hover:bg-blue-700 transition disabled:opacity-50">
-                                                                <span x-text="isSubmitting ? '...' : 'เลือก'"></span>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </template>
+                                                    </template>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -769,31 +772,34 @@
             <div class="flex-1 overflow-y-auto no-scrollbar">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
                     <template x-for="region in uniqueRegions" :key="region">
-                        <div x-show="getRegionStats(region).total > 0 && (dashboardFilterRegion === 'ALL' || dashboardFilterRegion === region)" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm h-[450px]">
-                        <div class="py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0 flex items-center justify-center gap-2 relative" :class="getRegionColorClass(region)">
-                            <span x-text="region"></span>
-                            <button @click.stop="fullscreenRegion = region; $nextTick(() => lucide.createIcons())" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition" title="ดูเต็มจอ">
-                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-white"></i>
-                            </button>
-                        </div>
-                        <div class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 py-2 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
-                            <i data-lucide="info" class="w-3 h-3 inline"></i> เลือกแล้ว <span x-text="getRegionStats(region).taken"></span>/<span x-text="getRegionStats(region).total"></span> ตำแหน่ง
-                        </div>
-                        <div class="flex-1 overflow-y-auto p-2 no-scrollbar bg-slate-50/50 dark:bg-slate-800/50">
-                            <div class="grid grid-cols-2 gap-2">
-                                <template x-for="pos in getPositionsByRegion(region)" :key="pos[0]">
-                                    <div @click="openPosDetail(pos)" class="cursor-pointer hover:scale-105 p-2 border-2 rounded-lg text-center text-[10px] font-bold flex flex-col items-center justify-center min-h-[55px] transition-all leading-tight shadow-sm relative overflow-hidden"
-                                         :class="pos[3] === 'AVAILABLE' ? 'border-green-500 bg-white dark:bg-slate-800 text-green-600 dark:text-green-400' : 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'">
-                                        <span x-text="pos[1]"></span>
-                                        <div x-show="pos[3] !== 'AVAILABLE'" class="mt-1 w-full bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 rounded px-1 py-0.5 text-[8.5px] truncate flex items-center justify-center gap-0.5">
-                                            <i data-lucide="user-check" class="w-2.5 h-2.5 shrink-0"></i> <span class="truncate" x-text="getUserName(pos[4])"></span>
-                                        </div>
+                        <div x-show="getRegionStats(region).total > 0 && (dashboardFilterRegion === 'ALL' || dashboardFilterRegion === region)" x-data="{ expanded: true }" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-200" :class="expanded ? 'h-[450px]' : 'h-auto'">
+                            <div @click="expanded = !expanded" class="cursor-pointer py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0 flex items-center justify-center gap-2 relative" :class="getRegionColorClass(region)">
+                                <i data-lucide="chevron-down" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                                <span x-text="region"></span>
+                                <button @click.stop="fullscreenRegion = region; $nextTick(() => lucide.createIcons())" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition z-10" title="ดูเต็มจอ">
+                                    <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-white"></i>
+                                </button>
+                            </div>
+                            <div x-show="expanded" class="flex-1 flex flex-col min-h-0">
+                                <div class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 py-2 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
+                                    <i data-lucide="info" class="w-3 h-3 inline"></i> เลือกแล้ว <span x-text="getRegionStats(region).taken"></span>/<span x-text="getRegionStats(region).total"></span> ตำแหน่ง
+                                </div>
+                                <div class="flex-1 overflow-y-auto p-2 no-scrollbar bg-slate-50/50 dark:bg-slate-800/50">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <template x-for="pos in getPositionsByRegion(region)" :key="pos[0]">
+                                            <div @click="openPosDetail(pos)" class="cursor-pointer hover:scale-105 p-2 border-2 rounded-lg text-center text-[10px] font-bold flex flex-col items-center justify-center min-h-[55px] transition-all leading-tight shadow-sm relative overflow-hidden"
+                                                 :class="pos[3] === 'AVAILABLE' ? 'border-green-500 bg-white dark:bg-slate-800 text-green-600 dark:text-green-400' : 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'">
+                                                <span x-text="pos[1]"></span>
+                                                <div x-show="pos[3] !== 'AVAILABLE'" class="mt-1 w-full bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 rounded px-1 py-0.5 text-[8.5px] truncate flex items-center justify-center gap-0.5">
+                                                    <i data-lucide="user-check" class="w-2.5 h-2.5 shrink-0"></i> <span class="truncate" x-text="getUserName(pos[4])"></span>
+                                                </div>
+                                            </div>
+                                        </template>
                                     </div>
-                                </template>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </template>
+                    </template>
             </div>
         </div>
     </div>
