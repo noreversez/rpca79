@@ -331,8 +331,17 @@
                             </div>
                             <button @click="logout" class="text-red-500 bg-red-50 dark:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center"><i data-lucide="power" class="w-4 h-4"></i></button>
                         </div>
-                        <div x-show="user.lineLinked" class="mb-3">
-                            <span class="line-linked-badge"><i data-lucide="check-circle-2" class="w-3 h-3"></i> เชื่อมต่อ LINE: <span x-text="user.lineDisplayName || 'สำเร็จ'"></span></span>
+                        <div x-show="user.lineLinked" class="mb-3 flex items-center justify-between bg-green-50 dark:bg-green-900/20 p-3 rounded-xl border border-green-100 dark:border-green-800/50">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="check-circle-2" class="w-5 h-5 text-green-600"></i>
+                                <div class="text-xs">
+                                    <div class="font-bold text-green-700 dark:text-green-400">เชื่อมต่อ LINE แล้ว</div>
+                                    <div class="text-green-600/80 dark:text-green-500 truncate max-w-[120px]" x-text="user.lineDisplayName || 'สำเร็จ'"></div>
+                                </div>
+                            </div>
+                            <button @click="unlinkLine()" class="text-[10px] bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-2 rounded-lg font-bold hover:bg-red-200 dark:hover:bg-red-900 transition flex items-center gap-1 shadow-sm">
+                                <i data-lucide="link-2-off" class="w-3.5 h-3.5"></i> ยกเลิกผูก
+                            </button>
                         </div>
                         <div x-show="isMyTurn" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-2xl text-center shadow-lg animate-pulse cursor-pointer" @click="myTurnSheetOpen = true">ถึงคิวของคุณแล้ว! กดเลือกตำแหน่งได้เลย</div>
                         
@@ -1956,10 +1965,42 @@
                         this.lineLoading = false;
                         if (error || !res) { Swal.fire('ไม่พบรหัส', 'โปรดตรวจสอบรหัสประจำตัว', 'error'); }
                         else if (res.line_user_id && res.line_user_id !== this.lineProfile?.userId) {
-                            Swal.fire('เกิดข้อผิดพลาด', 'รหัสประจำตัวนี้ถูกผูกกับบัญชี LINE อื่นไปแล้ว (ติดต่อแอดมินหากต้องการรีเซ็ต)', 'error');
+                            Swal.fire('ผูกบัญชีไม่ได้', 'รหัสประจำตัวนี้ถูกผูกกับบัญชี LINE อื่นไปแล้ว (หากต้องการเปลี่ยนให้กด "ยกเลิกผูก" จากบัญชีเดิม หรือแจ้งแอดมิน)', 'error');
                         }
                         else { this.lineBindUserName = res.name; this._pendingBindUser = res; this.lineBindStep = 2; }
                     } catch(e) { this.lineLoading = false; }
+                },
+                
+                async unlinkLine() {
+                    const result = await Swal.fire({
+                        title: 'ยกเลิกผูกบัญชี LINE?',
+                        text: "หากยกเลิก คุณจะต้องผูกบัญชีใหม่เพื่อเข้าสู่ระบบอัตโนมัติผ่าน LINE อีกครั้ง",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#94a3b8',
+                        confirmButtonText: 'ใช่, ยกเลิกผูก',
+                        cancelButtonText: 'ปิดหน้าต่าง'
+                    });
+                    
+                    if (result.isConfirmed) {
+                        this.lineLoading = true;
+                        try {
+                            const { error } = await db.from('users').update({ line_user_id: null, line_display_name: null }).eq('id', parseInt(this.user.id));
+                            if (!error) {
+                                this.user.lineLinked = false;
+                                this.user.lineUserId = null;
+                                this.user.lineDisplayName = null;
+                                localStorage.setItem('user_session', JSON.stringify(this.user));
+                                Swal.fire('สำเร็จ', 'ยกเลิกผูกบัญชี LINE เรียบร้อยแล้ว', 'success');
+                            } else {
+                                Swal.fire('Error', 'ไม่สามารถยกเลิกได้ กรุณาลองใหม่', 'error');
+                            }
+                        } catch(e) {
+                            Swal.fire('Error', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+                        }
+                        this.lineLoading = false;
+                    }
                 },
                 
                 async confirmLineBind() {
