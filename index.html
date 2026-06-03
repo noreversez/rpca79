@@ -1117,7 +1117,20 @@
                     </button>
                 </div>
                 <div x-show="lineBindStep === 2" class="space-y-4 text-center">
-                    <div class="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center mx-auto"><i data-lucide="link" class="w-8 h-8 text-green-600 dark:text-green-400"></i></div>
+                    <div class="flex items-center justify-center gap-3 mx-auto mb-2">
+                        <div class="w-16 h-16 rounded-full overflow-hidden shadow-md border-2 border-slate-200 dark:border-slate-700 bg-white">
+                            <img src="https://img2.pic.in.th/S__30990508.jpg" alt="RPCA Logo" class="w-full h-full object-cover">
+                        </div>
+                        <div class="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-slate-400 z-10 shadow-sm"><i data-lucide="link" class="w-4 h-4"></i></div>
+                        <div class="w-16 h-16 rounded-full overflow-hidden shadow-md border-2 border-green-500 bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
+                            <template x-if="lineProfile && lineProfile.pictureUrl">
+                                <img :src="lineProfile.pictureUrl" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!(lineProfile && lineProfile.pictureUrl)">
+                                <svg viewBox="0 0 24 24" fill="#06C755" class="w-8 h-8"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+                            </template>
+                        </div>
+                    </div>
                     <div><div class="font-bold text-slate-800 dark:text-white text-lg" x-text="lineBindUserName"></div><div class="text-slate-400 text-sm">พร้อมเชื่อมต่อกับบัญชี LINE</div></div>
                     <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-left"><div class="flex items-center gap-2 text-sm"><svg viewBox="0 0 24 24" fill="#06C755" class="w-5 h-5 shrink-0"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><span class="font-bold text-green-700 dark:text-green-400" x-text="lineProfile && lineProfile.displayName ? lineProfile.displayName : 'LINE User'"></span></div></div>
                     <button @click="confirmLineBind()" :disabled="lineLoading" class="w-full line-btn">
@@ -1891,11 +1904,26 @@
                                     if (res) { 
                                         this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true, lineDisplayName: res.line_display_name || this.lineProfile.displayName, pictureUrl: this.lineProfile.pictureUrl }; 
                                         localStorage.setItem('user_session', JSON.stringify(this.user)); this.switchPage('home'); 
-                                    } 
-                                } catch(e) {}
+                                    } else {
+                                        if (this.user && this.user.role !== 'ADMIN') this.openLineBindModal();
+                                    }
+                                } catch(e) {
+                                    if (this.user && this.user.role !== 'ADMIN') this.openLineBindModal();
+                                }
+                            } else if (!this.user.lineLinked && this.user && this.user.role !== 'ADMIN') {
+                                this.openLineBindModal();
+                            }
+                        } else {
+                            if (this.user && this.user.role !== 'ADMIN' && (!this.user.id || !this.user.lineLinked)) {
+                                this.openLineBindModal();
                             }
                         }
-                    } catch(e) { console.warn('LIFF init skipped:', e.message); }
+                    } catch(e) { 
+                        console.warn('LIFF init skipped:', e.message); 
+                        if (this.user && this.user.role !== 'ADMIN' && (!this.user.id || !this.user.lineLinked)) {
+                            this.openLineBindModal();
+                        }
+                    }
                 },
                 
                 async loginWithLine() {
