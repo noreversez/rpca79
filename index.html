@@ -451,7 +451,7 @@
                             <input x-model="search" type="text" placeholder="ค้นหาหน่วยงาน..." class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-700 dark:text-white border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 outline-none text-sm font-medium">
                             <button x-show="search.length > 0" @click="search = ''" class="absolute right-3.5 text-slate-400 hover:text-slate-600"><i data-lucide="x-circle" class="w-4 h-4"></i></button>
                         </div>
-                        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                        <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-2">
                             <div class="bg-slate-100 dark:bg-slate-700 p-1 rounded-xl flex shrink-0">
                                 <button @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition flex items-center justify-center" title="มุมมองการ์ด"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
                                 <button @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-slate-400'" class="w-9 h-full rounded-lg transition flex items-center justify-center" title="มุมมองรายการ"><i data-lucide="list" class="w-4 h-4"></i></button>
@@ -1327,7 +1327,7 @@
 
             return {
                 darkMode: safeParse('darkMode', true),
-                currentPage: 'home', viewMode: 'grid', config: {}, positions: [], users: [], serverLogs: [],
+                currentPage: 'home', viewMode: 'region', config: {}, positions: [], users: [], serverLogs: [],
                 search: '', filterRegion: '', filterStatus: 'ALL', dashboardFilterRegion: 'ALL',
                 adminTab: 'users', adminModalOpen: false, adminModalAction: 'CREATE', adminFormData: {id:'', name:'', code:'', region:''},
                 isInitialLoading: true, loginCode: '',
