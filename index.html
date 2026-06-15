@@ -2015,13 +2015,28 @@
                             pictureUrl: 'https://img2.pic.in.th/S__30990508.jpg'
                         };
                         
-                        this.adminAssignModalOpen = false;
-                        this.adminAssignUserId = '';
-                        this.adminAssignPosId = '';
-                        Swal.fire('สำเร็จ', 'บันทึกการเลือกตำแหน่งแทนเรียบร้อยแล้ว', 'success');
+                        Swal.fire({
+                            title: 'สำเร็จ', 
+                            text: 'บันทึกการเลือกตำแหน่งแทนเรียบร้อยแล้ว', 
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
                         
                         // Increment current queue locally to reflect what admin_assign_position did
                         this.config = { ...this.config, current_queue: parseInt(this.config.current_queue) + 1 };
+                        
+                        // Auto-select next user in queue to allow continuous assignment
+                        const nextUser = this.users.find(u => String(u[0]) === String(this.config.current_queue) && u[3] === 'WAITING');
+                        if (nextUser) {
+                            this.adminAssignUserId = nextUser[0];
+                            this.adminAssignSearch = 'คิวที่ ' + nextUser[0] + ' : ' + nextUser[1];
+                        } else {
+                            this.adminAssignUserId = '';
+                            this.adminAssignSearch = '';
+                        }
+                        this.adminAssignPosId = '';
+                        this.adminAssignPosSearch = '';
                         
                         if (selectedPos) {
                             this.sendGroupNotification(selectedPos, targetUserObj);
