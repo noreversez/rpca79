@@ -2028,7 +2028,8 @@
                         else { 
                             this.user = { role: 'USER', id: userData.id, name: userData.name, status: userData.status, lineLinked: !!userData.line_user_id, lineDisplayName: userData.line_display_name || null, pictureUrl: null }; 
                             localStorage.setItem('user_session', JSON.stringify(this.user)); 
-                            this.switchPage('home'); 
+                            this.switchPage('home');
+                            this.fetchData();
                         }
                     } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 },
