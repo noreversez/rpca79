@@ -353,6 +353,12 @@
                         </div>
                         
                         <div x-show="user.status === 'SELECTED'" class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-2xl text-center"><p class="text-blue-600 dark:text-blue-400 font-bold text-sm">✅ เลือกตำแหน่งแล้ว</p></div>
+                        
+                        <div x-show="user.role !== 'ADMIN'" class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                            <button @click="elevateToAdmin" class="w-full text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition flex items-center justify-center gap-1">
+                                <i data-lucide="key" class="w-3 h-3"></i> เข้าสู่ระบบแอดมินด้วย LINE นี้
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1690,7 +1696,7 @@
                                      this.users = [...this.users];
                                  }
                                  
-                                 if (this.user && this.user.role === 'USER' && String(this.user.id) === String(updatedUser.id)) {
+                                 if (this.user && String(this.user.id) === String(updatedUser.id)) {
                                      this.user = {
                                          ...this.user,
                                          status: updatedUser.status,
@@ -1754,7 +1760,7 @@
                         this.isInitialLoading = false;
                         this.connectionError = false;
                         
-                        if(this.user.id && this.user.role === 'USER') {
+                        if(this.user.id && String(this.user.id) !== 'ADMIN') {
                             const u = this.users.find(x => String(x[0]).trim() == String(this.user.id).trim());
                             if(u) {
                                 const selectedPos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim());
@@ -1786,6 +1792,30 @@
                 },
 
                 switchPage(page) { this.currentPage = page; window.scrollTo({top:0, behavior:'smooth'}); },
+
+                async elevateToAdmin() {
+                    const { value: pin } = await Swal.fire({
+                        title: 'กรุณาใส่รหัสผ่านผู้ดูแลระบบ',
+                        input: 'password',
+                        inputPlaceholder: 'Admin PIN',
+                        showCancelButton: true,
+                        confirmButtonText: 'ยืนยัน',
+                        cancelButtonText: 'ยกเลิก',
+                        confirmButtonColor: '#2563eb'
+                    });
+                    
+                    if (pin) {
+                        const { data: configData } = await db.from('config').select('*').single();
+                        if (String(pin).trim() === String(configData.admin_pass).trim()) {
+                            this.user.role = 'ADMIN';
+                            localStorage.setItem('user_session', JSON.stringify(this.user));
+                            this.showToast('อัปเกรดสิทธิ์เป็น Admin เรียบร้อยแล้ว', 'success');
+                            this.switchPage('admin_panel');
+                        } else {
+                            Swal.fire('ผิดพลาด', 'รหัสผ่านแอดมินไม่ถูกต้อง', 'error');
+                        }
+                    }
+                },
 
                 async login() {
                     if(!this.loginCode) return;
