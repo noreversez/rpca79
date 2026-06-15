@@ -846,7 +846,7 @@
             </div>
 
         <!-- ===== PREDICT PANEL BUTTON (compact) ===== -->
-        <div class="mb-3 shrink-0 flex justify-end">
+        <div class="mb-3 shrink-0 flex justify-end" style="display: none;">
             <button @click="predictPanelOpen = !predictPanelOpen; if(predictPanelOpen && user.id && user.role === 'USER' && !predictQueueNum) predictQueueNum = user.id" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs shadow-md shadow-violet-500/20 transition-all duration-200">
                 <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                 <span>วิเคราะห์โอกาส</span>
