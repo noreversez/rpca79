@@ -140,6 +140,9 @@
         .toast.toast-error { border-left-color: #ef4444; }
         .toast.toast-warning { border-left-color: #f59e0b; }
         .toast.toast-exit { animation: toastSlideOut 0.3s ease forwards; }
+        .toast.toast-warning { border-left-color: #f59e0b; background: #fffbeb; color: #92400e; font-size: 13.5px; box-shadow: 0 8px 32px rgba(245,158,11,0.25); }
+        .dark .toast.toast-warning { background: #1c1400; color: #fcd34d; }
+        .toast.toast-warning::before { content: ''; position: absolute; inset: 0; border-radius: 14px; border: 1px solid #f59e0b40; pointer-events: none; }
         @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
 
@@ -243,7 +246,19 @@
     </style>
 </head>
 
-<body class="text-slate-800 dark:text-slate-100 bg-pattern min-h-screen transition-colors duration-300" x-init="initApp()" x-cloak>
+<body class="text-slate-800 dark:text-slate-100 bg-pattern min-h-screen transition-colors duration-300" 
+      x-init="initApp()" 
+      x-cloak
+      @touchstart="touchStartY = $event.touches[0].clientY"
+      @touchmove="if (window.scrollY <= 0 && $event.touches[0].clientY > touchStartY) { isPulling = true; pullDistance = Math.min($event.touches[0].clientY - touchStartY, 120); }"
+      @touchend="if (isPulling && pullDistance > 70) { fetchData(); }; isPulling = false; pullDistance = 0;">
+      
+    <div x-show="isPulling" :style="`height: ${pullDistance}px; opacity: ${pullDistance/120}`" class="fixed top-0 left-0 w-full flex flex-col items-center justify-end pb-2 overflow-hidden transition-all duration-75 z-[60] pointer-events-none bg-gradient-to-b from-blue-50/50 to-transparent dark:from-slate-800/50">
+        <div class="bg-white dark:bg-slate-800 rounded-full shadow-md px-4 py-1.5 flex items-center gap-2" :class="pullDistance > 70 ? 'scale-110' : ''" style="transition: transform 0.2s">
+            <i data-lucide="refresh-cw" class="w-4 h-4 text-blue-500" :class="pullDistance > 70 ? 'animate-spin' : ''"></i>
+            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400" x-text="pullDistance > 70 ? 'ปล่อยเพื่ออัปเดต' : 'ดึงลงเพื่ออัปเดต'"></span>
+        </div>
+    </div>
 
     <header class="fixed top-0 left-0 right-0 z-50 glass-header shadow-sm transition-all duration-300 border-b border-slate-200 dark:border-slate-700">
         <div class="container mx-auto px-4 h-16 flex justify-between items-center gap-2">
@@ -357,7 +372,33 @@
                             <p class="text-red-600 dark:text-red-400 font-bold text-xs flex items-center justify-center gap-1"><i data-lucide="lock" class="w-3.5 h-3.5"></i> ถึงคิวแล้ว แต่ระบบถูกพักชั่วคราว</p>
                         </div>
                         
-                        <div x-show="user.status === 'SELECTED'" class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-2xl text-center"><p class="text-blue-600 dark:text-blue-400 font-bold text-sm">✅ เลือกตำแหน่งแล้ว</p></div>
+                        <div x-show="user.status === 'SELECTED'" class="mb-6 animate-enter">
+                            <div class="story-card-bg rounded-3xl p-1 shadow-2xl relative overflow-hidden text-left border border-slate-700 mt-2">
+                                <div class="absolute -top-10 -right-10 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl pointer-events-none"></div>
+                                <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500 opacity-20 rounded-full blur-2xl pointer-events-none"></div>
+                                <div class="bg-slate-900/60 backdrop-blur-md rounded-[22px] p-6 text-white relative z-10 border border-white/10">
+                                    <div class="flex justify-between items-start mb-5">
+                                        <div>
+                                            <div class="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1 flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> OFFICIAL SELECTION</div>
+                                            <div class="text-xl font-black leading-tight" x-text="user.name"></div>
+                                            <div class="text-xs text-slate-300 mt-1">คิวที่ <span class="font-bold text-white text-sm" x-text="user.id"></span></div>
+                                        </div>
+                                        <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center shrink-0 border border-white/20">
+                                            <i data-lucide="award" class="w-6 h-6 text-yellow-400"></i>
+                                        </div>
+                                    </div>
+                                    <div class="bg-black/40 rounded-xl p-4 border border-white/5 mb-4">
+                                        <div class="text-[10px] text-slate-400 uppercase tracking-widest mb-1">ตำแหน่งที่ได้รับ</div>
+                                        <div class="font-bold text-lg text-blue-300 leading-tight mb-2" x-text="positions.find(p => String(p[4]) === String(user.id)) ? positions.find(p => String(p[4]) === String(user.id))[1] : '-'"></div>
+                                        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300 bg-white/10 w-fit px-2 py-1 rounded">
+                                            <i data-lucide="map-pin" class="w-3 h-3"></i> 
+                                            <span x-text="positions.find(p => String(p[4]) === String(user.id)) ? positions.find(p => String(p[4]) === String(user.id))[2] : '-'"></span>
+                                        </div>
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 text-center">บันทึกข้อมูลเรียบร้อยแล้ว กรุณารอประกาศอย่างเป็นทางการ</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -515,9 +556,20 @@
                                         </template>
                                     </div>
                                 </div>
+                                </div>
                             </template>
                         </div>
                         
+                        <!-- Empty State Grid -->
+                        <div x-show="!isInitialLoading && viewMode === 'grid' && groupedPositions.length === 0" class="flex flex-col items-center justify-center py-20 text-center">
+                            <div class="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-4">
+                                <i data-lucide="search-x" class="w-10 h-10 text-slate-300 dark:text-slate-500"></i>
+                            </div>
+                            <p class="font-bold text-slate-500 dark:text-slate-400 text-sm">ไม่พบตำแหน่งที่ตรงกับเงื่อนไขที่เลือก</p>
+                            <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">ลองเปลี่ยนคำค้นหาหรือล้างตัวกรองดูครับ</p>
+                            <button @click="filterRegion=''; filterStatus='ALL'; search='';" class="mt-4 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-4 py-2 rounded-xl transition hover:bg-blue-100">ล้างตัวกรองทั้งหมด</button>
+                        </div>
+
                         <div x-show="!isInitialLoading && viewMode === 'list'" class="space-y-3">
                             <template x-for="group in groupedPositions" :key="group.name">
                                 <div class="space-y-1.5">
@@ -545,6 +597,15 @@
                                     </template>
                                 </div>
                             </template>
+                        </div>
+
+                        <!-- Empty State List -->
+                        <div x-show="!isInitialLoading && viewMode === 'list' && groupedPositions.length === 0" class="flex flex-col items-center justify-center py-20 text-center">
+                            <div class="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-4">
+                                <i data-lucide="search-x" class="w-10 h-10 text-slate-300 dark:text-slate-500"></i>
+                            </div>
+                            <p class="font-bold text-slate-500 dark:text-slate-400 text-sm">ไม่พบตำแหน่งที่ตรงกับเงื่อนไขที่เลือก</p>
+                            <button @click="filterRegion=''; filterStatus='ALL'; search='';" class="mt-3 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-4 py-2 rounded-xl">ล้างตัวกรอง</button>
                         </div>
                         
                         <div x-show="!isInitialLoading && viewMode === 'region'" class="space-y-4">
@@ -619,7 +680,8 @@
                     <template x-for="(u, index) in prev3Users" :key="u[0]">
                         <div class="flex flex-col items-center gap-1 md:gap-2 opacity-50 scale-75 md:scale-90 transition-transform duration-300"
                              :class="(index === 0 && prev3Users.length === 3) ? 'hidden sm:flex' : ''">
-                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-slate-200 dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center font-bold text-slate-500 dark:text-slate-400 shadow-sm" x-text="u[0]"></div>
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl border-2 flex items-center justify-center font-bold shadow-sm transition-all"
+                                 :class="user.id == u[0] ? 'bg-yellow-100 border-yellow-400 text-yellow-700 ring-4 ring-yellow-400/30 scale-110 z-10' : 'bg-slate-200 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400'" x-text="u[0]"></div>
                             <div class="text-[9px] md:text-[10px] font-bold text-slate-400 whitespace-nowrap max-w-[60px] md:max-w-[80px] truncate" x-text="u[1]"></div>
                         </div>
                     </template>
@@ -640,7 +702,8 @@
                     <template x-for="(u, index) in next3Users" :key="u[0]">
                         <div class="flex flex-col items-center gap-1 md:gap-2 opacity-60 scale-75 md:scale-90 transition-transform duration-300"
                              :class="index === 2 ? 'hidden sm:flex' : ''">
-                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white dark:bg-slate-600 border-2 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 flex items-center justify-center font-bold shadow-sm" x-text="u[0]"></div>
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl border-2 flex items-center justify-center font-bold shadow-sm transition-all"
+                                 :class="user.id == u[0] ? 'bg-yellow-100 border-yellow-400 text-yellow-700 ring-4 ring-yellow-400/30 scale-110 z-10' : 'bg-white dark:bg-slate-600 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400'" x-text="u[0]"></div>
                             <div class="text-[9px] md:text-[10px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap max-w-[60px] md:max-w-[80px] truncate" x-text="u[1]"></div>
                         </div>
                     </template>
@@ -676,63 +739,37 @@
             </div>
         </div>
         <!-- ===== CHARTS SECTION ===== -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 shrink-0 no-print">
-
-            <!-- Donut Chart Card -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center gap-3">
-                <div class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider flex items-center gap-1.5">
-                    <i data-lucide="activity" class="w-3.5 h-3.5 text-blue-500"></i> ภาพรวมทั้งหมด
+        <!-- ===== HERO STATS ===== -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 shrink-0 no-print">
+            <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden card-interaction">
+                <i data-lucide="users" class="absolute -right-4 -bottom-4 w-24 h-24 text-white opacity-10"></i>
+                <div class="text-xs font-bold opacity-80 uppercase tracking-widest mb-1">นักเรียนทั้งหมด</div>
+                <div class="text-3xl font-black" x-text="users.filter(u => u[2] === 'USER').length"></div>
+            </div>
+            <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden card-interaction">
+                <i data-lucide="check-circle" class="absolute -right-4 -bottom-4 w-24 h-24 text-white opacity-10"></i>
+                <div class="text-xs font-bold opacity-80 uppercase tracking-widest mb-1">เลือกแล้ว</div>
+                <div class="text-3xl font-black" x-text="positions.filter(p=>p[3]!=='AVAILABLE').length"></div>
+            </div>
+            <div class="bg-gradient-to-br from-orange-500 to-orange-700 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden card-interaction">
+                <i data-lucide="pie-chart" class="absolute -right-4 -bottom-4 w-24 h-24 text-white opacity-10"></i>
+                <div class="text-xs font-bold opacity-80 uppercase tracking-widest mb-1">ตำแหน่งว่าง</div>
+                <div class="text-3xl font-black" x-text="positions.filter(p=>p[3]==='AVAILABLE').length"></div>
+            </div>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-lg relative overflow-hidden flex flex-col justify-center card-interaction">
+                <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">ความคืบหน้า</div>
+                <div class="flex items-end gap-2">
+                    <div class="text-3xl font-black text-blue-600 dark:text-blue-400" x-text="Math.round(progressPercent) + '%'"></div>
                 </div>
-                <div class="relative w-40 h-40">
-                    <svg width="160" height="160" viewBox="0 0 160 160">
-                        <!-- Track circle -->
-                        <circle cx="80" cy="80" r="65" fill="none"
-                            :stroke="darkMode ? '#1e293b' : '#f1f5f9'"
-                            stroke-width="16"/>
-                        <!-- Progress circle -->
-                        <circle cx="80" cy="80" r="65" fill="none"
-                            stroke="#2563eb"
-                            stroke-width="16"
-                            stroke-linecap="round"
-                            :stroke-dasharray="408.41"
-                            :stroke-dashoffset="408.41 * (1 - progressPercent / 100)"
-                            transform="rotate(-90 80 80)"
-                            style="transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)"/>
-                        <!-- Remaining arc (green) -->
-                        <circle cx="80" cy="80" r="65" fill="none"
-                            :stroke="progressPercent < 100 ? (darkMode ? '#064e3b' : '#d1fae5') : 'transparent'"
-                            stroke-width="16"
-                            stroke-linecap="round"
-                            :stroke-dasharray="408.41"
-                            :stroke-dashoffset="408.41 * (0 - (1 - progressPercent / 100))"
-                            transform="rotate(-90 80 80)"
-                            style="transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)"/>
-                    </svg>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <div class="text-3xl font-black text-slate-800 dark:text-white leading-none" x-text="Math.round(progressPercent) + '%'"></div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">เลือกแล้ว</div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="text-center">
-                        <div class="text-xl font-black text-blue-600 dark:text-blue-400" x-text="positions.filter(p=>p[3]!=='AVAILABLE').length"></div>
-                        <div class="text-[9px] font-bold text-slate-400 uppercase">เลือกแล้ว</div>
-                    </div>
-                    <div class="w-px h-8 bg-slate-200 dark:bg-slate-700"></div>
-                    <div class="text-center">
-                        <div class="text-xl font-black text-emerald-500" x-text="positions.filter(p=>p[3]==='AVAILABLE').length"></div>
-                        <div class="text-[9px] font-bold text-slate-400 uppercase">คงเหลือ</div>
-                    </div>
-                    <div class="w-px h-8 bg-slate-200 dark:bg-slate-700"></div>
-                    <div class="text-center">
-                        <div class="text-xl font-black text-slate-700 dark:text-slate-200" x-text="positions.length"></div>
-                        <div class="text-[9px] font-bold text-slate-400 uppercase">ทั้งหมด</div>
-                    </div>
+                <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full mt-2 overflow-hidden">
+                    <div class="bg-blue-600 h-full transition-all duration-1000" :style="'width: ' + progressPercent + '%'"></div>
                 </div>
             </div>
+        </div>
 
+        <div class="grid grid-cols-1 gap-4 mb-4 shrink-0 no-print">
             <!-- Regional Horizontal Bar Chart -->
-            <div class="md:col-span-2 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
                 <div class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider flex items-center gap-1.5 mb-4">
                     <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-blue-500"></i> สรุปรายภาค
                 </div>
@@ -777,7 +814,7 @@
             <div class="flex-1 overflow-y-auto no-scrollbar">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
                     <template x-for="region in uniqueRegions" :key="region">
-                        <div x-show="getRegionStats(region).total > 0 && (dashboardFilterRegion === 'ALL' || dashboardFilterRegion === region)" x-data="{ expanded: true }" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-200" :class="expanded ? 'h-[450px]' : 'h-auto'">
+                        <div x-show="x-data='{ expanded: true }'" x-data="{ expanded: true }" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-200" :class="expanded ? '' : 'h-auto'">
                             <div @click="expanded = !expanded" class="cursor-pointer py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0 flex items-center justify-center gap-2 relative" :class="getRegionColorClass(region)">
                                 <i data-lucide="chevron-down" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
                                 <span x-text="region"></span>
@@ -924,21 +961,35 @@
             <div class="space-y-4">
                 <div>
                     <label class="text-xs font-bold text-slate-500 dark:text-slate-400">ผู้ใช้งาน (เฉพาะคนที่ยังไม่ได้เลือก)</label>
-                    <select x-model="adminAssignUserId" class="w-full mt-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-3 text-sm dark:text-white font-bold outline-none focus:ring-2 focus:ring-purple-500">
-                        <option value="">-- เลือกผู้ใช้ --</option>
-                        <template x-for="u in users.filter(x => x[3] === 'WAITING')" :key="u[0]">
-                            <option :value="u[0]" x-text="'ลำดับ ' + u[0] + ' : ' + u[1]"></option>
+                    <div class="relative mt-1">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input x-model="adminAssignSearch" type="text" placeholder="ค้นหาชื่อหรือลำดับ..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div class="mt-1 max-h-44 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-600 divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                        <template x-for="u in users.filter(x => x[3] === 'WAITING' && (adminAssignSearch === '' || (x[0]+' '+x[1]).toLowerCase().includes(adminAssignSearch.toLowerCase())))" :key="u[0]">
+                            <button @click="adminAssignUserId = u[0]; adminAssignSearch = 'ลำดับ ' + u[0] + ' : ' + u[1]" class="w-full text-left px-3 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900/30 transition flex items-center gap-2" :class="adminAssignUserId == u[0] ? 'bg-purple-50 dark:bg-purple-900/30 font-bold text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-200'">
+                                <span class="w-7 h-7 shrink-0 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-xs" x-text="u[0]"></span>
+                                <span class="truncate" x-text="u[1]"></span>
+                            </button>
                         </template>
-                    </select>
+                        <div x-show="users.filter(x => x[3] === 'WAITING' && (adminAssignSearch === '' || (x[0]+' '+x[1]).toLowerCase().includes(adminAssignSearch.toLowerCase()))).length === 0" class="py-6 text-center text-slate-400 text-xs">ไม่พบผู้ใช้</div>
+                    </div>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-500 dark:text-slate-400">ตำแหน่ง (เฉพาะที่ยังว่าง)</label>
-                    <select x-model="adminAssignPosId" class="w-full mt-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-3 text-sm dark:text-white font-bold outline-none focus:ring-2 focus:ring-purple-500">
-                        <option value="">-- เลือกตำแหน่ง --</option>
-                        <template x-for="p in positions.filter(x => x[3] === 'AVAILABLE').sort((a,b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]))" :key="p[0]">
-                            <option :value="p[0]" x-text="p[1] + ' (' + p[2] + ')'"></option>
+                    <div class="relative mt-1">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input x-model="adminAssignPosSearch" type="text" placeholder="ค้นหาชื่อตำแหน่งหรือภาค..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div class="mt-1 max-h-44 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-600 divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                        <template x-for="p in positions.filter(x => x[3] === 'AVAILABLE' && (adminAssignPosSearch === '' || (x[1]+' '+x[2]).toLowerCase().includes(adminAssignPosSearch.toLowerCase()))).sort((a,b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]))" :key="p[0]">
+                            <button @click="adminAssignPosId = p[0]; adminAssignPosSearch = p[1] + ' (' + p[2] + ')'" class="w-full text-left px-3 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900/30 transition flex items-center gap-2" :class="adminAssignPosId == p[0] ? 'bg-purple-50 dark:bg-purple-900/30 font-bold text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-200'">
+                                <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded shrink-0" x-text="p[2]"></span>
+                                <span class="truncate" x-text="p[1]"></span>
+                            </button>
                         </template>
-                    </select>
+                        <div x-show="positions.filter(x => x[3] === 'AVAILABLE' && (adminAssignPosSearch === '' || (x[1]+' '+x[2]).toLowerCase().includes(adminAssignPosSearch.toLowerCase()))).length === 0" class="py-6 text-center text-slate-400 text-xs">ไม่พบตำแหน่ง</div>
+                    </div>
                 </div>
             </div>
             <div class="flex gap-2 mt-6">
@@ -1280,6 +1331,7 @@
                 search: '', filterRegion: '', filterStatus: 'ALL', dashboardFilterRegion: 'ALL',
                 adminTab: 'users', adminModalOpen: false, adminModalAction: 'CREATE', adminFormData: {id:'', name:'', code:'', region:''},
                 isInitialLoading: true, loginCode: '',
+                touchStartY: 0, isPulling: false, pullDistance: 0,
                 user: safeParse('user_session', {id: null, pictureUrl: ""}),
                 wishlist: safeParse('wishlist', []),
                 showSlip: false, selectedSlipData: { posName: '', posRegion: '' },
@@ -1301,6 +1353,8 @@
                 adminAssignModalOpen: false,
                 adminAssignUserId: '',
                 adminAssignPosId: '',
+                adminAssignSearch: '',
+                adminAssignPosSearch: '',
                 posDetailModalOpen: false,
                 selectedDetailPos: null,
                 myTurnSheetOpen: false,
