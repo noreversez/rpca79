@@ -1461,19 +1461,20 @@
                     else window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
 
-                async sendGroupNotification(pos) {
+                async sendGroupNotification(pos, targetUser = null) {
                     if (!window.liff || !liff.isLoggedIn() || liff.getContext().type === "none") {
                         console.log("ไม่ได้เปิด LIFF ผ่านห้องแชท ข้ามการส่งข้อความ");
                         return;
                     }
 
+                    const actingUser = targetUser || this.user;
                     const currentQ = parseInt(this.config.current_queue);
                     const nextU = this.users.find(u => parseInt(u[0]) === currentQ);
 
                     const nextName = nextU ? nextU[1] : "ไม่ระบุชื่อ";
                     const nextLineId = nextU ? nextU[6] : null; 
 
-                    const userPicUrl = this.user.pictureUrl || "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+                    const userPicUrl = actingUser.pictureUrl || "https://img2.pic.in.th/S__30990508.jpg";
                     const format = String(this.config.flex_format || localStorage.getItem('flex_format') || '1');
                     
                     let messages = [];
@@ -1482,7 +1483,7 @@
                         // รูปแบบ 1: แสดงสถานที่ที่เลือก + แยกข้อมูลคิวถัดไปใน Flex กล่องที่ 2
                         messages.push({
                             type: "flex",
-                            altText: `อัปเดต: คิวที่ ${this.user.id} เลือกตำแหน่งแล้ว`,
+                            altText: `อัปเดต: คิวที่ ${actingUser.id} เลือกตำแหน่งแล้ว`,
                             contents: {
                                 type: "bubble",
                                 size: "mega",
@@ -1504,8 +1505,8 @@
                                                 {
                                                     type: "box", layout: "vertical",
                                                     contents: [
-                                                        { type: "text", text: `ลำดับคิวที่ ${this.user.id}`, size: "xs", color: "#42659c", weight: "bold" },
-                                                        { type: "text", text: `${this.user.name}`, size: "sm", weight: "bold", wrap: true },
+                                                        { type: "text", text: `ลำดับคิวที่ ${actingUser.id}`, size: "xs", color: "#42659c", weight: "bold" },
+                                                        { type: "text", text: `${actingUser.name}`, size: "sm", weight: "bold", wrap: true },
                                                         { type: "text", text: "RPCA 79 - SELECTION", size: "xxs", color: "#aaaaaa", margin: "none" }
                                                     ]
                                                 }
@@ -1550,8 +1551,8 @@
                                             margin: "sm",
                                             contents: [
                                                 { type: "text", text: "✅ เสร็จสิ้นการเลือกตำแหน่ง", size: "sm", color: "#10b981", weight: "bold" },
-                                                { type: "text", text: `คิวที่ ${this.user.id}`, size: "xl", weight: "bold", margin: "sm", color: "#1e293b" },
-                                                { type: "text", text: `${this.user.name}`, size: "xs", color: "#64748b" }
+                                                { type: "text", text: `คิวที่ ${actingUser.id}`, size: "xl", weight: "bold", margin: "sm", color: "#1e293b" },
+                                                { type: "text", text: `${actingUser.name}`, size: "xs", color: "#64748b" }
                                             ]
                                         },
                                         { type: "separator", margin: "md" },
@@ -1920,10 +1921,26 @@
                         });
                         if (error) throw error;
                         
+                        const selectedPos = this.positions.find(p => String(p[0]) === String(this.adminAssignPosId));
+                        const targetUserArray = this.users.find(usr => String(usr[0]) === String(this.adminAssignUserId));
+                        const targetUserObj = {
+                            id: this.adminAssignUserId,
+                            name: targetUserArray ? targetUserArray[1] : 'นักเรียนนายร้อยตำรวจ',
+                            pictureUrl: 'https://img2.pic.in.th/S__30990508.jpg'
+                        };
+                        
                         this.adminAssignModalOpen = false;
                         this.adminAssignUserId = '';
                         this.adminAssignPosId = '';
                         Swal.fire('สำเร็จ', 'บันทึกการเลือกตำแหน่งแทนเรียบร้อยแล้ว', 'success');
+                        
+                        // Increment current queue locally to reflect what admin_assign_position did
+                        this.config = { ...this.config, current_queue: parseInt(this.config.current_queue) + 1 };
+                        
+                        if (selectedPos) {
+                            this.sendGroupNotification(selectedPos, targetUserObj);
+                        }
+                        
                         this.fetchData();
                     } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + e.message, 'error'); }
                 },
