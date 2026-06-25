@@ -339,80 +339,6 @@
 
     <div class="h-20"></div>
 
-    <!-- ==================== ONBOARDING ==================== -->
-    <div x-show="currentPage === 'onboarding'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
-        <div class="max-w-md mx-auto">
-            <div class="text-center mb-6">
-                <div class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
-                    <i data-lucide="clipboard-list" class="w-10 h-10 text-blue-600 dark:text-blue-400"></i>
-                </div>
-                <h2 class="text-2xl font-black text-slate-800 dark:text-white">กรอกข้อมูลทำเนียบรุ่น</h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">กรุณากรอกข้อมูลเพื่อใช้ติดต่อภายในรุ่น 79</p>
-            </div>
-
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 space-y-4">
-                
-                <div class="flex flex-col items-center gap-3">
-                    <div class="relative">
-                        <template x-if="onboardingForm.profile_pic || user.pictureUrl">
-                            <img :src="onboardingForm.profile_pic || user.pictureUrl" class="w-24 h-24 rounded-full object-cover border-4 border-slate-100 dark:border-slate-700 shadow-sm">
-                        </template>
-                        <template x-if="!onboardingForm.profile_pic && !user.pictureUrl">
-                            <div class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center border-4 border-white dark:border-slate-800 shadow-sm">
-                                <i data-lucide="camera" class="w-8 h-8 text-slate-400"></i>
-                            </div>
-                        </template>
-                        <label class="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-blue-700 transition">
-                            <i data-lucide="upload" class="w-4 h-4"></i>
-                            <input type="file" accept="image/*" class="hidden" @change="handleFileUpload($event)">
-                        </label>
-                    </div>
-                    <div class="text-xs text-slate-400">อัปโหลดรูปภาพ (ไม่เกิน 2MB)</div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">ชื่อ-สกุล</label>
-                    <input type="text" x-model="user.name" disabled class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-slate-500 cursor-not-allowed">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
-                    <input type="tel" x-model="onboardingForm.phone" placeholder="08X-XXX-XXXX" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">ที่อยู่ (ภูมิลำเนา) <span class="text-red-500">*</span></label>
-                    <textarea x-model="onboardingForm.address" placeholder="บ้านเลขที่, ถนน, ตำบล, อำเภอ" rows="2" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white resize-none"></textarea>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">จังหวัด <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="onboardingForm.province" placeholder="จังหวัด" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white">
-                </div>
-                
-                <div class="border-t border-slate-100 dark:border-slate-700 pt-4 mt-4">
-                    <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mb-3 uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="link" class="w-3.5 h-3.5"></i> โซเชียลมีเดีย</div>
-                    <div class="space-y-3">
-                        <div class="relative">
-                            <i data-lucide="message-circle" class="absolute left-3.5 top-3 w-4 h-4 text-[#06C755]"></i>
-                            <input type="text" x-model="onboardingForm.line_contact" placeholder="LINE ID" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-[#06C755] focus:ring-2 focus:ring-[#06C755]/20 transition dark:text-white">
-                        </div>
-                        <div class="relative">
-                            <i data-lucide="facebook" class="absolute left-3.5 top-3 w-4 h-4 text-[#1877F2]"></i>
-                            <input type="text" x-model="onboardingForm.facebook" placeholder="Facebook Profile Link หรือ ชื่อ" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/20 transition dark:text-white">
-                        </div>
-                        <div class="relative">
-                            <i data-lucide="instagram" class="absolute left-3.5 top-3 w-4 h-4 text-[#E4405F]"></i>
-                            <input type="text" x-model="onboardingForm.ig" placeholder="Instagram Username" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-[#E4405F] focus:ring-2 focus:ring-[#E4405F]/20 transition dark:text-white">
-                        </div>
-                    </div>
-                </div>
-
-                <button @click="submitOnboarding()" :disabled="onboardingLoading" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-md transition flex justify-center items-center gap-2">
-                    <span x-show="onboardingLoading"><i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i></span>
-                    <span x-text="onboardingLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูลและเข้าสู่ระบบ'"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- ==================== DIRECTORY (ทำเนียบรุ่น) ==================== -->
     <div x-show="currentPage === 'directory'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
         <div class="max-w-4xl mx-auto">
@@ -1500,29 +1426,98 @@
         </div>
     </div>
 
-    <div x-show="lineBindModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
-        <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-enter">
-            <div class="bg-[#06C755] p-6 text-center text-white"><svg viewBox="0 0 24 24" fill="white" class="w-12 h-12 mx-auto mb-3"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><h3 class="text-lg font-bold">เชื่อมต่อบัญชี LINE</h3><p class="text-green-100 text-xs mt-1">ผูก LINE กับรหัสประจำตัวของคุณ</p></div>
-            <div class="p-6">
-                <div class="flex items-center justify-center gap-2 mb-6">
-                    <div class="flex items-center gap-1"><div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" :class="lineBindStep >= 1 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">1</div><span class="text-xs font-bold" :class="lineBindStep >= 1 ? 'text-green-600' : 'text-slate-400'">ยืนยัน</span></div>
-                    <div class="w-8 h-px" :class="lineBindStep >= 2 ? 'bg-green-500' : 'bg-slate-200'"></div>
-                    <div class="flex items-center gap-1"><div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" :class="lineBindStep >= 2 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">2</div><span class="text-xs font-bold" :class="lineBindStep >= 2 ? 'text-green-600' : 'text-slate-400'">เชื่อมต่อ</span></div>
-                    <div class="w-8 h-px" :class="lineBindStep >= 3 ? 'bg-green-500' : 'bg-slate-200'"></div>
-                    <div class="flex items-center gap-1"><div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" :class="lineBindStep >= 3 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">3</div><span class="text-xs font-bold" :class="lineBindStep >= 3 ? 'text-green-600' : 'text-slate-400'">สำเร็จ</span></div>
+    <div x-show="lineBindModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto" x-cloak>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md my-auto rounded-3xl shadow-2xl overflow-hidden animate-enter">
+            <div class="bg-[#06C755] p-5 text-center text-white"><svg viewBox="0 0 24 24" fill="white" class="w-10 h-10 mx-auto mb-2"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><h3 class="text-lg font-bold">เชื่อมต่อและกรอกประวัติ</h3></div>
+            <div class="p-5 max-h-[80vh] overflow-y-auto">
+                <div class="flex items-center justify-center gap-1.5 mb-6">
+                    <div class="flex flex-col items-center gap-1"><div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold" :class="lineBindStep >= 1 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">1</div><span class="text-[10px] font-bold" :class="lineBindStep >= 1 ? 'text-green-600' : 'text-slate-400'">รหัส</span></div>
+                    <div class="w-4 h-px" :class="lineBindStep >= 2 ? 'bg-green-500' : 'bg-slate-200'"></div>
+                    <div class="flex flex-col items-center gap-1"><div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold" :class="lineBindStep >= 2 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">2</div><span class="text-[10px] font-bold" :class="lineBindStep >= 2 ? 'text-green-600' : 'text-slate-400'">ประวัติ</span></div>
+                    <div class="w-4 h-px" :class="lineBindStep >= 3 ? 'bg-green-500' : 'bg-slate-200'"></div>
+                    <div class="flex flex-col items-center gap-1"><div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold" :class="lineBindStep >= 3 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">3</div><span class="text-[10px] font-bold" :class="lineBindStep >= 3 ? 'text-green-600' : 'text-slate-400'">ยืนยัน</span></div>
+                    <div class="w-4 h-px" :class="lineBindStep >= 4 ? 'bg-green-500' : 'bg-slate-200'"></div>
+                    <div class="flex flex-col items-center gap-1"><div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold" :class="lineBindStep >= 4 ? 'bg-[#06C755] text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-400'">4</div><span class="text-[10px] font-bold" :class="lineBindStep >= 4 ? 'text-green-600' : 'text-slate-400'">สำเร็จ</span></div>
                 </div>
+                
                 <div x-show="lineBindStep === 1" class="space-y-4">
-                    <div class="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300"><i data-lucide="info" class="w-4 h-4 text-blue-500 inline mr-1"></i>กรอกรหัสประจำตัวเพื่อผูกกับบัญชี LINE</div>
+                    <div class="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300"><i data-lucide="info" class="w-4 h-4 text-blue-500 inline mr-1"></i>กรอกรหัสประจำตัวเพื่อเชื่อมโยงข้อมูล</div>
                     <input x-model="lineBindCode" type="number" placeholder="รหัสประจำตัว" class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-4 font-bold text-center text-xl focus:ring-4 focus:ring-green-500/20 outline-none transition">
                     <button @click="proceedLineStep1()" :disabled="!lineBindCode || lineLoading" class="w-full bg-slate-800 dark:bg-slate-600 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2">
                         <span x-show="lineLoading"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></span>
-                        <span x-show="!lineLoading"><i data-lucide="arrow-right" class="w-4 h-4"></i></span> ยืนยัน
+                        <span x-show="!lineLoading"><i data-lucide="arrow-right" class="w-4 h-4"></i></span> ถัดไป
                     </button>
+                    <button @click="lineBindModalOpen = false" class="w-full text-slate-400 text-sm py-2">ยกเลิก</button>
                 </div>
-                <div x-show="lineBindStep === 2" class="space-y-4 text-center">
+                
+                <div x-show="lineBindStep === 2" class="space-y-4">
+                    <div class="flex flex-col items-center gap-3">
+                        <div class="relative">
+                            <template x-if="onboardingForm.profile_pic || user.pictureUrl || (lineProfile && lineProfile.pictureUrl)">
+                                <img :src="onboardingForm.profile_pic || user.pictureUrl || lineProfile.pictureUrl" class="w-20 h-20 rounded-full object-cover border-4 border-slate-100 dark:border-slate-700 shadow-sm">
+                            </template>
+                            <template x-if="!(onboardingForm.profile_pic || user.pictureUrl || (lineProfile && lineProfile.pictureUrl))">
+                                <div class="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center border-4 border-white dark:border-slate-800 shadow-sm">
+                                    <i data-lucide="camera" class="w-8 h-8 text-slate-400"></i>
+                                </div>
+                            </template>
+                            <label class="absolute bottom-0 right-0 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-blue-700 transition">
+                                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                                <input type="file" accept="image/*" class="hidden" @change="handleFileUpload($event)">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">ชื่อ-สกุล</label>
+                        <input type="text" x-model="lineBindUserName" disabled class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm text-slate-500 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
+                        <input type="tel" x-model="onboardingForm.phone" placeholder="08X-XXX-XXXX" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">ที่อยู่ (ภูมิลำเนา) <span class="text-red-500">*</span></label>
+                        <textarea x-model="onboardingForm.address" placeholder="บ้านเลขที่, ถนน, ตำบล, อำเภอ" rows="2" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">จังหวัด <span class="text-red-500">*</span></label>
+                        <input type="text" x-model="onboardingForm.province" placeholder="จังหวัด" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white">
+                    </div>
+                    
+                    <div class="border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <div class="text-[10px] font-bold text-slate-800 dark:text-slate-200 mb-2 uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="link" class="w-3 h-3"></i> โซเชียลมีเดีย (ตัวเลือก)</div>
+                        <div class="space-y-2">
+                            <div class="relative">
+                                <i data-lucide="message-circle" class="absolute left-3.5 top-2.5 w-4 h-4 text-[#06C755]"></i>
+                                <input type="text" x-model="onboardingForm.line_contact" placeholder="LINE ID" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl pl-10 pr-4 py-2 text-sm outline-none focus:border-[#06C755] focus:ring-2 focus:ring-[#06C755]/20 transition dark:text-white">
+                            </div>
+                            <div class="relative">
+                                <i data-lucide="facebook" class="absolute left-3.5 top-2.5 w-4 h-4 text-[#1877F2]"></i>
+                                <input type="text" x-model="onboardingForm.facebook" placeholder="Facebook URL หรือ ชื่อ" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl pl-10 pr-4 py-2 text-sm outline-none focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/20 transition dark:text-white">
+                            </div>
+                            <div class="relative">
+                                <i data-lucide="instagram" class="absolute left-3.5 top-2.5 w-4 h-4 text-[#E4405F]"></i>
+                                <input type="text" x-model="onboardingForm.ig" placeholder="Instagram Username" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl pl-10 pr-4 py-2 text-sm outline-none focus:border-[#E4405F] focus:ring-2 focus:ring-[#E4405F]/20 transition dark:text-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button @click="proceedLineStep2()" class="w-full bg-slate-800 dark:bg-slate-600 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2">
+                        ถัดไป <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                    <button @click="lineBindStep = 1" class="w-full text-slate-400 text-sm py-1">ย้อนกลับ</button>
+                </div>
+                
+                <div x-show="lineBindStep === 3" class="space-y-4 text-center">
                     <div class="flex items-center justify-center gap-3 mx-auto mb-2">
                         <div class="w-16 h-16 rounded-full overflow-hidden shadow-md border-2 border-slate-200 dark:border-slate-700 bg-white">
-                            <img src="https://img2.pic.in.th/S__30990508.jpg" alt="RPCA Logo" class="w-full h-full object-cover">
+                            <template x-if="onboardingForm.profile_pic || user.pictureUrl || (lineProfile && lineProfile.pictureUrl)">
+                                <img :src="onboardingForm.profile_pic || user.pictureUrl || lineProfile.pictureUrl" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!(onboardingForm.profile_pic || user.pictureUrl || (lineProfile && lineProfile.pictureUrl))">
+                                <img src="https://img2.pic.in.th/S__30990508.jpg" alt="RPCA Logo" class="w-full h-full object-cover">
+                            </template>
                         </div>
                         <div class="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-slate-400 z-10 shadow-sm"><i data-lucide="link" class="w-4 h-4"></i></div>
                         <div class="w-16 h-16 rounded-full overflow-hidden shadow-md border-2 border-green-500 bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
@@ -1534,19 +1529,20 @@
                             </template>
                         </div>
                     </div>
-                    <div><div class="font-bold text-slate-800 dark:text-white text-lg" x-text="lineBindUserName"></div><div class="text-slate-400 text-sm">พร้อมเชื่อมต่อกับบัญชี LINE</div></div>
-                    <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-left"><div class="flex items-center gap-2 text-sm"><svg viewBox="0 0 24 24" fill="#06C755" class="w-5 h-5 shrink-0"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><span class="font-bold text-green-700 dark:text-green-400" x-text="lineProfile && lineProfile.displayName ? lineProfile.displayName : 'LINE User'"></span></div></div>
-                    <button @click="confirmLineBind()" :disabled="lineLoading" class="w-full line-btn">
-                        <span x-show="lineLoading"><i data-lucide="loader-2" class="w-5 h-5 animate-spin text-white"></i></span>
-                        <span x-show="!lineLoading"><i data-lucide="check" class="w-5 h-5 text-white"></i></span>
-                        <span x-text="lineLoading ? 'กำลังบันทึก...' : ((_pendingBindUser && !_pendingBindUser.onboarding_completed) || (user && !user.onboardingCompleted && user.role !== 'ADMIN') ? 'ยืนยันและไปกรอกประวัติ' : 'ยืนยันเชื่อมต่อ LINE')"></span>
+                    <div><div class="font-bold text-slate-800 dark:text-white text-lg" x-text="lineBindUserName"></div><div class="text-slate-400 text-sm">พร้อมบันทึกประวัติและเชื่อมต่อ LINE</div></div>
+                    <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-left"><div class="flex items-center gap-2 text-sm"><svg viewBox="0 0 24 24" fill="#06C755" class="w-5 h-5 shrink-0"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg><span class="font-bold text-green-700 dark:text-green-400" x-text="lineProfile && lineProfile.displayName ? lineProfile.displayName : 'บัญชี LINE ของคุณ'"></span></div></div>
+                    <button @click="submitUnifiedOnboarding()" :disabled="lineLoading" class="w-full bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl font-bold shadow-md transition flex items-center justify-center gap-2">
+                        <span x-show="lineLoading"><i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i></span>
+                        <span x-show="!lineLoading"><i data-lucide="check" class="w-5 h-5"></i></span>
+                        <span x-text="lineLoading ? 'กำลังบันทึก...' : 'ยืนยันและบันทึกข้อมูล'"></span>
                     </button>
-                    <button @click="lineBindModalOpen = false" class="w-full text-slate-400 text-sm py-2">ยกเลิก</button>
+                    <button @click="lineBindStep = 2" class="w-full text-slate-400 text-sm py-1">ย้อนกลับแก้ไขประวัติ</button>
                 </div>
-                <div x-show="lineBindStep === 3" class="space-y-4 text-center">
+
+                <div x-show="lineBindStep === 4" class="space-y-4 text-center">
                     <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-500/30"><i data-lucide="check" class="w-10 h-10 text-white"></i></div>
-                    <div><div class="text-xl font-black text-slate-800 dark:text-white">เชื่อมต่อสำเร็จ!</div><div class="text-slate-400 text-sm mt-1">ครั้งต่อไปเข้าสู่ระบบผ่าน LINE ได้เลย</div></div>
-                    <button @click="lineBindModalOpen = false; lineBindStep = 1; switchPage('home');" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold">ปิด</button>
+                    <div><div class="text-xl font-black text-slate-800 dark:text-white">บันทึกข้อมูลสำเร็จ!</div><div class="text-slate-400 text-sm mt-1">ยินดีต้อนรับเข้าสู่ระบบ</div></div>
+                    <button @click="lineBindModalOpen = false; lineBindStep = 1; switchPage('home'); fetchData();" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold">เริ่มใช้งาน</button>
                 </div>
             </div>
         </div>
@@ -2153,11 +2149,7 @@
                 },
 
                 switchPage(page) { 
-                    if (page === 'home' && this.user && this.user.role !== 'ADMIN' && this.user.lineLinked && !this.user.onboardingCompleted) {
-                        this.currentPage = 'onboarding';
-                    } else {
-                        this.currentPage = page; 
-                    }
+                    this.currentPage = page; 
                     window.scrollTo({top:0, behavior:'smooth'}); 
                 },
 
@@ -2194,49 +2186,66 @@
                     }
                 },
 
-                async submitOnboarding() {
+                proceedLineStep2() {
                     if (!this.onboardingForm.phone || !this.onboardingForm.address || !this.onboardingForm.province) {
                         Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน', 'warning');
                         return;
                     }
-
-                    this.onboardingLoading = true;
+                    this.lineBindStep = 3;
+                },
+                
+                async submitUnifiedOnboarding() {
+                    this.lineLoading = true;
                     try {
-                        const { error } = await db.from('users').update({
+                        const targetUserId = this._pendingBindUser ? this._pendingBindUser.id : this.user.id;
+                        const targetLineId = this.lineProfile?.userId || null;
+                        const targetLineName = this.lineProfile?.displayName || null;
+
+                        const updateData = {
                             phone: this.onboardingForm.phone,
                             address: this.onboardingForm.address,
                             province: this.onboardingForm.province,
                             line_contact: this.onboardingForm.line_contact,
                             facebook: this.onboardingForm.facebook,
                             ig: this.onboardingForm.ig,
-                            profile_pic: this.onboardingForm.profile_pic || this.user.pictureUrl,
+                            profile_pic: this.onboardingForm.profile_pic || this.user.pictureUrl || this.lineProfile?.pictureUrl,
                             onboarding_completed: true
-                        }).eq('id', parseInt(this.user.id));
+                        };
 
+                        if (targetLineId && (!this.user.lineLinked || this._pendingBindUser)) {
+                            updateData.line_user_id = targetLineId;
+                            updateData.line_display_name = targetLineName;
+                        }
+
+                        const { error } = await db.from('users').update(updateData).eq('id', parseInt(targetUserId));
                         if (error) throw error;
 
-                        this.user.onboardingCompleted = true;
-                        if (this.onboardingForm.profile_pic) {
-                            this.user.pictureUrl = this.onboardingForm.profile_pic;
+                        if (this._pendingBindUser) {
+                            this.user = { 
+                                ...this._pendingBindUser, 
+                                role: this._pendingBindUser.is_admin ? 'ADMIN' : 'USER', 
+                                lineLinked: !!targetLineId, 
+                                lineUserId: targetLineId, 
+                                lineDisplayName: targetLineName, 
+                                pictureUrl: updateData.profile_pic,
+                                onboardingCompleted: true
+                            }; 
+                            this._pendingBindUser = null;
+                        } else {
+                            this.user.lineLinked = !!targetLineId;
+                            this.user.lineUserId = targetLineId;
+                            this.user.lineDisplayName = targetLineName;
+                            this.user.pictureUrl = updateData.profile_pic;
+                            this.user.onboardingCompleted = true;
                         }
-                        localStorage.setItem('user_session', JSON.stringify(this.user));
-                        
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'บันทึกข้อมูลสำเร็จ',
-                            text: 'ยินดีต้อนรับเข้าสู่ระบบเลือกตำแหน่ง',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            this.onboardingLoading = false;
-                            this.switchPage('home');
-                            this.fetchData();
-                        });
 
-                    } catch (e) {
-                        this.onboardingLoading = false;
-                        console.error('Onboarding error:', e);
-                        Swal.fire('Error', 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่', 'error');
+                        localStorage.setItem('user_session', JSON.stringify(this.user));
+                        this.lineLoading = false;
+                        this.lineBindStep = 4;
+                    } catch(e) {
+                        this.lineLoading = false;
+                        console.error(e);
+                        Swal.fire('Error', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
                     }
                 },
 
@@ -2565,7 +2574,20 @@
                         else if (res.line_user_id && res.line_user_id !== this.lineProfile?.userId) {
                             Swal.fire('ผูกบัญชีไม่ได้', 'รหัสประจำตัวนี้ถูกผูกกับบัญชี LINE อื่นไปแล้ว (หากต้องการเปลี่ยนให้กด "ยกเลิกผูก" จากบัญชีเดิม หรือแจ้งแอดมิน)', 'error');
                         }
-                        else { this.lineBindUserName = res.name; this._pendingBindUser = res; this.lineBindStep = 2; }
+                        else { 
+                            this.lineBindUserName = res.name; 
+                            this._pendingBindUser = res; 
+                            this.onboardingForm = {
+                                phone: res.phone || '',
+                                address: res.address || '',
+                                province: res.province || '',
+                                line_contact: res.line_contact || '',
+                                facebook: res.facebook || '',
+                                ig: res.ig || '',
+                                profile_pic: res.profile_pic || ''
+                            };
+                            this.lineBindStep = 2; 
+                        }
                     } catch(e) { this.lineLoading = false; }
                 },
                 
@@ -2601,42 +2623,7 @@
                     }
                 },
                 
-                async confirmLineBind() {
-                    this.lineLoading = true;
-                    const userId = this.user.id || (this._pendingBindUser && this._pendingBindUser.id);
-                    const lineUserId = this.lineProfile?.userId;
-                    const lineDisplayName = this.lineProfile?.displayName;
-                    if (!userId || !lineUserId) { this.lineLoading = false; Swal.fire('Error', 'ข้อมูลไม่ครบถ้วน', 'error'); return; }
-                    
-                    try {
-                        // Double check before saving
-                        const { data: checkUser } = await db.from('users').select('line_user_id').eq('id', parseInt(userId)).single();
-                        if (checkUser && checkUser.line_user_id && checkUser.line_user_id !== lineUserId) {
-                            this.lineLoading = false;
-                            Swal.fire('เกิดข้อผิดพลาด', 'บัญชีนี้ถูกผูกกับ LINE อื่นไปแล้ว', 'error');
-                            return;
-                        }
 
-                        const { error } = await db.from('users').update({ line_user_id: lineUserId, line_display_name: lineDisplayName }).eq('id', parseInt(userId));
-                        this.lineLoading = false;
-                        if (!error) {
-                            this.user.lineLinked = true; this.user.lineUserId = lineUserId; this.user.lineDisplayName = lineDisplayName; this.user.pictureUrl = this.lineProfile.pictureUrl;
-                            if (this._pendingBindUser) { 
-                                this.user = { ...this._pendingBindUser, role: this._pendingBindUser.is_admin ? 'ADMIN' : 'USER', lineLinked: true, lineUserId: lineUserId, lineDisplayName: lineDisplayName, pictureUrl: this.lineProfile.pictureUrl, onboardingCompleted: !!this._pendingBindUser.onboarding_completed }; 
-                                this._pendingBindUser = null; 
-                            }
-                            localStorage.setItem('user_session', JSON.stringify(this.user));
-                            
-                            if (!this.user.onboardingCompleted && this.user.role !== 'ADMIN') {
-                                this.lineBindModalOpen = false;
-                                this.lineBindStep = 1;
-                                this.switchPage('onboarding');
-                            } else {
-                                this.lineBindStep = 3;
-                            }
-                        } else { Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
-                    } catch(e) { this.lineLoading = false; Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
-                }
             }
         }
 
