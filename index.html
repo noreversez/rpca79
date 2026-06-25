@@ -1539,7 +1539,7 @@
                     <button @click="confirmLineBind()" :disabled="lineLoading" class="w-full line-btn">
                         <span x-show="lineLoading"><i data-lucide="loader-2" class="w-5 h-5 animate-spin text-white"></i></span>
                         <span x-show="!lineLoading"><i data-lucide="check" class="w-5 h-5 text-white"></i></span>
-                        <span x-text="lineLoading ? 'กำลังบันทึก...' : 'ยืนยันเชื่อมต่อ LINE'"></span>
+                        <span x-text="lineLoading ? 'กำลังบันทึก...' : ((_pendingBindUser && !_pendingBindUser.onboarding_completed) || (user && !user.onboardingCompleted && user.role !== 'ADMIN') ? 'ยืนยันและไปกรอกประวัติ' : 'ยืนยันเชื่อมต่อ LINE')"></span>
                     </button>
                     <button @click="lineBindModalOpen = false" class="w-full text-slate-400 text-sm py-2">ยกเลิก</button>
                 </div>
@@ -2620,9 +2620,20 @@
                         const { error } = await db.from('users').update({ line_user_id: lineUserId, line_display_name: lineDisplayName }).eq('id', parseInt(userId));
                         this.lineLoading = false;
                         if (!error) {
-                            this.lineBindStep = 3; this.user.lineLinked = true; this.user.lineUserId = lineUserId; this.user.lineDisplayName = lineDisplayName; this.user.pictureUrl = this.lineProfile.pictureUrl;
-                            if (this._pendingBindUser) { this.user = { ...this._pendingBindUser, role: this._pendingBindUser.is_admin ? 'ADMIN' : 'USER', lineLinked: true, lineUserId: lineUserId, lineDisplayName: lineDisplayName, pictureUrl: this.lineProfile.pictureUrl }; this._pendingBindUser = null; }
+                            this.user.lineLinked = true; this.user.lineUserId = lineUserId; this.user.lineDisplayName = lineDisplayName; this.user.pictureUrl = this.lineProfile.pictureUrl;
+                            if (this._pendingBindUser) { 
+                                this.user = { ...this._pendingBindUser, role: this._pendingBindUser.is_admin ? 'ADMIN' : 'USER', lineLinked: true, lineUserId: lineUserId, lineDisplayName: lineDisplayName, pictureUrl: this.lineProfile.pictureUrl, onboardingCompleted: !!this._pendingBindUser.onboarding_completed }; 
+                                this._pendingBindUser = null; 
+                            }
                             localStorage.setItem('user_session', JSON.stringify(this.user));
+                            
+                            if (!this.user.onboardingCompleted && this.user.role !== 'ADMIN') {
+                                this.lineBindModalOpen = false;
+                                this.lineBindStep = 1;
+                                this.switchPage('onboarding');
+                            } else {
+                                this.lineBindStep = 3;
+                            }
                         } else { Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
                     } catch(e) { this.lineLoading = false; Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
                 }
