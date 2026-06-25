@@ -374,16 +374,16 @@
                         </div>
                         
                         <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-2.5 flex items-center justify-around mt-auto border border-slate-100 dark:border-slate-700/50">
-                            <a x-show="u[9]" :href="'tel:' + u[9]" class="w-8 h-8 rounded-full bg-slate-200/50 dark:bg-slate-700/50 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-blue-500 hover:text-white transition" title="โทรศัพท์">
+                            <a x-show="u[9]" :href="u[9] ? 'tel:' + u[9] : '#'" class="w-8 h-8 rounded-full bg-slate-200/50 dark:bg-slate-700/50 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-blue-500 hover:text-white transition" title="โทรศัพท์">
                                 <i data-lucide="phone" class="w-4 h-4"></i>
                             </a>
-                            <a x-show="u[12]" :href="'https://line.me/ti/p/~' + u[12]" target="_blank" class="w-8 h-8 rounded-full bg-slate-200/50 dark:bg-slate-700/50 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#06C755] hover:text-white transition" title="LINE">
+                            <a x-show="u[12]" :href="u[12] ? 'https://line.me/ti/p/~' + u[12] : '#'" target="_blank" class="w-8 h-8 rounded-full bg-slate-200/50 dark:bg-slate-700/50 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#06C755] hover:text-white transition" title="LINE">
                                 <i data-lucide="message-circle" class="w-4 h-4"></i>
                             </a>
-                            <a x-show="u[13]" :href="u[13].includes('http') ? u[13] : 'https://facebook.com/' + u[13]" target="_blank" class="w-8 h-8 rounded-full bg-slate-200/50 dark:bg-slate-700/50 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#1877F2] hover:text-white transition" title="Facebook">
+                            <a x-show="u[13]" :href="u[13] ? (String(u[13]).includes('http') ? u[13] : 'https://facebook.com/' + u[13]) : '#'" target="_blank" class="w-8 h-8 rounded-full bg-slate-200/50 dark:bg-slate-700/50 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#1877F2] hover:text-white transition" title="Facebook">
                                 <i data-lucide="facebook" class="w-4 h-4"></i>
                             </a>
-                            <a x-show="u[14]" :href="'https://instagram.com/' + u[14].replace('@','')" target="_blank" class="w-8 h-8 rounded-full bg-slate-200/50 dark:bg-slate-700/50 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#E4405F] hover:text-white transition" title="Instagram">
+                            <a x-show="u[14]" :href="u[14] ? 'https://instagram.com/' + String(u[14]).replace('@','') : '#'" target="_blank" class="w-8 h-8 rounded-full bg-slate-200/50 dark:bg-slate-700/50 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#E4405F] hover:text-white transition" title="Instagram">
                                 <i data-lucide="instagram" class="w-4 h-4"></i>
                             </a>
                         </div>
