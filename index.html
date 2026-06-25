@@ -409,7 +409,14 @@
                                 <div x-show="!u[15]" class="w-full h-full flex items-center justify-center font-bold text-slate-400" x-text="u[0]"></div>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <div class="font-bold text-slate-800 dark:text-white text-base truncate" x-text="u[1] + (u[18] ? ' ('+u[18]+')' : '')"></div>
+                                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 -mb-1">
+                                    <div class="font-bold text-slate-800 dark:text-white text-base shrink-0" x-text="u[1] + (u[18] ? ' ('+u[18]+')' : '')"></div>
+                                    <template x-for="phone in (u[9] ? u[9].split(',').map(x => x.trim()).filter(Boolean) : [])">
+                                        <a :href="'tel:' + phone" class="w-6 h-6 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center shrink-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition" :title="phone">
+                                            <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                                        </a>
+                                    </template>
+                                </div>
                                 <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate mb-1">ตำแหน่ง: <span class="text-blue-500 dark:text-blue-400 font-semibold" x-text="u[16] || 'รอการจัดสรรตำแหน่ง'"></span></div>
                                 <div class="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
                                     <i data-lucide="map-pin" class="w-3 h-3 opacity-70"></i>
@@ -420,14 +427,7 @@
                         
                         <!-- Contact Info in Grid -->
                         <div class="flex flex-col gap-2 mt-auto pt-3 border-t border-slate-100 dark:border-slate-700/50">
-                            <!-- Phones -->
-                            <div class="flex flex-wrap gap-2">
-                                <template x-for="phone in (u[9] ? u[9].split(',').map(x => x.trim()).filter(Boolean) : [])">
-                                    <a :href="'tel:' + phone" class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 flex-1 justify-center hover:bg-blue-100 dark:hover:bg-blue-900/50 transition shadow-sm">
-                                        <i data-lucide="phone" class="w-3.5 h-3.5"></i> <span x-text="phone"></span>
-                                    </a>
-                                </template>
-                            </div>
+                            <!-- Phones moved to title -->
                             
                             <!-- Socials -->
                             <div class="flex items-center justify-center gap-3 mt-1" x-show="u[12] || u[13] || u[14]">
@@ -455,16 +455,18 @@
                             <div x-show="!u[15]" class="w-full h-full flex items-center justify-center font-bold text-slate-400 text-sm" x-text="u[0]"></div>
                         </div>
                         <div class="flex-1 min-w-0 flex flex-col justify-center">
-                            <div class="font-bold text-slate-800 dark:text-white text-sm truncate" x-text="u[1] + (u[18] ? ' ('+u[18]+')' : '')"></div>
+                            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 -mb-1">
+                                <div class="font-bold text-slate-800 dark:text-white text-sm shrink-0" x-text="u[1] + (u[18] ? ' ('+u[18]+')' : '')"></div>
+                                <template x-for="phone in (u[9] ? u[9].split(',').map(x => x.trim()).filter(Boolean) : [])">
+                                    <a :href="'tel:' + phone" class="w-6 h-6 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center shrink-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition" :title="phone">
+                                        <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                                    </a>
+                                </template>
+                            </div>
                             <div class="text-[10.5px] text-slate-500 dark:text-slate-400 truncate mb-1.5"><span class="text-blue-500 dark:text-blue-400 font-semibold" x-text="u[16] || 'รอการจัดสรรตำแหน่ง'"></span> <span x-show="u[11]"><span class="mx-1 opacity-50">|</span><i data-lucide="map-pin" class="w-2.5 h-2.5 inline-block -mt-0.5 mr-0.5 opacity-70"></i><span x-text="u[11]"></span></span></div>
                             
                             <div class="flex flex-wrap gap-1.5 items-center">
-                                <template x-for="phone in (u[9] ? u[9].split(',').map(x => x.trim()).filter(Boolean) : [])">
-                                    <a :href="'tel:' + phone" class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 shrink-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition shadow-sm">
-                                        <i data-lucide="phone" class="w-3 h-3"></i> <span x-text="phone"></span>
-                                    </a>
-                                </template>
-                                
+
                                 <a x-show="u[12]" :href="u[12] ? 'https://line.me/ti/p/~' + u[12] : '#'" target="_blank" class="w-6 h-6 rounded-full bg-[#06C755]/10 text-[#06C755] flex items-center justify-center hover:bg-[#06C755] hover:text-white transition" title="LINE">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
                                 </a>
@@ -1584,6 +1586,10 @@
                         <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">จังหวัด <span class="text-red-500">*</span></label>
                         <input type="text" x-model="onboardingForm.province" placeholder="จังหวัด" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white">
                     </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">ชื่อเล่น (ตัวเลือก)</label>
+                        <input type="text" x-model="onboardingForm.nickname" placeholder="ชื่อเล่น" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white">
+                    </div>
                     
                     <div class="border-t border-slate-100 dark:border-slate-700 pt-3">
                         <div class="text-[10px] font-bold text-slate-800 dark:text-slate-200 mb-2 uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="link" class="w-3 h-3"></i> โซเชียลมีเดีย (ตัวเลือก)</div>
@@ -1689,6 +1695,7 @@
                     </div>
                     <textarea x-model="onboardingForm.address" placeholder="ที่อยู่ปัจจุบัน" rows="2" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white resize-none"></textarea>
                     <input type="text" x-model="onboardingForm.province" placeholder="จังหวัด" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white">
+                    <input type="text" x-model="onboardingForm.nickname" placeholder="ชื่อเล่น (ตัวเลือก)" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition dark:text-white mt-2">
                 </div>
                 
                 <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
@@ -2376,7 +2383,8 @@
                             line_contact: u[12] || '',
                             facebook: u[13] || '',
                             ig: u[14] || '',
-                            profile_pic: u[15] || this.user.pictureUrl || ''
+                            profile_pic: u[15] || this.user.pictureUrl || '',
+                            nickname: u[18] || ''
                         };
                         if (!this.onboardingForm.phones || this.onboardingForm.phones.length === 0) this.onboardingForm.phones = [''];
                         this.editProfileModalOpen = true;
@@ -2394,7 +2402,8 @@
                             line_contact: this.onboardingForm.line_contact,
                             facebook: this.onboardingForm.facebook,
                             ig: this.onboardingForm.ig,
-                            profile_pic: this.onboardingForm.profile_pic
+                            profile_pic: this.onboardingForm.profile_pic,
+                            nickname: this.onboardingForm.nickname
                         };
                         const { error } = await db.from('users').update(updateData).eq('id', parseInt(this.user.id));
                         if (error) throw error;
@@ -2430,6 +2439,7 @@
                             facebook: this.onboardingForm.facebook,
                             ig: this.onboardingForm.ig,
                             profile_pic: this.onboardingForm.profile_pic || this.user.pictureUrl || this.lineProfile?.pictureUrl,
+                            nickname: this.onboardingForm.nickname,
                             onboarding_completed: true
                         };
 
