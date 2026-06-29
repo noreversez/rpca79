@@ -2365,7 +2365,8 @@
                 },
 
                 proceedLineStep2() {
-                    if (!this.onboardingForm.phone || !this.onboardingForm.address || !this.onboardingForm.province) {
+                    const hasPhone = (this.onboardingForm.phones && this.onboardingForm.phones.length > 0 && this.onboardingForm.phones.some(p => p.trim() !== '')) || (this.onboardingForm.phone && this.onboardingForm.phone.trim() !== '');
+                    if (!hasPhone || !this.onboardingForm.address || !this.onboardingForm.province) {
                         Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน', 'warning');
                         return;
                     }
