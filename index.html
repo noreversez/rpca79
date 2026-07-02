@@ -351,7 +351,7 @@
 
             <div class="relative mb-6">
                 <i data-lucide="search" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
-                <input type="text" x-model="directorySearch" placeholder="ค้นหาชื่อ, เบอร์โทร, หรือจังหวัด..." class="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl pl-11 pr-4 py-3 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition dark:text-white shadow-sm">
+                <input type="text" x-model="directorySearch" @input="visibleUsersCount = 20" placeholder="ค้นหาชื่อ, เบอร์โทร, หรือจังหวัด..." class="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl pl-11 pr-4 py-3 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition dark:text-white shadow-sm">
             </div>
 
             <!-- View Mode Toggles -->
@@ -374,7 +374,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <template x-for="u in users.filter(x => parseInt(x[0]) > 0 && x[17] && (!directorySearch || x[1].toLowerCase().includes(directorySearch.toLowerCase()) || (x[9] && x[9].includes(directorySearch)) || (x[11] && x[11].includes(directorySearch))))" :key="'table-'+u[0]">
+                        <template x-for="u in filteredDirectoryUsers" :key="'table-'+u[0]">
                             <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition">
                                 <td class="p-4">
                                     <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
@@ -387,7 +387,7 @@
                                 <td class="p-4 text-xs text-slate-600 dark:text-slate-300" x-text="u[11] || '-'"></td>
                                 <td class="p-4">
                                     <div class="flex items-center justify-center gap-2">
-                                        <a x-show="u[9]" :href="u[9] ? 'tel:' + u[9].split(',')[0] : '#'" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-blue-500 hover:text-white transition" title="โทรศัพท์"><i data-lucide="phone" class="w-3.5 h-3.5"></i></a>
+                                        <a x-show="u[9]" href="#" @click.prevent="handlePhoneClick(u)" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-blue-500 hover:text-white transition" title="โทรศัพท์"><i data-lucide="phone" class="w-3.5 h-3.5"></i></a>
                                         <a x-show="u[12]" :href="u[12] ? 'https://line.me/ti/p/~' + u[12] : '#'" target="_blank" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#06C755] hover:text-white transition" title="LINE"><svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg></a>
                                         <a x-show="u[13]" :href="u[13] ? (String(u[13]).includes('http') ? u[13] : (String(u[13]).includes(' ') || /[ก-๙]/.test(String(u[13])) ? 'https://www.facebook.com/search/top/?q=' + encodeURIComponent(u[13]) : 'https://facebook.com/' + u[13])) : '#'" target="_blank" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#1877F2] hover:text-white transition" title="Facebook"><svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
                                         <a x-show="u[14]" :href="u[14] ? 'https://instagram.com/' + String(u[14]).replace('@','') : '#'" target="_blank" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#E4405F] hover:text-white transition" title="Instagram"><svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
@@ -401,7 +401,7 @@
 
                         <!-- Directory Grid View -->
             <div x-show="directoryViewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden" :class="{'hidden': directoryViewMode !== 'grid'}">
-                <template x-for="u in users.filter(x => parseInt(x[0]) > 0 && x[17] && (!directorySearch || x[1].toLowerCase().includes(directorySearch.toLowerCase()) || (x[9] && x[9].includes(directorySearch)) || (x[11] && x[11].includes(directorySearch))))" :key="'grid-'+u[0]">
+                <template x-for="u in filteredDirectoryUsers" :key="'grid-'+u[0]">
                     <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-3 hover:shadow-md transition relative">
                         <div class="flex items-center gap-3">
                             <div class="w-14 h-14 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shrink-0">
@@ -448,7 +448,7 @@
 
             <!-- Directory List View -->
             <div x-show="directoryViewMode === 'list'" class="flex flex-col gap-2 hidden" :class="{'hidden': directoryViewMode !== 'list'}">
-                <template x-for="u in users.filter(x => parseInt(x[0]) > 0 && x[17] && (!directorySearch || x[1].toLowerCase().includes(directorySearch.toLowerCase()) || (x[9] && x[9].includes(directorySearch)) || (x[11] && x[11].includes(directorySearch))))" :key="'list-'+u[0]">
+                <template x-for="u in filteredDirectoryUsers" :key="'list-'+u[0]">
                     <div class="bg-white dark:bg-slate-800 rounded-2xl p-3 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-3 hover:shadow-md transition">
                         <div class="w-12 h-12 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shrink-0">
                             <img x-show="u[15]" :src="u[15]" class="w-full h-full object-cover" @error="$el.style.display='none'">
@@ -482,7 +482,7 @@
                     </div>
                 </template>
             </div>
-            <div x-show="users.filter(x => parseInt(x[0]) > 0 && x[17] && (!directorySearch || x[1].toLowerCase().includes(directorySearch.toLowerCase()) || (x[9] && x[9].includes(directorySearch)) || (x[11] && x[11].includes(directorySearch)))).length === 0" class="text-center py-12 text-slate-400">
+            <div x-show="totalFilteredDirectoryUsers === 0" class="text-center py-12 text-slate-400">
                 <i data-lucide="search-X" class="w-12 h-12 mx-auto mb-3 opacity-20"></i>
                 <p>ไม่พบรายชื่อ</p>
             </div>
@@ -1805,6 +1805,10 @@
                 onboardingForm: { phone: '', phones: [''], address: '', province: '', line_contact: '', facebook: '', ig: '', profile_pic: '', nickname: '' },
                 onboardingLoading: false,
                 directorySearch: '',
+                visibleUsersCount: 20,
+                phoneSelectModalOpen: false,
+                phoneSelectUser: null,
+                phoneSelectNumbers: [],
                 lineLoading: false,
                 lineProfile: {},
                 lineBindModalOpen: false,
@@ -1833,6 +1837,48 @@
                 predictResult: null,
 
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
+                get filteredDirectoryUsers() {
+                    let filtered = this.users.filter(x => {
+                        if (parseInt(x[0]) <= 0 || !x[17]) return false;
+                        if (!this.directorySearch) return true;
+                        const s = this.directorySearch.toLowerCase();
+                        const name = x[1] ? x[1].toLowerCase() : '';
+                        const phone = x[9] ? x[9].toLowerCase() : '';
+                        const province = x[11] ? x[11].toLowerCase() : '';
+                        const position = x[16] ? x[16].toLowerCase() : '';
+                        const nickname = x[18] ? x[18].toLowerCase() : '';
+                        return name.includes(s) || phone.includes(s) || province.includes(s) || position.includes(s) || nickname.includes(s);
+                    });
+                    return filtered.slice(0, this.visibleUsersCount);
+                },
+                get totalFilteredDirectoryUsers() {
+                     let filtered = this.users.filter(x => {
+                        if (parseInt(x[0]) <= 0 || !x[17]) return false;
+                        if (!this.directorySearch) return true;
+                        const s = this.directorySearch.toLowerCase();
+                        const name = x[1] ? x[1].toLowerCase() : '';
+                        const phone = x[9] ? x[9].toLowerCase() : '';
+                        const province = x[11] ? x[11].toLowerCase() : '';
+                        const position = x[16] ? x[16].toLowerCase() : '';
+                        const nickname = x[18] ? x[18].toLowerCase() : '';
+                        return name.includes(s) || phone.includes(s) || province.includes(s) || position.includes(s) || nickname.includes(s);
+                    });
+                    return filtered.length;
+                },
+                loadMoreUsers() {
+                    this.visibleUsersCount += 20;
+                },
+                handlePhoneClick(u) {
+                    if (!u[9]) return;
+                    const phones = u[9].split(',').map(p => p.trim()).filter(Boolean);
+                    if (phones.length === 1) {
+                        window.location.href = 'tel:' + phones[0];
+                    } else if (phones.length > 1) {
+                        this.phoneSelectUser = u;
+                        this.phoneSelectNumbers = phones;
+                        this.phoneSelectModalOpen = true;
+                    }
+                },
                 
                 get uniqueRegions() { 
                     const regions = [...new Set(this.positions.map(p => p[2]))].filter(Boolean);
@@ -2898,6 +2944,45 @@
             });
         }
     </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Phone Select Modal -->
+    <div x-show="phoneSelectModalOpen" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="phoneSelectModalOpen = false"></div>
+        <div class="relative bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden transform transition-all"
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+            
+            <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <i data-lucide="phone" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 dark:text-white text-lg">เลือกเบอร์โทรศัพท์</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400" x-text="phoneSelectUser ? phoneSelectUser[1] : ''"></p>
+                    </div>
+                </div>
+                <button @click="phoneSelectModalOpen = false" class="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 space-y-3 max-h-[60vh] overflow-y-auto">
+                <template x-for="(phone, index) in phoneSelectNumbers" :key="index">
+                    <a :href="'tel:' + phone" @click="phoneSelectModalOpen = false" class="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:text-blue-600 transition">
+                                <i data-lucide="phone-call" class="w-5 h-5"></i>
+                            </div>
+                            <span class="font-bold text-slate-700 dark:text-slate-200 text-lg tracking-wider" x-text="phone"></span>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-slate-300 group-hover:text-blue-500 transition"></i>
+                    </a>
+                </template>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
