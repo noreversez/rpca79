@@ -6,7 +6,10 @@
     <title>RPCA79 - ระบบทดลองเลือกตำแหน่ง</title>
     <meta name="theme-color" content="#1e293b">
     <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="./icon.svg">
+    <link rel="icon" type="image/svg+xml" href="./icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./icon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -25,6 +28,17 @@
     <style>
         body { -webkit-tap-highlight-color: transparent; }
         [x-cloak] { display: none !important; }
+
+        button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+            outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 6px;
+        }
+        .dark button:focus-visible, .dark a:focus-visible, .dark input:focus-visible, .dark select:focus-visible, .dark textarea:focus-visible, .dark [tabindex]:focus-visible {
+            outline-color: #60a5fa;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+        }
         
         .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
         .dark .glass-header { background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -97,6 +111,9 @@
 
         .connection-error-banner { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #ef4444; color: white; padding: 14px 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(239,68,68,0.4); z-index: 100; display: flex; align-items: center; gap: 12px; }
         @media (min-width: 768px) { .connection-error-banner { bottom: 24px; left: auto; right: 24px; width: 360px; } }
+
+        .install-banner { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #1e3a8a; color: white; padding: 14px 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(30,58,138,0.4); z-index: 100; display: flex; align-items: center; gap: 12px; }
+        @media (min-width: 768px) { .install-banner { bottom: 24px; left: auto; right: 24px; width: 360px; } }
 
         @media print { body * { visibility: hidden; } #digital-slip-content, #digital-slip-content * { visibility: visible; } #digital-slip-content { position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-shadow: none !important; } .no-print { display: none !important; } }
 
@@ -1796,6 +1813,13 @@
         <button @click="fetchData()" class="bg-white text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">ลองใหม่</button>
     </div>
 
+    <div x-show="showInstallPrompt" class="install-banner" x-cloak>
+        <img src="./icon-192.png" class="w-10 h-10 rounded-xl shrink-0" alt="">
+        <div class="flex-1"><div class="font-bold text-sm">ติดตั้งแอป RPCA79</div><div class="text-xs text-blue-200">เข้าใช้งานได้เร็วขึ้นจากหน้าจอหลัก</div></div>
+        <button @click="installApp()" class="bg-white text-blue-800 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">ติดตั้ง</button>
+        <button @click="dismissInstallPrompt()" class="text-blue-200 hover:text-white shrink-0" title="ปิด"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+
     <div class="toast-container" id="toast-container"></div>
 
     <script type="module">
@@ -1857,6 +1881,8 @@
                 isFetching: false,
                 connectionError: false,
                 _reconnectAttempts: 0,
+                showInstallPrompt: false,
+                _deferredInstallEvent: null,
                 _isFetchLocked: false, 
                 _fetchTimeout: null,
                 _pendingFetch: false,
@@ -2055,7 +2081,33 @@
                     this.initRealtime();
                     document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
                     this.initLiff();
+                    this.initInstallPrompt();
                     setInterval(() => { if (!document.hidden) this.fetchData(); }, 60000);
+                },
+
+                initInstallPrompt() {
+                    const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+                    const dismissed = localStorage.getItem('installPromptDismissed');
+                    const insideLine = /Line/i.test(navigator.userAgent);
+                    if (alreadyInstalled || dismissed || insideLine) return;
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        this._deferredInstallEvent = e;
+                        this.showInstallPrompt = true;
+                    });
+                },
+
+                async installApp() {
+                    if (!this._deferredInstallEvent) { this.dismissInstallPrompt(); return; }
+                    this._deferredInstallEvent.prompt();
+                    try { await this._deferredInstallEvent.userChoice; } catch(e) {}
+                    this._deferredInstallEvent = null;
+                    this.showInstallPrompt = false;
+                },
+
+                dismissInstallPrompt() {
+                    this.showInstallPrompt = false;
+                    localStorage.setItem('installPromptDismissed', '1');
                 },
 
                 showToast(message, type = 'info', duration = 3500) {
@@ -2228,6 +2280,7 @@
                                 this.isSubmitting = false;
                                 if(data.status === 'SUCCESS') {
                                     this.config = { ...this.config, current_queue: parseInt(this.config.current_queue) + 1 };
+                                    if (navigator.vibrate) navigator.vibrate([100, 60, 100, 60, 200]);
                                     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#22c55e', '#fbbf24'] });
                                     this.selectedSlipData = { posName: pos[1], posRegion: pos[2] };
                                     this.showSlip = true; 
