@@ -112,9 +112,6 @@
         .connection-error-banner { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #ef4444; color: white; padding: 14px 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(239,68,68,0.4); z-index: 100; display: flex; align-items: center; gap: 12px; }
         @media (min-width: 768px) { .connection-error-banner { bottom: 24px; left: auto; right: 24px; width: 360px; } }
 
-        .install-banner { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #1e3a8a; color: white; padding: 14px 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(30,58,138,0.4); z-index: 100; display: flex; align-items: center; gap: 12px; }
-        @media (min-width: 768px) { .install-banner { bottom: 24px; left: auto; right: 24px; width: 360px; } }
-
         @media print { body * { visibility: hidden; } #digital-slip-content, #digital-slip-content * { visibility: visible; } #digital-slip-content { position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-shadow: none !important; } .no-print { display: none !important; } }
 
         .my-turn-sheet {
@@ -812,15 +809,15 @@
                         <div x-show="!isInitialLoading && viewMode === 'region'" class="space-y-4">
                             <div class="grid gap-4" :class="groupedPositions.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'">
                                 <template x-for="group in groupedPositions" :key="group.name">
-                                    <div x-data="{ expanded: groupedPositions.length === 1 }" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-200" :class="expanded ? (groupedPositions.length === 1 ? 'h-[70vh] min-h-[400px]' : 'col-span-full h-[65vh] min-h-[500px]') : 'h-auto'">
+                                    <div x-data="{ expanded: groupedPositions.length === 1, get shown() { return this.expanded || groupedPositions.length === 1; } }" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-200" :class="shown ? (groupedPositions.length === 1 ? 'h-[70vh] min-h-[400px]' : 'col-span-full h-[65vh] min-h-[500px]') : 'h-auto'">
                                         <div @click="expanded = !expanded" class="cursor-pointer py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0 flex items-center justify-center gap-2 relative" :class="getRegionColorClass(group.name)">
-                                            <i data-lucide="chevron-down" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                                            <i data-lucide="chevron-down" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform duration-300" :class="shown ? 'rotate-180' : ''"></i>
                                             <span x-text="group.name"></span>
                                             <button @click.stop="fullscreenRegion = group.name; $nextTick(() => lucide.createIcons())" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition z-10" title="ดูเต็มจอ">
                                                 <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-white"></i>
                                             </button>
                                         </div>
-                                        <template x-if="expanded"><div class="flex-1 flex flex-col min-h-0">
+                                        <template x-if="shown"><div class="flex-1 flex flex-col min-h-0">
                                             <div class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 py-2 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
                                                 <i data-lucide="info" class="w-3 h-3 inline"></i> ภาพรวม: ว่าง <span class="text-green-600 dark:text-green-400" x-text="getRegionStats(group.name).total - getRegionStats(group.name).taken"></span> / เลือกแล้ว <span class="text-slate-700 dark:text-slate-300" x-text="getRegionStats(group.name).taken"></span>
                                             </div>
@@ -1154,15 +1151,15 @@
             <div class="flex-1 overflow-y-auto no-scrollbar">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
                     <template x-for="region in uniqueRegions" :key="region">
-                        <div x-show="dashboardFilterRegion === 'ALL' || dashboardFilterRegion === region" x-data="{ expanded: false }" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-200" :class="expanded ? 'col-span-full h-[60vh] min-h-[450px]' : 'h-auto'">
+                        <div x-show="dashboardFilterRegion === 'ALL' || dashboardFilterRegion === region" x-data="{ expanded: false, get shown() { return this.expanded || dashboardFilterRegion !== 'ALL'; } }" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-200" :class="shown ? 'col-span-full h-[60vh] min-h-[450px]' : 'h-auto'">
                             <div @click="expanded = !expanded" class="cursor-pointer py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0 flex items-center justify-center gap-2 relative" :class="getRegionColorClass(region)">
-                                <i data-lucide="chevron-down" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                                <i data-lucide="chevron-down" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform duration-300" :class="shown ? 'rotate-180' : ''"></i>
                                 <span x-text="region"></span>
                                 <button @click.stop="fullscreenRegion = region; $nextTick(() => lucide.createIcons())" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition z-10" title="ดูเต็มจอ">
                                     <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-white"></i>
                                 </button>
                             </div>
-                            <template x-if="expanded"><div class="flex-1 flex flex-col min-h-0">
+                            <template x-if="shown"><div class="flex-1 flex flex-col min-h-0">
                                 <div class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 py-2 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
                                     <i data-lucide="info" class="w-3 h-3 inline"></i> เลือกแล้ว <span x-text="getRegionStats(region).taken"></span>/<span x-text="getRegionStats(region).total"></span> ตำแหน่ง
                                 </div>
@@ -1813,13 +1810,6 @@
         <button @click="fetchData()" class="bg-white text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">ลองใหม่</button>
     </div>
 
-    <div x-show="showInstallPrompt" class="install-banner" x-cloak>
-        <img src="./icon-192.png" class="w-10 h-10 rounded-xl shrink-0" alt="">
-        <div class="flex-1"><div class="font-bold text-sm">ติดตั้งแอป RPCA79</div><div class="text-xs text-blue-200">เข้าใช้งานได้เร็วขึ้นจากหน้าจอหลัก</div></div>
-        <button @click="installApp()" class="bg-white text-blue-800 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">ติดตั้ง</button>
-        <button @click="dismissInstallPrompt()" class="text-blue-200 hover:text-white shrink-0" title="ปิด"><i data-lucide="x" class="w-4 h-4"></i></button>
-    </div>
-
     <div class="toast-container" id="toast-container"></div>
 
     <script type="module">
@@ -1881,8 +1871,6 @@
                 isFetching: false,
                 connectionError: false,
                 _reconnectAttempts: 0,
-                showInstallPrompt: false,
-                _deferredInstallEvent: null,
                 _isFetchLocked: false, 
                 _fetchTimeout: null,
                 _pendingFetch: false,
@@ -2081,33 +2069,7 @@
                     this.initRealtime();
                     document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
                     this.initLiff();
-                    this.initInstallPrompt();
                     setInterval(() => { if (!document.hidden) this.fetchData(); }, 60000);
-                },
-
-                initInstallPrompt() {
-                    const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-                    const dismissed = localStorage.getItem('installPromptDismissed');
-                    const insideLine = /Line/i.test(navigator.userAgent);
-                    if (alreadyInstalled || dismissed || insideLine) return;
-                    window.addEventListener('beforeinstallprompt', (e) => {
-                        e.preventDefault();
-                        this._deferredInstallEvent = e;
-                        this.showInstallPrompt = true;
-                    });
-                },
-
-                async installApp() {
-                    if (!this._deferredInstallEvent) { this.dismissInstallPrompt(); return; }
-                    this._deferredInstallEvent.prompt();
-                    try { await this._deferredInstallEvent.userChoice; } catch(e) {}
-                    this._deferredInstallEvent = null;
-                    this.showInstallPrompt = false;
-                },
-
-                dismissInstallPrompt() {
-                    this.showInstallPrompt = false;
-                    localStorage.setItem('installPromptDismissed', '1');
                 },
 
                 showToast(message, type = 'info', duration = 3500) {
