@@ -1377,8 +1377,8 @@
                 </div>
                 
                 <div x-show="lineBindStep === 1" class="space-y-4">
-                    <div class="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300"><i data-lucide="info" class="w-4 h-4 text-blue-500 inline mr-1"></i>กรอกรหัสประจำตัวเพื่อเชื่อมโยงข้อมูล</div>
-                    <input x-model="lineBindCode" type="number" placeholder="รหัสประจำตัว" class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-4 font-bold text-center text-xl focus:ring-4 focus:ring-green-500/20 outline-none transition">
+                    <div class="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300"><i data-lucide="info" class="w-4 h-4 text-blue-500 inline mr-1"></i>กรอกรหัสประจำตัวเพื่อเชื่อมโยงข้อมูล <span class="font-bold">(รหัสประจำตัวคือลำดับที่ท่านสอบได้)</span></div>
+                    <input x-model="lineBindCode" type="number" placeholder="กรอกลำดับที่สอบได้ เช่น 15" class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-4 font-bold text-center text-xl focus:ring-4 focus:ring-green-500/20 outline-none transition">
                     <button @click="proceedLineStep1()" :disabled="!lineBindCode || lineLoading" class="w-full bg-slate-800 dark:bg-slate-600 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2">
                         <span x-show="lineLoading"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></span>
                         <span x-show="!lineLoading"><i data-lucide="arrow-right" class="w-4 h-4"></i></span> ถัดไป
@@ -2635,27 +2635,43 @@
                     this.lineLoading = true;
                     try {
                         const { data: res, error } = await db.from('users').select('*').eq('code', String(this.lineBindCode).trim()).single();
-                        this.lineLoading = false;
-                        if (error || !res) { Swal.fire('ไม่พบรหัส', 'โปรดตรวจสอบรหัสประจำตัว', 'error'); }
-                        else if (res.line_user_id && res.line_user_id !== this.lineProfile?.userId) {
+                        if (error || !res) {
+                            this.lineLoading = false;
+                            Swal.fire('ไม่พบรหัส', 'โปรดตรวจสอบรหัสประจำตัว (รหัสประจำตัวคือลำดับที่ท่านสอบได้)', 'error');
+                            return;
+                        }
+                        if (res.line_user_id && res.line_user_id !== this.lineProfile?.userId) {
+                            this.lineLoading = false;
                             Swal.fire('ผูกบัญชีไม่ได้', 'รหัสประจำตัวนี้ถูกผูกกับบัญชี LINE อื่นไปแล้ว (หากต้องการเปลี่ยนให้กด "ยกเลิกผูก" จากบัญชีเดิม หรือแจ้งแอดมิน)', 'error');
+                            return;
                         }
-                        else { 
-                            this.lineBindUserName = res.name; 
-                            this._pendingBindUser = res; 
-                            this.onboardingForm = {
-                                phone: res.phone || '',
-                                phones: (res.phone || '').split(',').map(x => x.trim()).filter(Boolean),
-                                address: res.address || '',
-                                province: res.province || '',
-                                line_contact: res.line_contact || '',
-                                facebook: res.facebook || '',
-                                ig: res.ig || '',
-                                profile_pic: res.profile_pic || '',
-                                nickname: res.nickname || ''
-                            };
-                            this.lineBindStep = 2; 
+                        // Guard: this LINE account must not already be bound to a *different* code —
+                        // without this check one LINE account could silently end up owning two
+                        // codes, which then breaks its own auto-login (line_user_id lookups expect
+                        // exactly one match).
+                        if (this.lineProfile?.userId && !res.line_user_id) {
+                            const { data: already } = await db.from('users').select('id,name,code').eq('line_user_id', String(this.lineProfile.userId)).single();
+                            if (already && String(already.id) !== String(res.id)) {
+                                this.lineLoading = false;
+                                Swal.fire('ผูกบัญชีไม่ได้', `บัญชี LINE นี้เชื่อมต่อกับรหัสประจำตัว "${already.code}" (${already.name}) อยู่แล้ว 1 บัญชี LINE ใช้ผูกได้แค่ 1 รหัสประจำตัวเท่านั้น หากต้องการเปลี่ยนกรุณากด "ยกเลิกผูก" จากรหัสเดิมก่อน หรือแจ้งแอดมิน`, 'error');
+                                return;
+                            }
                         }
+                        this.lineLoading = false;
+                        this.lineBindUserName = res.name;
+                        this._pendingBindUser = res;
+                        this.onboardingForm = {
+                            phone: res.phone || '',
+                            phones: (res.phone || '').split(',').map(x => x.trim()).filter(Boolean),
+                            address: res.address || '',
+                            province: res.province || '',
+                            line_contact: res.line_contact || '',
+                            facebook: res.facebook || '',
+                            ig: res.ig || '',
+                            profile_pic: res.profile_pic || '',
+                            nickname: res.nickname || ''
+                        };
+                        this.lineBindStep = 2;
                     } catch(e) { this.lineLoading = false; }
                 },
                 
