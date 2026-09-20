@@ -1,9 +1,8 @@
-const CACHE_NAME = 'rpca79-v2';
+const CACHE_NAME = 'rpca79-v3';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  './icon.svg',
   './icon-192.png',
   './icon-512.png'
 ];

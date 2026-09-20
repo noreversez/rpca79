@@ -6,7 +6,6 @@
     <title>RPCA79 - ระบบทดลองเลือกตำแหน่ง</title>
     <meta name="theme-color" content="#1e293b">
     <link rel="manifest" href="./manifest.json">
-    <link rel="icon" type="image/svg+xml" href="./icon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./icon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
@@ -292,7 +291,7 @@
             
             <div class="flex items-center gap-2 shrink-0">
                 <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg shadow-blue-500/30 shrink-0 border border-slate-200 dark:border-slate-700">
-                    <img src="./icon.svg" alt="RPCA Logo" class="w-full h-full object-cover">
+                    <img src="./icon-192.png" alt="RPCA Logo" class="w-full h-full object-cover">
                 </div>
                 <div class="hidden sm:block">
                     <h1 class="text-sm font-bold leading-none text-slate-800 dark:text-white">RPCA79</h1>
@@ -943,249 +942,51 @@
             </div>
         </div>
 
-    <div id="dashboard-container" x-show="currentPage === 'dashboard'" 
+    <div id="dashboard-container" x-show="currentPage === 'dashboard'"
          :class="isDashboardFullscreen ? 'fixed inset-0 z-[100] bg-slate-100 dark:bg-slate-900 p-2 md:p-4 flex flex-col overflow-y-auto' : 'container mx-auto px-4 py-6 pb-28 animate-enter safe-pb'">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 shrink-0">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 shrink-0">
             <h2 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="pie-chart" class="w-6 h-6 text-blue-500"></i> สถานะการเลือกตำแหน่ง</h2>
-            <div class="flex gap-2">
-                <button @click="toggleDashboardFullscreen()" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm transition hover:bg-slate-300 dark:hover:bg-slate-600">
+            <div class="flex items-center gap-2 flex-wrap">
+                <div class="bg-blue-600 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-1.5 shadow-sm shrink-0">
+                    <i data-lucide="list-checks" class="w-4 h-4"></i>
+                    <span x-text="positions.filter(p=>p[3]!=='AVAILABLE').length + '/' + positions.length"></span>
+                </div>
+                <div class="px-4 py-2 rounded-full font-bold text-sm flex items-center gap-1.5 shadow-sm shrink-0"
+                     :class="positions.length > 0 && positions.filter(p=>p[3]!=='AVAILABLE').length === positions.length ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'">
+                    <i data-lucide="check-check" class="w-4 h-4" x-show="positions.length > 0 && positions.filter(p=>p[3]!=='AVAILABLE').length === positions.length"></i>
+                    <span x-text="positions.length > 0 && positions.filter(p=>p[3]!=='AVAILABLE').length === positions.length ? 'เสร็จสิ้น' : 'กำลังดำเนินการ'"></span>
+                </div>
+                <button @click="toggleDashboardFullscreen()" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 w-10 h-10 rounded-full flex items-center justify-center shadow-sm transition hover:bg-slate-300 dark:hover:bg-slate-600 shrink-0" title="เต็มจอ">
                     <span x-show="!isDashboardFullscreen"><i data-lucide="maximize" class="w-4 h-4"></i></span>
                     <span x-show="isDashboardFullscreen"><i data-lucide="minimize" class="w-4 h-4"></i></span>
-                    <span x-text="isDashboardFullscreen ? 'ย่อหน้าต่าง' : 'เต็มจอ'"></span>
                 </button>
             </div>
         </div>
-        <!-- ===== CHARTS SECTION ===== -->
-        <!-- ===== HERO STATS ===== -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5 shrink-0 no-print">
-            <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden card-interaction">
-                <i data-lucide="users" class="absolute -right-4 -bottom-4 w-24 h-24 text-white opacity-10"></i>
-                <div class="text-[10px] font-bold opacity-80 uppercase tracking-widest mb-1">นักเรียนทั้งหมด</div>
-                <div class="text-3xl font-black" x-text="users.filter(u => parseInt(u[0]) > 0 && String(u[0]).toUpperCase() !== 'ADMIN').length"></div>
-                <div class="text-[10px] opacity-60 mt-1" x-text="'เลือกแล้ว ' + users.filter(u => parseInt(u[0]) > 0 && u[3] === 'SELECTED').length + ' คน'"></div>
-            </div>
-            <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden card-interaction">
-                <i data-lucide="check-circle" class="absolute -right-4 -bottom-4 w-24 h-24 text-white opacity-10"></i>
-                <div class="text-[10px] font-bold opacity-80 uppercase tracking-widest mb-1">เลือกแล้ว</div>
-                <div class="text-3xl font-black" x-text="positions.filter(p=>p[3]!=='AVAILABLE').length"></div>
-                <div class="text-[10px] opacity-60 mt-1">ตำแหน่งถูกจองแล้ว</div>
-            </div>
-            <div class="bg-gradient-to-br from-orange-500 to-orange-700 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden card-interaction">
-                <i data-lucide="map-pin" class="absolute -right-4 -bottom-4 w-24 h-24 text-white opacity-10"></i>
-                <div class="text-[10px] font-bold opacity-80 uppercase tracking-widest mb-1">ตำแหน่งว่าง</div>
-                <div class="text-3xl font-black" x-text="positions.filter(p=>p[3]==='AVAILABLE').length"></div>
-                <div class="text-[10px] opacity-60 mt-1" x-text="'จากทั้งหมด ' + positions.length + ' ตำแหน่ง'"></div>
-            </div>
-            <!-- Donut Chart Card -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-lg relative overflow-hidden flex items-center gap-3 card-interaction">
-                <div class="relative shrink-0" style="width:60px;height:60px">
-                    <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
-                        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" stroke-width="3.5" class="dark:hidden"/>
-                        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#334155" stroke-width="3.5" class="hidden dark:block"/>
-                        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#2563eb" stroke-width="3.5"
-                            :stroke-dasharray="progressPercent + ' ' + (100 - progressPercent)"
-                            stroke-linecap="round" style="transition: stroke-dasharray 1s ease"/>
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span class="text-[11px] font-black text-blue-600 dark:text-blue-400" x-text="Math.round(progressPercent) + '%'"></span>
-                    </div>
-                </div>
-                <div>
-                    <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-0.5">ความคืบหน้า</div>
-                    <div class="text-sm font-black text-slate-700 dark:text-slate-200" x-text="positions.filter(p=>p[3]!=='AVAILABLE').length + '/' + positions.length"></div>
-                    <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
-                        <div class="bg-blue-600 h-full transition-all duration-1000" :style="'width: ' + progressPercent + '%'"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- ===== MIDDLE SECTION: Bar Chart + Live Feed ===== -->
-        <div class="grid grid-cols-1 gap-4 mb-4 shrink-0 no-print">
-            <!-- Regional Horizontal Bar Chart (wider) -->
-            <div class="lg:col-span-3 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider flex items-center gap-1.5 mb-4">
-                    <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-blue-500"></i> สรุปรายภาค
-                </div>
-                <div class="space-y-2.5 overflow-y-auto no-scrollbar" style="max-height: 240px;">
-                    <template x-for="r in regionDashboardStats" :key="r.name">
-                        <div class="flex items-center gap-3">
-                            <div class="w-16 text-[10px] font-bold text-right shrink-0 text-slate-600 dark:text-slate-300 truncate" x-text="r.name"></div>
-                            <div class="flex-1 h-6 bg-slate-100 dark:bg-slate-700/70 rounded-full overflow-hidden relative">
-                                <div class="h-full rounded-full transition-all duration-700"
-                                     :style="'width:' + r.percent + '%; background-color:' + getRegionBarColor(r.name)"></div>
-                                <div class="absolute inset-0 flex items-center justify-between px-2.5">
-                                    <span class="text-[9px] font-black"
-                                          :class="r.percent > 38 ? 'text-white' : 'text-slate-500 dark:text-slate-400'"
-                                          x-text="r.taken + '/' + r.total"></span>
-                                    <span class="text-[9px] font-bold" :class="r.percent > 38 ? 'text-white/80' : 'text-slate-400 dark:text-slate-500'" x-text="Math.round(r.percent) + '%'"></span>
+        <!-- ===== REGION COLUMNS ===== -->
+        <div class="flex-1 overflow-y-auto no-scrollbar">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 pb-4 items-start">
+                <template x-for="region in uniqueRegions" :key="region">
+                    <div class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+                        <div class="py-2.5 text-center text-white font-bold text-base shrink-0" :class="getRegionColorClass(region)" x-text="region"></div>
+                        <div class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 py-1.5 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
+                            <i data-lucide="info" class="w-3 h-3 inline"></i> เลือกแล้ว <span x-text="getRegionStats(region).taken"></span>/<span x-text="getRegionStats(region).total"></span> ตำแหน่ง
+                        </div>
+                        <div class="p-2 grid grid-cols-2 gap-1.5">
+                            <template x-for="pos in getPositionsByRegion(region)" :key="pos[0]">
+                                <div @click="openPosDetail(pos)" class="cursor-pointer hover:scale-105 p-2 rounded-lg text-center text-[10px] font-bold leading-tight transition"
+                                     :class="pos[3] === 'AVAILABLE' ? 'bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-400'">
+                                    <div x-text="pos[1]"></div>
+                                    <div x-show="pos[5]" class="text-[8px] font-normal opacity-60" x-text="pos[5]"></div>
+                                    <div x-show="pos[3] !== 'AVAILABLE'" class="text-[8.5px] font-normal opacity-80 truncate mt-0.5" x-text="getUserName(pos[4])"></div>
                                 </div>
-                            </div>
-                        </div>
-                    </template>
-                    <template x-if="regionDashboardStats.length === 0">
-                        <div class="flex items-center justify-center h-32 text-slate-400 text-sm font-bold">
-                            <i data-lucide="loader-2" class="w-5 h-5 animate-spin mr-2"></i> กำลังโหลดข้อมูล...
-                        </div>
-                    </template>
-                </div>
-            </div>
-
-        <!-- ===== PREDICT PANEL BUTTON (compact) ===== -->
-        <div class="mb-3 shrink-0 flex justify-end" style="display: none;">
-            <button @click="predictPanelOpen = !predictPanelOpen; if(predictPanelOpen && user.id && user.role === 'USER' && !predictQueueNum) predictQueueNum = user.id" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs shadow-md shadow-violet-500/20 transition-all duration-200">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                <span>วิเคราะห์โอกาส</span>
-                <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform duration-300" :class="predictPanelOpen ? 'rotate-180' : ''"></i>
-            </button>
-        </div>
-
-            <!-- Predict Panel -->
-            <div x-show="predictPanelOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2" class="mt-2 bg-white dark:bg-slate-800 rounded-2xl border border-violet-200 dark:border-violet-800/50 shadow-xl p-5">
-                <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                    <div class="flex-1">
-                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">จำลองว่าคุณคือคิวที่...</label>
-                        <div class="flex gap-2">
-                            <input x-model="predictQueueNum" type="number" min="1" :max="users.length" placeholder="เช่น 42" class="flex-1 bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-violet-500 transition">
-                            <button x-show="user.id && user.role === 'USER'" @click="predictQueueNum = user.id" class="px-3 py-2.5 bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 rounded-xl text-xs font-bold whitespace-nowrap">คิวผม</button>
-                        </div>
-                    </div>
-                    <div class="flex-1">
-                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">กรองภาคที่สนใจ (ไม่บังคับ)</label>
-                        <select x-model="predictFilterRegion" class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-violet-500 transition">
-                            <option value="">-- ทุกภาค --</option>
-                            <template x-for="r in uniqueRegions" :key="r">
-                                <option :value="r" x-text="r"></option>
                             </template>
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button @click="runPredict()" class="w-full sm:w-auto px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-sm flex items-center gap-2 transition">
-                            <i data-lucide="search" class="w-4 h-4"></i> วิเคราะห์
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Predict Result -->
-                <div x-show="predictResult !== null">
-                    <!-- Summary Banner -->
-                    <div class="mb-3 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-xl border border-violet-200 dark:border-violet-800/50 flex flex-wrap items-center gap-3">
-                        <div class="text-xs font-bold text-violet-700 dark:text-violet-300 flex items-center gap-1.5 flex-1">
-                            <i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i>
-                            <span x-text="'คิวที่ ' + predictQueueNum + ' — ยังเหลือว่าง ' + (predictResult ? predictResult.length : 0) + ' ตำแหน่ง'"></span>
-                        </div>
-                        <!-- Wishlist available count -->
-                        <div x-show="wishlist.length > 0" class="flex items-center gap-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2.5 py-1 rounded-full text-xs font-bold">
-                            <i data-lucide="star" class="w-3 h-3"></i>
-                            <span x-text="'ติดดาวประ ' + (predictResult || []).filter(p => wishlist.includes(p[0])).length + ' ตำแหน่ง'"></span>
                         </div>
                     </div>
-
-                    <!-- Region breakdown -->
-                    <div class="mb-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                        <template x-for="r in uniqueRegions" :key="r">
-                            <div x-show="!predictFilterRegion || predictFilterRegion === r">
-                                <div class="p-2 rounded-xl border text-center text-[10px] font-bold"
-                                    :class="(() => {
-                                        const cnt = (predictResult || []).filter(p => p[2] === r).length;
-                                        const total = positions.filter(p => p[2] === r).length;
-                                        if (cnt === 0) return 'border-red-300 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
-                                        if (cnt <= 2) return 'border-orange-300 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400';
-                                        return 'border-green-300 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400';
-                                    })()">
-                                    <div class="font-black text-sm" x-text="r"></div>
-                                    <div x-text="(predictResult || []).filter(p => p[2] === r).length + ' ว่าง'"></div>
-                                    <div class="mt-0.5 text-[9px] opacity-70"
-                                        :class="(predictResult || []).filter(p => p[2] === r).length === 0 ? 'text-red-500' : (predictResult || []).filter(p => p[2] === r).length <= 2 ? 'text-orange-500' : 'text-green-600'"
-                                        x-text="(predictResult || []).filter(p => p[2] === r).length === 0 ? 'เต็มแล้ว' : (predictResult || []).filter(p => p[2] === r).length <= 2 ? 'เสี่ยงสูง' : 'ปลอดภัย'">
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- Station cards: wishlist first, then rest -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 max-h-64 overflow-y-auto custom-scrollbar pb-1">
-                        <!-- Wishlist matches first -->
-                        <template x-for="pos in (predictResult || []).filter(p => wishlist.includes(p[0]))" :key="'wl-' + pos[0]">
-                            <div class="p-2 border-2 border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl text-center relative">
-                                <div class="absolute top-1 right-1 text-yellow-500"><i data-lucide="star" class="w-3 h-3"></i></div>
-                                <div class="text-[10px] font-black text-slate-500 dark:text-slate-400 mb-0.5" x-text="pos[2]"></div>
-                                <div class="text-[11px] font-bold text-yellow-700 dark:text-yellow-400 leading-tight" style="word-break:normal;overflow-wrap:anywhere;" x-text="pos[1]"></div>
-                            </div>
-                        </template>
-                        <!-- Regular available stations -->
-                        <template x-for="pos in (predictResult || []).filter(p => !wishlist.includes(p[0]))" :key="pos[0]">
-                            <div class="p-2 border-2 border-green-400 bg-green-50 dark:bg-green-900/20 rounded-xl text-center">
-                                <div class="text-[10px] font-black text-slate-500 dark:text-slate-400 mb-0.5" x-text="pos[2]"></div>
-                                <div class="text-[11px] font-bold text-green-700 dark:text-green-400 leading-tight" style="word-break:normal;overflow-wrap:anywhere;" x-text="pos[1]"></div>
-                            </div>
-                        </template>
-                        <template x-if="predictResult !== null && predictResult.length === 0">
-                            <div class="col-span-full py-8 text-center">
-                                <i data-lucide="frown" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2"></i>
-                                <div class="text-sm font-bold text-slate-500 dark:text-slate-400">ไม่มีตำแหน่งว่างเหลือในภาคที่เลือกแล้ว</div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-                <div x-show="predictResult === null" class="text-center py-6 text-slate-400 dark:text-slate-500 text-sm">
-                    <i data-lucide="sparkles" class="w-8 h-8 mx-auto mb-2 text-violet-300"></i>
-                    <div>กรอกเลขคิวแล้วกดวิเคราะห์เพื่อดูตำแหน่งที่เหลือตอนถึงคิวของคุณ</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== REGION GRID (existing) ===== -->
-        <div class="flex-1 flex flex-col overflow-hidden bg-slate-200/50 dark:bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 border-b border-slate-300/50 dark:border-slate-700 pb-3 shrink-0">
-                <div class="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                    <i data-lucide="filter" class="w-4 h-4 text-blue-500"></i> แสดงผลข้อมูลแต่ละภาค
-                </div>
-                <select x-model="dashboardFilterRegion" class="w-full sm:w-auto bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2 text-sm font-bold outline-none text-slate-700 dark:text-white shadow-sm focus:ring-2 focus:ring-blue-500 transition">
-                    <option value="ALL">รวมทุกภาค (All Regions)</option>
-                    <template x-for="r in uniqueRegions" :key="r">
-                        <option :value="r" x-text="r"></option>
-                    </template>
-                </select>
-            </div>
-            <div class="flex-1 overflow-y-auto no-scrollbar">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
-                    <template x-for="region in uniqueRegions" :key="region">
-                        <div x-show="dashboardFilterRegion === 'ALL' || dashboardFilterRegion === region" x-data="{ expanded: false, get shown() { return this.expanded || dashboardFilterRegion === region; } }" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-200" :class="shown ? 'col-span-full h-[60vh] min-h-[450px]' : 'h-auto'">
-                            <div @click="expanded = !expanded" class="cursor-pointer py-2.5 text-center text-white font-bold text-base shadow-sm shrink-0 flex items-center justify-center gap-2 relative" :class="getRegionColorClass(region)">
-                                <i data-lucide="chevron-down" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform duration-300" :class="shown ? 'rotate-180' : ''"></i>
-                                <span x-text="region"></span>
-                                <button @click.stop="fullscreenRegion = region; $nextTick(() => lucide.createIcons())" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition z-10" title="ดูเต็มจอ">
-                                    <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-white"></i>
-                                </button>
-                            </div>
-                            <template x-if="shown"><div class="flex-1 flex flex-col min-h-0">
-                                <div class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 py-2 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
-                                    <i data-lucide="info" class="w-3 h-3 inline"></i> เลือกแล้ว <span x-text="getRegionStats(region).taken"></span>/<span x-text="getRegionStats(region).total"></span> ตำแหน่ง
-                                </div>
-                                <div class="flex-1 overflow-y-auto p-2 custom-scrollbar bg-slate-50/50 dark:bg-slate-800/50">
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2">
-                                        <template x-for="pos in getPositionsByRegion(region)" :key="pos[0]">
-                                            <div @click="openPosDetail(pos)" class="cursor-pointer hover:scale-105 p-2 border-2 rounded-lg text-center text-[10px] font-bold flex flex-col items-center justify-center min-h-[55px] transition-all leading-tight shadow-sm relative overflow-hidden"
-                                                 :class="pos[3] === 'AVAILABLE' ? 'border-green-500 bg-white dark:bg-slate-800 text-green-600 dark:text-green-400' : 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'">
-                                                <span x-text="pos[1]"></span>
-                                                <span x-show="pos[5]" class="text-[8px] font-normal text-slate-400 dark:text-slate-500" x-text="'ภ.จว.' + pos[5]"></span>
-                                                <div x-show="pos[3] !== 'AVAILABLE'" class="mt-1 w-full bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 rounded px-1 py-0.5 text-[8.5px] truncate flex items-center justify-center gap-0.5">
-                                                    <i data-lucide="user-check" class="w-2.5 h-2.5 shrink-0"></i> <span class="truncate" x-text="getUserName(pos[4])"></span>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
-                            </div></template>
-                        </div>
-                    </template>
-                </div>
+                </template>
             </div>
         </div>
     </div>
-</div>
 
 
 
@@ -1381,7 +1182,7 @@
                         <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">วิธีใช้งานระบบ</div>
                         <div class="onboarding-step">
                             <div class="onboarding-step-num">1</div>
-                            <div class="text-sm text-slate-600 dark:text-slate-300"><span class="font-bold">เข้าสู่ระบบ</span> ด้วย LINE หรือรหัสประจำตัว</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-300"><span class="font-bold">เข้าสู่ระบบ</span> ด้วยบัญชี LINE ของคุณ</div>
                         </div>
                         <div class="onboarding-step border-t border-slate-200 dark:border-slate-600">
                             <div class="onboarding-step-num">2</div>
@@ -1397,18 +1198,6 @@
                         <span x-show="!lineLoading"><svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.41-.101-.539-.29l-2.531-3.426v3.089c0 .345-.283.63-.63.63-.344 0-.627-.285-.627-.63V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .41.105.539.291l2.532 3.42V8.108c0-.345.282-.63.63-.63.346 0 .629.285.629.63v4.771zm-5.741 0c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg></span>
                         <span x-text="lineLoading ? 'กำลังเชื่อมต่อ...' : 'LINE Login'"></span>
                     </button>
-                    <div class="relative flex items-center gap-3 mb-5">
-                        <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
-                        <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">หรือ</span>
-                        <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
-                    </div>
-                    <div class="text-left mb-8">
-                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 block">เข้าสู่ระบบด้วยรหัสประจำตัว</label>
-                        <div class="flex gap-2">
-                            <input x-model="loginCode" @keyup.enter="login" type="number" placeholder="กรอกรหัสประจำตัว" class="w-full bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 font-bold text-center outline-none focus:ring-2 focus:ring-blue-500/40">
-                            <button type="button" @click="login" class="bg-blue-600 hover:bg-blue-700 text-white px-6 rounded-xl shadow shrink-0"><i data-lucide="arrow-right" class="w-5 h-5"></i></button>
-                        </div>
-                    </div>
                     <div class="border-t border-slate-100 dark:border-slate-700 pt-6">
                         <button @click="adminLoginMode = !adminLoginMode" class="text-xs font-bold text-slate-400 dark:text-slate-500 hover:text-slate-600 transition">เข้าสู่ระบบสำหรับเจ้าหน้าที่ (Admin)</button>
                         <div x-show="adminLoginMode" class="mt-4 flex gap-2 animate-enter">
@@ -1675,7 +1464,7 @@
                                 <img :src="onboardingForm.profile_pic || user.pictureUrl || lineProfile.pictureUrl" class="w-full h-full object-cover">
                             </template>
                             <template x-if="!(onboardingForm.profile_pic || user.pictureUrl || (lineProfile && lineProfile.pictureUrl))">
-                                <img src="./icon.svg" alt="RPCA Logo" class="w-full h-full object-cover">
+                                <img src="./icon-192.png" alt="RPCA Logo" class="w-full h-full object-cover">
                             </template>
                         </div>
                         <div class="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-slate-400 z-10 shadow-sm"><i data-lucide="link" class="w-4 h-4"></i></div>
@@ -1848,7 +1637,7 @@
                 sidebarCollapsed: safeParse('sidebarCollapsed', false),
                 bureauSelectorCollapsed: safeParse('bureauSelectorCollapsed', false),
                 currentPage: 'home', viewMode: localStorage.getItem('viewMode') || 'region', config: {}, positions: [], users: [], serverLogs: [],
-                search: '', filterRegion: '', filterStatus: 'ALL', dashboardFilterRegion: 'ALL',
+                search: '', filterRegion: '', filterStatus: 'ALL',
                 editProfileModalOpen: false, isSavingProfile: false, adminTab: 'users', adminModalOpen: false, adminModalAction: 'CREATE', adminFormData: {id:'', name:'', code:'', region:''}, directoryViewMode: localStorage.getItem('dirViewMode') || 'grid',
                 isInitialLoading: true, loginCode: '',
                 touchStartY: 0, isPulling: false, pullDistance: 0,
@@ -1888,10 +1677,6 @@
                 selectedDetailPos: null,
                 myTurnSheetOpen: false,
                 _prevQueue: null,
-                predictPanelOpen: false,
-                predictQueueNum: '',
-                predictFilterRegion: '',
-                predictResult: null,
 
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
                 toggleSidebar() { this.sidebarCollapsed = !this.sidebarCollapsed; localStorage.setItem('sidebarCollapsed', JSON.stringify(this.sidebarCollapsed)); },
@@ -1967,11 +1752,9 @@
                             if (this.positions[i][3] !== 'AVAILABLE') taken++;
                         }
                     }
-                    return { total, taken, percent: total ? (taken/total)*100 : 0 }; 
+                    return { total, taken, percent: total ? (taken/total)*100 : 0 };
                 },
-                
-                get regionDashboardStats() { const stats = {}; this.positions.forEach(p => { const r = p[2]; if(!stats[r]) stats[r] = { name: r, total: 0, taken: 0 }; stats[r].total++; if(p[3] !== 'AVAILABLE') stats[r].taken++; }); return Object.values(stats).map(s => ({...s, percent: (s.taken/s.total)*100})).sort((a,b) => a.name.localeCompare(b.name)); },
-                
+
                 isWishlist(id) { return this.wishlist.includes(id); },
                 toggleWishlist(id) { 
                     if (this.wishlist.includes(id)) {
@@ -2042,25 +1825,6 @@
                     return map[region] || 'bg-slate-700';
                 },
 
-                getRegionBarColor(region) {
-                    const map = {
-                        'บช.น.': '#2563eb',
-                        'ภ.1':   '#dc2626',
-                        'ภ.2':   '#f97316',
-                        'ภ.3':   '#16a34a',
-                        'ภ.4':   '#9333ea',
-                        'ภ.5':   '#ec4899',
-                        'ภ.6':   '#0d9488',
-                        'ภ.7':   '#ca8a04',
-                        'ภ.8':   '#4f46e5',
-                        'ภ.9':   '#0891b2',
-                        'ตชด.':  '#059669',
-                        'สพฐ.ตร.': '#475569',
-                        'บช.ก.': '#a16207'
-                    };
-                    return map[region] || '#2563eb';
-                },
-                
                 openPosDetail(pos) {
                     this.selectedDetailPos = pos;
                     this.posDetailModalOpen = true;
@@ -2772,49 +2536,6 @@
                         
                         this.fetchData();
                     } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + e.message, 'error'); }
-                },
-
-                runPredict() {
-                    const qNum = parseInt(this.predictQueueNum);
-                    if (!qNum || qNum < 1) {
-                        Swal.fire('แจ้งเตือน', 'กรุณากรอกหมายเลขคิวที่ถูกต้อง', 'warning');
-                        return;
-                    }
-                    // Simulate: which positions would still be available when queue #qNum's turn comes
-                    // Users with queue < qNum who have SELECTED a position => those positions are taken
-                    const takenByBefore = new Set(
-                        this.users
-                            .filter(u => parseInt(u[0]) < qNum && u[3] === 'SELECTED')
-                            .map(u => String(u[4]))
-                    );
-                    let available = this.positions.filter(p => {
-                        const isTakenByData = p[3] !== 'AVAILABLE';
-                        const isTakenBySimulation = takenByBefore.has(String(p[1])) || takenByBefore.has(String(p[0]));
-                        // A position is available if it's not taken in current data AND not taken by anyone before this queue
-                        return p[3] === 'AVAILABLE' || !isTakenBySimulation;
-                    });
-                    // Re-filter: only positions that are AVAILABLE in live data (not yet taken by anyone)
-                    // AND not "owned" by someone with a lower queue number
-                    const takenPosIds = new Set(
-                        this.users
-                            .filter(u => parseInt(u[0]) < qNum && u[3] === 'SELECTED')
-                            .map(u => String(u[0]))
-                    );
-                    // Build the simulation result: positions not taken by queues before qNum
-                    const takenBeforeQueuePosIds = new Set();
-                    this.users.forEach(u => {
-                        if (parseInt(u[0]) < qNum && u[3] === 'SELECTED') {
-                            const pos = this.positions.find(p => String(p[4]) === String(u[0]));
-                            if (pos) takenBeforeQueuePosIds.add(pos[0]);
-                        }
-                    });
-                    let result = this.positions.filter(p => !takenBeforeQueuePosIds.has(p[0]) && p[3] === 'AVAILABLE');
-                    if (this.predictFilterRegion) {
-                        result = result.filter(p => p[2] === this.predictFilterRegion);
-                    }
-                    result.sort((a, b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]));
-                    this.predictResult = result;
-                    this.$nextTick(() => lucide.createIcons());
                 },
 
                 async toggleAdminRole(u) {
