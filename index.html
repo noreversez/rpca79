@@ -828,7 +828,7 @@
                                                             <button @click.stop="toggleWishlist(pos[0])" class="absolute top-1 right-1 z-10 scale-75" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i data-lucide="star" class="w-4 h-4"></i></button>
 
                                                             <span class="px-1 w-full text-[10px] md:text-[11px] line-clamp-2" style="word-break: normal; overflow-wrap: anywhere;" x-text="pos[1]" :title="pos[1]"></span>
-                                                            <span x-show="pos[5]" class="text-[8px] font-normal text-slate-400 dark:text-slate-500" x-text="'ภ.จว.' + pos[5]"></span>
+                                                            <span x-show="pos[5]" class="text-[8px] font-normal text-slate-400 dark:text-slate-500" x-text="subtextFor(pos)"></span>
 
                                                             <div x-show="pos[3] !== 'AVAILABLE'" class="mt-1 w-full bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 rounded px-1 py-0.5 text-[8.5px] truncate flex items-center justify-center gap-0.5">
                                                                 <i data-lucide="user-check" class="w-2.5 h-2.5 shrink-0"></i> <span class="truncate" x-text="getUserName(pos[4])"></span>
@@ -1003,7 +1003,7 @@
                                      :class="pos[3] === 'AVAILABLE' ? 'bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-400'">
                                     <button @click.stop="toggleWishlist(pos[0])" class="absolute top-0.5 right-0.5 z-10 scale-75" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i data-lucide="star" class="w-3.5 h-3.5"></i></button>
                                     <div class="pr-2" x-text="pos[1]"></div>
-                                    <div x-show="pos[5]" class="text-[8px] font-normal opacity-60" x-text="'ภ.จว.' + pos[5]"></div>
+                                    <div x-show="pos[5]" class="text-[8px] font-normal opacity-60" x-text="subtextFor(pos)"></div>
                                     <div x-show="pos[3] !== 'AVAILABLE'" class="text-[8.5px] font-normal opacity-80 truncate mt-0.5" x-text="getUserName(pos[4])"></div>
                                     <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click.stop="confirmSelect(pos)" :disabled="isSubmitting" class="mt-1 w-full bg-blue-600 text-white rounded py-1 text-[9px] shadow-sm hover:bg-blue-700 transition disabled:opacity-50">
                                         <span x-text="isSubmitting ? '...' : 'เลือก'"></span>
@@ -1045,7 +1045,7 @@
                     <div @click="openPosDetail(pos)" class="cursor-pointer hover:scale-105 p-3 border-2 rounded-xl text-center text-xs font-bold flex flex-col items-center justify-center min-h-[70px] transition-all leading-tight shadow-sm relative overflow-hidden"
                          :class="pos[3] === 'AVAILABLE' ? 'border-green-500 bg-white dark:bg-slate-800 text-green-600 dark:text-green-400 hover:shadow-green-200 dark:hover:shadow-green-900/30' : 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:shadow-red-200 dark:hover:shadow-red-900/30'">
                         <span x-text="pos[1]"></span>
-                        <span x-show="pos[5]" class="text-[9px] font-normal opacity-70" x-text="'ภ.จว.' + pos[5]"></span>
+                        <span x-show="pos[5]" class="text-[9px] font-normal opacity-70" x-text="subtextFor(pos)"></span>
                         <div x-show="pos[3] !== 'AVAILABLE'" class="mt-1.5 w-full bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 rounded-md px-1.5 py-1 text-[9px] truncate flex items-center justify-center gap-0.5">
                             <i data-lucide="user-check" class="w-3 h-3 shrink-0"></i> <span class="truncate" x-text="getUserName(pos[4])"></span>
                         </div>
@@ -1775,6 +1775,13 @@
 
                 get progressPercent() { return this.positions.length ? (this.positions.filter(p => p[3]!=='AVAILABLE').length/this.positions.length)*100 : 0; },
                 getUserName(id) { const u = this.users.find(x => String(x[0]).trim() == String(id).trim()); return u ? u[1] : id; },
+                subtextFor(pos) {
+                    if (!pos[5]) return '';
+                    // pos[5] holds the province for ภ.1-9 positions, or the
+                    // กองบังคับการ (บก.) name for every other bureau — only
+                    // label it "ภ.จว." when it's actually a province.
+                    return /^ภ\.\d/.test(pos[2]) ? 'ภ.จว.' + pos[5] : pos[5];
+                },
                 get prev3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) < cur).sort((a,b) => parseInt(b[0]) - parseInt(a[0])).slice(0, 3).reverse(); },
                 get next3Users() { const cur = parseInt(this.config.current_queue); return this.users.filter(u => parseInt(u[0]) > cur).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).slice(0, 3); },
                 get dashboardList() { return this.users.filter(u => String(u[3]).toUpperCase() === 'SELECTED').map(u => { const pos = this.positions.find(p => String(p[4]).trim() == String(u[0]).trim()); return { id: u[0], name: u[1], pos: u[4], region: pos ? pos[2] : '-', time: u[5] }; }).sort((a,b) => parseInt(a.id) - parseInt(b.id)); },
