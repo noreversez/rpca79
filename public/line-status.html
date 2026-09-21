@@ -14,113 +14,194 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 
     <style>
         body { -webkit-tap-highlight-color: transparent; font-family: 'Sarabun', sans-serif; }
         .bg-pattern { background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px; background-color: #0f172a; }
-        [x-cloak] { display: none !important; }
         .spinner { border: 3px solid rgba(255,255,255,0.15); border-top-color: #22c55e; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .avatar-fallback { background: linear-gradient(135deg,#334155,#1e293b); }
     </style>
 </head>
-<body class="bg-pattern min-h-screen flex items-center justify-center p-4">
+<body class="bg-pattern min-h-screen pb-10">
 
-    <div class="w-full max-w-sm">
-        <div class="text-center mb-6">
-            <div class="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-3 overflow-hidden">
-                <img src="./icon-192.png" alt="RPCA79" class="w-10 h-10 object-contain">
+    <div class="max-w-lg mx-auto px-4 pt-6">
+        <div class="text-center mb-5">
+            <div class="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                <img src="./icon-192.png" alt="RPCA79" class="w-9 h-9 object-contain">
             </div>
-            <h1 class="text-lg font-bold text-white">ตรวจสอบการเชื่อมต่อ LINE</h1>
-            <p class="text-sm text-slate-400 mt-1">ระบบตรวจสอบสถานะ (แยกจากระบบหลัก)</p>
+            <h1 class="text-lg font-bold text-white">ตรวจสอบการเชื่อมต่อ LINE รุ่น 79</h1>
+            <p class="text-sm text-slate-400 mt-1">ดูว่าใครเชื่อมบัญชี LINE แล้ว เชื่อมกับชื่อ/ลำดับไหน (แยกจากระบบหลัก)</p>
         </div>
 
-        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 shadow-xl">
-
-            <div id="state-loading" class="flex flex-col items-center py-8 gap-3">
-                <div class="spinner"></div>
-                <p class="text-sm text-slate-400">กำลังตรวจสอบ...</p>
-            </div>
-
-            <div id="state-login" class="hidden flex-col items-center py-4 gap-4 text-center">
-                <p class="text-sm text-slate-300">เข้าสู่ระบบด้วย LINE เพื่อตรวจสอบว่าบัญชี LINE ของคุณเชื่อมต่อกับบัญชีในระบบใด</p>
-                <button id="btn-login" class="w-full py-3 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white font-bold flex items-center justify-center gap-2 transition">
-                    เข้าสู่ระบบด้วย LINE
-                </button>
-            </div>
-
-            <div id="state-linked" class="hidden flex-col items-center py-2 gap-4 text-center">
-                <div class="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto text-lg">✓</div>
-                <div>
-                    <p class="text-sm text-slate-400 mb-1">บัญชี LINE นี้เชื่อมต่อกับ</p>
-                    <p class="text-xl font-bold text-white" id="linked-name">-</p>
-                    <p class="text-sm text-slate-400 mt-0.5">รหัสประจำตัว <span class="font-bold text-green-400" id="linked-code">-</span></p>
-                </div>
-                <div class="w-full border-t border-slate-700 pt-4 mt-1">
-                    <p class="text-xs text-slate-500">LINE: <span id="line-display-name">-</span></p>
-                </div>
-            </div>
-
-            <div id="state-unlinked" class="hidden flex-col items-center py-4 gap-3 text-center">
-                <div class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-lg">!</div>
-                <p class="text-white font-bold">บัญชี LINE นี้ยังไม่ได้เชื่อมต่อ</p>
-                <p class="text-xs text-slate-400">LINE: <span id="line-display-name-unlinked">-</span></p>
-                <p class="text-xs text-slate-500">กรุณาเข้าสู่ระบบหลักด้วยรหัสประจำตัวเพื่อผูกบัญชี</p>
-            </div>
-
-            <div id="state-error" class="hidden flex-col items-center py-6 gap-2 text-center">
-                <p class="text-red-400 text-sm">เกิดข้อผิดพลาด ไม่สามารถตรวจสอบได้ในขณะนี้</p>
-            </div>
-
+        <div class="relative mb-3">
+            <input id="search" type="text" placeholder="ค้นหาชื่อ หรือ ลำดับที่..."
+                class="w-full bg-slate-800/60 border border-slate-700 rounded-xl py-3 pl-4 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-green-500 transition">
         </div>
 
-        <p class="text-center text-xs text-slate-600 mt-4">RPCA79 · หน้าตรวจสอบสถานะเท่านั้น ไม่สามารถแก้ไขข้อมูลได้</p>
+        <div class="flex gap-2 mb-3">
+            <button data-filter="all" class="filter-btn flex-1 py-2 rounded-xl text-xs font-bold border transition">ทั้งหมด</button>
+            <button data-filter="linked" class="filter-btn flex-1 py-2 rounded-xl text-xs font-bold border transition">เชื่อมต่อแล้ว</button>
+            <button data-filter="unlinked" class="filter-btn flex-1 py-2 rounded-xl text-xs font-bold border transition">ยังไม่เชื่อมต่อ</button>
+        </div>
+
+        <div id="summary" class="text-xs text-slate-400 text-center mb-3"></div>
+
+        <div id="state-loading" class="flex flex-col items-center py-16 gap-3">
+            <div class="spinner"></div>
+            <p class="text-sm text-slate-400">กำลังโหลดรายชื่อ...</p>
+        </div>
+
+        <div id="state-error" class="hidden flex-col items-center py-16 gap-2 text-center">
+            <p class="text-red-400 text-sm">โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</p>
+        </div>
+
+        <div id="list" class="hidden flex-col gap-2"></div>
+
+        <div id="empty" class="hidden text-center py-12 text-slate-500 text-sm">ไม่พบรายชื่อที่ตรงกับคำค้นหา</div>
+
+        <div id="pagination" class="hidden items-center justify-center gap-3 mt-5">
+            <button id="btn-prev" class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-700 transition">‹</button>
+            <span class="text-sm font-bold text-slate-300"><span id="page-cur">1</span> / <span id="page-total">1</span></span>
+            <button id="btn-next" class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-700 transition">›</button>
+        </div>
+
+        <p class="text-center text-xs text-slate-600 mt-6">RPCA79 · หน้าตรวจสอบสถานะเท่านั้น ไม่สามารถแก้ไขข้อมูลได้</p>
     </div>
 
     <script>
         const SUPABASE_URL = "https://izujreipvtsnldgpdynu.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_p7MUWJqXpImPGqkGEfbiow_EDC1iRK2";
-        const LIFF_ID = "2010015310-qHlFgmRX";
+        const PAGE_SIZE = 30;
 
         const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function show(id) {
-            ['state-loading', 'state-login', 'state-linked', 'state-unlinked', 'state-error'].forEach(s => {
-                document.getElementById(s).classList.toggle('hidden', s !== id);
-                document.getElementById(s).classList.toggle('flex', s === id);
+        let allUsers = [];
+        let page = 1;
+        let filterMode = 'all';
+
+        function applyFilterBtnStyles() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                const active = btn.dataset.filter === filterMode;
+                btn.classList.toggle('bg-green-600', active);
+                btn.classList.toggle('border-green-600', active);
+                btn.classList.toggle('text-white', active);
+                btn.classList.toggle('bg-slate-800/60', !active);
+                btn.classList.toggle('border-slate-700', !active);
+                btn.classList.toggle('text-slate-400', !active);
             });
         }
 
-        async function checkStatus() {
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function renderRow(u) {
+            const linked = !!u.line_user_id;
+            const pic = u.profile_pic
+                ? `<img src="${escapeHtml(u.profile_pic)}" class="w-11 h-11 rounded-full object-cover" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className:'w-11 h-11 rounded-full avatar-fallback flex items-center justify-center text-slate-400 text-xs font-bold', textContent:'?'}))">`
+                : `<div class="w-11 h-11 rounded-full avatar-fallback flex items-center justify-center text-slate-400 text-xs font-bold">${escapeHtml((u.name || '?').trim().slice(-1))}</div>`;
+
+            const statusBadge = linked
+                ? `<div class="flex items-center gap-1 text-xs text-green-400 font-bold"><span>✓</span><span>เชื่อมต่อแล้ว</span></div>
+                   <div class="text-xs text-slate-500 truncate max-w-[140px]">${escapeHtml(u.line_display_name || '')}</div>`
+                : `<div class="flex items-center gap-1 text-xs text-amber-400 font-bold"><span>!</span><span>ยังไม่เชื่อมต่อ</span></div>`;
+
+            return `
+            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-3 flex items-center gap-3">
+                ${pic}
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white truncate">${escapeHtml(u.name || '-')}</p>
+                    <p class="text-xs text-slate-500">ลำดับ ${escapeHtml(u.code || '-')}</p>
+                </div>
+                <div class="text-right shrink-0">
+                    ${statusBadge}
+                </div>
+            </div>`;
+        }
+
+        function getFiltered() {
+            const q = (document.getElementById('search').value || '').trim().toLowerCase();
+            let result = allUsers;
+            if (filterMode === 'linked') result = result.filter(u => !!u.line_user_id);
+            else if (filterMode === 'unlinked') result = result.filter(u => !u.line_user_id);
+            if (q) {
+                result = result.filter(u =>
+                    (u.name || '').toLowerCase().includes(q) ||
+                    String(u.code || '').toLowerCase().includes(q)
+                );
+            }
+            return result;
+        }
+
+        function render() {
+            const filtered = getFiltered();
+            const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+            page = Math.min(Math.max(1, page), totalPages);
+            const start = (page - 1) * PAGE_SIZE;
+            const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+            const linkedCount = allUsers.filter(u => u.line_user_id).length;
+            document.getElementById('summary').textContent = `เชื่อมต่อแล้ว ${linkedCount} / ${allUsers.length} คน`;
+
+            const listEl = document.getElementById('list');
+            const emptyEl = document.getElementById('empty');
+            const pagEl = document.getElementById('pagination');
+
+            if (pageItems.length === 0) {
+                listEl.classList.add('hidden'); listEl.classList.remove('flex');
+                emptyEl.classList.remove('hidden');
+                pagEl.classList.add('hidden'); pagEl.classList.remove('flex');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+            listEl.classList.remove('hidden'); listEl.classList.add('flex');
+            listEl.innerHTML = pageItems.map(renderRow).join('');
+
+            document.getElementById('page-cur').textContent = page;
+            document.getElementById('page-total').textContent = totalPages;
+            document.getElementById('btn-prev').disabled = page <= 1;
+            document.getElementById('btn-next').disabled = page >= totalPages;
+
+            if (totalPages > 1) { pagEl.classList.remove('hidden'); pagEl.classList.add('flex'); }
+            else { pagEl.classList.add('hidden'); pagEl.classList.remove('flex'); }
+        }
+
+        document.getElementById('search').addEventListener('input', () => { page = 1; render(); });
+        document.getElementById('btn-prev').addEventListener('click', () => { page--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        document.getElementById('btn-next').addEventListener('click', () => { page++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterMode = btn.dataset.filter;
+                page = 1;
+                applyFilterBtnStyles();
+                render();
+            });
+        });
+        applyFilterBtnStyles();
+
+        async function load() {
             try {
-                if (!LIFF_ID) { show('state-error'); return; }
-                await liff.init({ liffId: LIFF_ID });
+                const { data, error } = await db.from('users')
+                    .select('name,code,line_user_id,line_display_name,profile_pic')
+                    .order('code', { ascending: true });
+                if (error) throw error;
 
-                if (!liff.isLoggedIn()) {
-                    show('state-login');
-                    document.getElementById('btn-login').onclick = () => liff.login({ redirectUri: window.location.href });
-                    return;
-                }
+                allUsers = (data || []).filter(u => u.code !== null && u.code !== '' && parseInt(u.code) > 0);
+                allUsers.sort((a, b) => (parseInt(a.code) || 0) - (parseInt(b.code) || 0));
 
-                const profile = await liff.getProfile();
-                const { data: res } = await db.from('users').select('name,code').eq('line_user_id', String(profile.userId)).single();
-
-                if (res) {
-                    document.getElementById('linked-name').textContent = res.name;
-                    document.getElementById('linked-code').textContent = res.code;
-                    document.getElementById('line-display-name').textContent = profile.displayName;
-                    show('state-linked');
-                } else {
-                    document.getElementById('line-display-name-unlinked').textContent = profile.displayName;
-                    show('state-unlinked');
-                }
+                document.getElementById('state-loading').classList.add('hidden');
+                render();
             } catch (e) {
-                console.warn('check failed:', e.message);
-                show('state-error');
+                console.warn('load failed:', e.message);
+                document.getElementById('state-loading').classList.add('hidden');
+                const err = document.getElementById('state-error');
+                err.classList.remove('hidden'); err.classList.add('flex');
             }
         }
 
-        checkStatus();
+        load();
     </script>
 </body>
 </html>
