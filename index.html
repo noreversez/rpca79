@@ -1874,7 +1874,7 @@
                     return this.positions.filter(p => p[2] === region).sort((a, b) => a[1].localeCompare(b[1]));
                 },
                 getRegionColorClass(region) {
-                    const map = { 'บช.น.': 'bg-blue-600', 'ภ.1': 'bg-red-600', 'ภ.2': 'bg-orange-500', 'ภ.3': 'bg-green-600', 'ภ.4': 'bg-gradient-to-r from-purple-600 to-fuchsia-600', 'ภ.5': 'bg-pink-600', 'ภ.6': 'bg-teal-600', 'ภ.7': 'bg-yellow-600', 'ภ.8': 'bg-indigo-600', 'ภ.9': 'bg-cyan-600', 'ตชด.': 'bg-emerald-700', 'สพฐ.ตร.': 'bg-slate-700', 'บช.ก.': 'bg-yellow-700' };
+                    const map = { 'บช.น.': 'bg-blue-600', 'ภ.1': 'bg-red-600', 'ภ.2': 'bg-orange-500', 'ภ.3': 'bg-green-600', 'ภ.4': 'bg-gradient-to-r from-purple-600 to-fuchsia-600', 'ภ.5': 'bg-pink-600', 'ภ.6': 'bg-teal-600', 'ภ.7': 'bg-yellow-600', 'ภ.8': 'bg-indigo-600', 'ภ.9': 'bg-cyan-600', 'ตชด.': 'bg-emerald-700', 'สพฐ.ตร.': 'bg-slate-700', 'บช.ก.': 'bg-yellow-700', 'บช.ตชด.': 'bg-emerald-700', 'บช.ส.': 'bg-violet-700', 'บช.สอท.': 'bg-sky-600' };
                     return map[region] || 'bg-slate-700';
                 },
 
