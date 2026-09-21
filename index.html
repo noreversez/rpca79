@@ -2628,6 +2628,27 @@
                     }
                 },
 
+                // LINE profile picture URLs are not permanent — they can expire, at
+                // which point a photo grabbed once at bind-time and never touched
+                // again just stays broken forever. Called whenever we have a live,
+                // freshly-fetched liff.getProfile() picture for the logged-in user;
+                // only writes to the DB when the URL actually changed, so this
+                // doesn't turn into a write on every single page load.
+                async syncLinePicture() {
+                    const freshUrl = this.lineProfile?.pictureUrl;
+                    if (!freshUrl || !this.user?.id || this.user.role === 'ADMIN') return;
+                    try {
+                        const { data: res } = await db.from('users').select('profile_pic').eq('id', parseInt(this.user.id)).single();
+                        if (res && res.profile_pic !== freshUrl) {
+                            const { error } = await db.from('users').update({ profile_pic: freshUrl }).eq('id', parseInt(this.user.id));
+                            if (!error) {
+                                this.user.pictureUrl = freshUrl;
+                                localStorage.setItem('user_session', JSON.stringify(this.user));
+                            }
+                        }
+                    } catch(e) { console.warn('syncLinePicture skipped:', e.message); }
+                },
+
                 async initLiff() {
                     if (!LIFF_ID_CONFIGURED) return;
                     try {
@@ -2639,13 +2660,14 @@
                                 const val = localStorage.getItem('user_session');
                                 if (val && val !== 'undefined' && val !== 'null') saved = JSON.parse(val) || {id: null};
                             } catch(e) {}
-                            
+
                             if (!saved.id) {
-                                try { 
+                                try {
                                     const { data: res } = await db.from('users').select('*').eq('line_user_id', String(this.lineProfile.userId)).single();
-                                    if (res) { 
-                                        this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true, lineDisplayName: res.line_display_name || this.lineProfile.displayName, pictureUrl: this.lineProfile.pictureUrl, onboardingCompleted: !!res.onboarding_completed }; 
-                                        localStorage.setItem('user_session', JSON.stringify(this.user)); this.switchPage('home'); 
+                                    if (res) {
+                                        this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true, lineDisplayName: res.line_display_name || this.lineProfile.displayName, pictureUrl: this.lineProfile.pictureUrl, onboardingCompleted: !!res.onboarding_completed };
+                                        localStorage.setItem('user_session', JSON.stringify(this.user)); this.switchPage('home');
+                                        if (res.profile_pic !== this.lineProfile.pictureUrl) this.syncLinePicture();
                                     } else {
                                         if (this.user && this.user.role !== 'ADMIN') this.openLineBindModal();
                                     }
@@ -2654,20 +2676,22 @@
                                 }
                             } else if (!this.user.lineLinked && this.user && this.user.role !== 'ADMIN') {
                                 this.openLineBindModal();
+                            } else {
+                                this.syncLinePicture();
                             }
                         } else {
                             if (this.user && this.user.role !== 'ADMIN' && (!this.user.id || !this.user.lineLinked)) {
                                 this.openLineBindModal();
                             }
                         }
-                    } catch(e) { 
-                        console.warn('LIFF init skipped:', e.message); 
+                    } catch(e) {
+                        console.warn('LIFF init skipped:', e.message);
                         if (this.user && this.user.role !== 'ADMIN' && (!this.user.id || !this.user.lineLinked)) {
                             this.openLineBindModal();
                         }
                     }
                 },
-                
+
                 async loginWithLine() {
                     if (!LIFF_ID_CONFIGURED) { Swal.fire('แจ้งเตือน', 'กรุณาตั้งค่า LIFF_ID ก่อนใช้งาน', 'warning'); return; }
                     this.lineLoading = true;
@@ -2677,9 +2701,10 @@
                         this.lineProfile = await liff.getProfile();
                         const { data: res, error } = await db.from('users').select('*').eq('line_user_id', String(this.lineProfile.userId)).single();
                         this.lineLoading = false;
-                        if (res) { 
-                            this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true, lineDisplayName: res.line_display_name || this.lineProfile.displayName, pictureUrl: this.lineProfile.pictureUrl, onboardingCompleted: !!res.onboarding_completed }; 
-                            localStorage.setItem('user_session', JSON.stringify(this.user)); this.switchPage('home'); 
+                        if (res) {
+                            this.user = { role: 'USER', id: res.id, name: res.name, status: res.status, lineLinked: true, lineDisplayName: res.line_display_name || this.lineProfile.displayName, pictureUrl: this.lineProfile.pictureUrl, onboardingCompleted: !!res.onboarding_completed };
+                            localStorage.setItem('user_session', JSON.stringify(this.user)); this.switchPage('home');
+                            if (res.profile_pic !== this.lineProfile.pictureUrl) this.syncLinePicture();
                         } else { this.openLineBindModal(); }
                     } catch(e) { this.lineLoading = false; Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ LINE ได้', 'error'); }
                 },
