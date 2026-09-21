@@ -364,12 +364,12 @@
 
             <div class="relative mb-6">
                 <i data-lucide="search" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
-                <input type="text" x-model="directorySearch" @input="visibleUsersCount = 20" placeholder="ค้นหาชื่อ, ชื่อเล่น, ตำแหน่ง, เบอร์โทร หรือจังหวัด..." class="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl pl-11 pr-4 py-3 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition dark:text-white shadow-sm">
+                <input type="text" x-model="directorySearch" @input="directoryPage = 1" placeholder="ค้นหาชื่อ, ชื่อเล่น, ตำแหน่ง, เบอร์โทร หรือจังหวัด..." class="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl pl-11 pr-4 py-3 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition dark:text-white shadow-sm">
             </div>
 
             <div class="text-xs text-slate-400 dark:text-slate-500 text-center mb-3 font-medium" x-show="users.filter(x => parseInt(x[0]) > 0 && x[17]).length > 0">
-                <span class="text-blue-500 font-bold" x-text="Math.min(visibleUsersCount, totalFilteredDirectoryUsers)"></span>
-                <span> จาก </span>
+                หน้า <span class="text-blue-500 font-bold" x-text="directoryPage"></span> / <span class="font-bold text-slate-600 dark:text-slate-300" x-text="totalDirectoryPages"></span>
+                <span class="mx-1">•</span>
                 <span class="font-bold text-slate-600 dark:text-slate-300" x-text="totalFilteredDirectoryUsers"></span>
                 <span> รายชื่อ</span>
                 <template x-if="directorySearch">
@@ -509,6 +509,16 @@
             <div x-show="totalFilteredDirectoryUsers === 0" class="text-center py-12 text-slate-400">
                 <i data-lucide="search-X" class="w-12 h-12 mx-auto mb-3 opacity-20"></i>
                 <p>ไม่พบรายชื่อ</p>
+            </div>
+
+            <div x-show="totalDirectoryPages > 1" class="flex items-center justify-center gap-3 mt-6">
+                <button @click="goToDirectoryPage(directoryPage - 1)" :disabled="directoryPage <= 1" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </button>
+                <span class="text-sm font-bold text-slate-600 dark:text-slate-300">หน้า <span x-text="directoryPage"></span> / <span x-text="totalDirectoryPages"></span></span>
+                <button @click="goToDirectoryPage(directoryPage + 1)" :disabled="directoryPage >= totalDirectoryPages" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm">
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -1684,7 +1694,8 @@
                 onboardingForm: { phone: '', phones: [''], address: '', province: '', line_contact: '', facebook: '', ig: '', profile_pic: '', nickname: '' },
                 onboardingLoading: false,
                 directorySearch: '',
-                visibleUsersCount: 20,
+                directoryPage: 1,
+                directoryPageSize: 20,
                 phoneSelectModalOpen: false,
                 phoneSelectUser: null,
                 phoneSelectNumbers: [],
@@ -1716,8 +1727,8 @@
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
                 toggleSidebar() { this.sidebarCollapsed = !this.sidebarCollapsed; localStorage.setItem('sidebarCollapsed', JSON.stringify(this.sidebarCollapsed)); },
                 toggleBureauSelector() { this.bureauSelectorCollapsed = !this.bureauSelectorCollapsed; localStorage.setItem('bureauSelectorCollapsed', JSON.stringify(this.bureauSelectorCollapsed)); },
-                get filteredDirectoryUsers() {
-                    let filtered = this.users.filter(x => {
+                get matchedDirectoryUsers() {
+                    return this.users.filter(x => {
                         if (parseInt(x[0]) <= 0 || !x[17]) return false;
                         if (!this.directorySearch) return true;
                         const s = this.directorySearch.toLowerCase();
@@ -1728,24 +1739,20 @@
                         const nickname = x[18] ? x[18].toLowerCase() : '';
                         return name.includes(s) || phone.includes(s) || province.includes(s) || position.includes(s) || nickname.includes(s);
                     });
-                    return filtered.slice(0, this.visibleUsersCount);
+                },
+                get filteredDirectoryUsers() {
+                    const start = (this.directoryPage - 1) * this.directoryPageSize;
+                    return this.matchedDirectoryUsers.slice(start, start + this.directoryPageSize);
                 },
                 get totalFilteredDirectoryUsers() {
-                     let filtered = this.users.filter(x => {
-                        if (parseInt(x[0]) <= 0 || !x[17]) return false;
-                        if (!this.directorySearch) return true;
-                        const s = this.directorySearch.toLowerCase();
-                        const name = x[1] ? x[1].toLowerCase() : '';
-                        const phone = x[9] ? x[9].toLowerCase() : '';
-                        const province = x[11] ? x[11].toLowerCase() : '';
-                        const position = x[16] ? x[16].toLowerCase() : '';
-                        const nickname = x[18] ? x[18].toLowerCase() : '';
-                        return name.includes(s) || phone.includes(s) || province.includes(s) || position.includes(s) || nickname.includes(s);
-                    });
-                    return filtered.length;
+                    return this.matchedDirectoryUsers.length;
                 },
-                loadMoreUsers() {
-                    this.visibleUsersCount += 20;
+                get totalDirectoryPages() {
+                    return Math.max(1, Math.ceil(this.totalFilteredDirectoryUsers / this.directoryPageSize));
+                },
+                goToDirectoryPage(p) {
+                    this.directoryPage = Math.min(Math.max(1, p), this.totalDirectoryPages);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
                 handlePhoneClick(u) {
                     if (!u[9]) return;
