@@ -1844,7 +1844,7 @@
                         if (this.filterStatus === 'WISHLIST') matchesStatus = this.wishlist.includes(p[0]);
                         return matchesSearch && matchesRegion && matchesStatus;
                     });
-                    filtered.sort((a, b) => { if (a[3] === 'AVAILABLE' && b[3] !== 'AVAILABLE') return -1; if (a[3] !== 'AVAILABLE' && b[3] === 'AVAILABLE') return 1; if (a[2] !== b[2]) return a[2].localeCompare(b[2]); return a[1].localeCompare(b[1]); });
+                    filtered.sort((a, b) => { if (a[2] !== b[2]) return a[2].localeCompare(b[2]); return a[0].localeCompare(b[0]); });
                     const groups = {}; filtered.forEach(p => { if (!groups[p[2]]) groups[p[2]] = []; groups[p[2]].push(p); });
                     return Object.keys(groups).sort().map(region => ({ name: region, items: groups[region] }));
                 },
@@ -1856,7 +1856,7 @@
                         .map(region => {
                             let items = this.positions.filter(p => p[2] === region);
                             if (s) items = items.filter(p => p[1].toLowerCase().includes(s) || (p[5] && p[5].toLowerCase().includes(s)));
-                            return { name: region, items: items.sort((a, b) => a[1].localeCompare(b[1])) };
+                            return { name: region, items: items.sort((a, b) => a[0].localeCompare(b[0])) };
                         }).filter(g => g.items.length > 0 || !s);
                 },
 
@@ -1892,7 +1892,7 @@
                     });
                 },
                 getPositionsByRegion(region) {
-                    return this.positions.filter(p => p[2] === region).sort((a, b) => a[1].localeCompare(b[1]));
+                    return this.positions.filter(p => p[2] === region).sort((a, b) => a[0].localeCompare(b[0]));
                 },
                 getRegionColorClass(region) {
                     const map = { 'บช.น.': 'bg-blue-600', 'ภ.1': 'bg-red-600', 'ภ.2': 'bg-orange-500', 'ภ.3': 'bg-green-600', 'ภ.4': 'bg-gradient-to-r from-purple-600 to-fuchsia-600', 'ภ.5': 'bg-pink-600', 'ภ.6': 'bg-teal-600', 'ภ.7': 'bg-yellow-600', 'ภ.8': 'bg-indigo-600', 'ภ.9': 'bg-cyan-600', 'ตชด.': 'bg-emerald-700', 'สพฐ.ตร.': 'bg-slate-700', 'บช.ก.': 'bg-yellow-700', 'บช.ตชด.': 'bg-emerald-700', 'บช.ส.': 'bg-violet-700', 'บช.สอท.': 'bg-sky-600' };
