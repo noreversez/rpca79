@@ -1854,7 +1854,7 @@
                     });
                     filtered.sort((a, b) => { if (a[2] !== b[2]) return a[2].localeCompare(b[2]); return a[0].localeCompare(b[0]); });
                     const groups = {}; filtered.forEach(p => { if (!groups[p[2]]) groups[p[2]] = []; groups[p[2]].push(p); });
-                    return Object.keys(groups).sort().map(region => ({ name: region, items: groups[region] }));
+                    return this.uniqueRegions.filter(region => groups[region]).map(region => ({ name: region, items: groups[region] }));
                 },
 
                 get dashboardGroupedPositions() {
