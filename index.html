@@ -1869,7 +1869,7 @@
                 },
 
                 get isMyTurn() {
-                    if (!this.user || !this.user.id || this.user.role !== 'USER') return false;
+                    if (!this.user || !this.user.id) return false;
                     const myId = Number(this.user.id);
                     const currentQ = Number(this.config.current_queue);
                     if (!myId || !currentQ || isNaN(myId) || isNaN(currentQ)) return false;
