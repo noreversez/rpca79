@@ -727,10 +727,10 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
                                         <template x-for="pos in group.items" :key="pos[0]">
                                             <div class="rounded-lg p-3 border-2 relative overflow-hidden card-interaction transition-all"
-                                                 :class="isMyTurn && pos[3]==='AVAILABLE' ? 'pos-card-my-turn' : (pos[3]==='AVAILABLE' ? 'pos-card-available shadow-sm' : 'pos-card-taken opacity-80')">
+                                                 :class="canSelectPosition(pos) ? 'pos-card-my-turn' : (pos[3]==='AVAILABLE' ? 'pos-card-available shadow-sm' : 'pos-card-taken opacity-80')">
                                                 <button @click.stop="toggleWishlist(pos[0])" class="absolute top-2 right-2 z-20 hover:scale-110 transition" :class="isWishlist(pos[0]) ? 'text-yellow-400' : 'text-slate-200 dark:text-slate-700 hover:text-yellow-200'"><i data-lucide="star" class="w-4 h-4"></i></button>
                                                 
-                                                <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="absolute inset-0 border-2 border-blue-400 rounded-lg animate-pulse pointer-events-none z-10 opacity-50"></div>
+                                                <div x-show="canSelectPosition(pos)" class="absolute inset-0 border-2 border-blue-400 rounded-lg animate-pulse pointer-events-none z-10 opacity-50"></div>
                                                 
                                                 <div class="flex justify-between items-start mb-1">
                                                     <span class="text-[9px] font-bold px-1.5 rounded uppercase tracking-wide flex items-center gap-1"
@@ -749,7 +749,7 @@
                                                 </div>
 
                                                 <button
-                                                    x-show="isMyTurn && pos[3] === 'AVAILABLE'"
+                                                    x-show="canSelectPosition(pos)"
                                                     @click="confirmSelect(pos)"
                                                     :disabled="isSubmitting"
                                                     class="btn-select-main"
@@ -758,6 +758,7 @@
                                                     <span x-show="isSubmitting"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></span>
                                                     <span x-text="isSubmitting ? 'กำลังบันทึก...' : 'เลือกตำแหน่งนี้'"></span>
                                                 </button>
+                                                <button x-show="isReservedForOthers(pos)" disabled class="w-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 py-2 rounded-md text-[10px] font-bold border border-amber-200 dark:border-amber-800 cursor-not-allowed">สงวนสำหรับโครงการพิเศษ</button>
                                                 <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-50 dark:bg-slate-700/50 text-slate-400 py-2 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 cursor-not-allowed">รอคิว</button>
                                             </div>
                                         </template>
@@ -795,9 +796,10 @@
                                                 </div>
                                             </div>
                                             <div class="w-20 shrink-0">
-                                                <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click="confirmSelect(pos)" :disabled="isSubmitting" class="w-full bg-blue-600 text-white py-1.5 rounded text-[10px] font-bold shadow-sm disabled:opacity-50">
+                                                <button x-show="canSelectPosition(pos)" @click="confirmSelect(pos)" :disabled="isSubmitting" class="w-full bg-blue-600 text-white py-1.5 rounded text-[10px] font-bold shadow-sm disabled:opacity-50">
                                                     <span x-text="isSubmitting ? '...' : 'เลือก'"></span>
                                                 </button>
+                                                <button x-show="isReservedForOthers(pos)" disabled title="สงวนสำหรับโครงการพิเศษ" class="w-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 py-1.5 rounded text-[9px] font-bold border border-amber-200 dark:border-amber-800 leading-tight">สงวนพิเศษ</button>
                                                 <button x-show="!isMyTurn && pos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-100 dark:bg-slate-700 text-slate-400 py-1.5 rounded text-[10px] font-bold border border-slate-200 dark:border-slate-600">รอ</button>
                                             </div>
                                         </div>
@@ -845,10 +847,13 @@
                                                                 <i data-lucide="user-check" class="w-2.5 h-2.5 shrink-0"></i> <span class="truncate" x-text="getUserName(pos[4])"></span>
                                                             </div>
 
-                                                            <div x-show="isMyTurn && pos[3] === 'AVAILABLE'" class="mt-1.5 w-full px-1">
+                                                            <div x-show="canSelectPosition(pos)" class="mt-1.5 w-full px-1">
                                                                 <button @click.stop="confirmSelect(pos)" :disabled="isSubmitting" class="bg-blue-600 text-white w-full rounded py-1 text-[9px] shadow-sm hover:bg-blue-700 transition disabled:opacity-50">
                                                                     <span x-text="isSubmitting ? '...' : 'เลือก'"></span>
                                                                 </button>
+                                                            </div>
+                                                            <div x-show="isReservedForOthers(pos)" class="mt-1.5 w-full px-1">
+                                                                <button disabled title="สงวนสำหรับโครงการพิเศษ" class="w-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded py-1 text-[8px] font-bold border border-amber-200 dark:border-amber-800 leading-tight">สงวนพิเศษ</button>
                                                             </div>
                                                             <div x-show="!isMyTurn && pos[3] === 'AVAILABLE'" class="mt-1.5 w-full px-1">
                                                                 <button disabled class="w-full bg-slate-100 dark:bg-slate-700 text-slate-400 rounded py-1 text-[9px] font-bold border border-slate-200 dark:border-slate-600 cursor-not-allowed">รอ</button>
@@ -959,7 +964,12 @@
     <div id="dashboard-container" x-show="currentPage === 'dashboard'"
          :class="isDashboardFullscreen ? 'fixed inset-0 z-[100] bg-slate-100 dark:bg-slate-900 p-2 md:p-4 flex flex-col overflow-y-auto' : 'container mx-auto px-4 py-6 pb-28 animate-enter safe-pb'">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 shrink-0">
-            <h2 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="pie-chart" class="w-6 h-6 text-blue-500"></i> สถานะการเลือกตำแหน่ง</h2>
+            <div class="flex items-center gap-2 flex-wrap">
+                <h2 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="pie-chart" class="w-6 h-6 text-blue-500"></i> สถานะการเลือกตำแหน่ง</h2>
+                <button @click="openAnalysisModal()" class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition shrink-0">
+                    <i data-lucide="search-code" class="w-3.5 h-3.5"></i> วิเคราะห์ตำแหน่ง
+                </button>
+            </div>
             <div class="flex items-center gap-2 flex-wrap">
                 <div class="bg-blue-600 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-1.5 shadow-sm shrink-0">
                     <i data-lucide="list-checks" class="w-4 h-4"></i>
@@ -1020,9 +1030,10 @@
                                     <div x-show="pos[5]" class="text-[8px] font-normal opacity-60" x-text="subtextFor(pos)"></div>
                                     <div x-show="pos[6]" :title="pos[6]" class="inline-block mt-0.5 px-1 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[7px] font-bold leading-tight">ตำแหน่งพิเศษ</div>
                                     <div x-show="pos[3] !== 'AVAILABLE'" class="text-[8.5px] font-normal opacity-80 truncate mt-0.5" x-text="getUserName(pos[4])"></div>
-                                    <button x-show="isMyTurn && pos[3] === 'AVAILABLE'" @click.stop="confirmSelect(pos)" :disabled="isSubmitting" class="mt-1 w-full bg-blue-600 text-white rounded py-1 text-[9px] shadow-sm hover:bg-blue-700 transition disabled:opacity-50">
+                                    <button x-show="canSelectPosition(pos)" @click.stop="confirmSelect(pos)" :disabled="isSubmitting" class="mt-1 w-full bg-blue-600 text-white rounded py-1 text-[9px] shadow-sm hover:bg-blue-700 transition disabled:opacity-50">
                                         <span x-text="isSubmitting ? '...' : 'เลือก'"></span>
                                     </button>
+                                    <div x-show="isReservedForOthers(pos)" title="สงวนสำหรับโครงการพิเศษ" class="mt-1 w-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded py-1 text-[8px] font-bold border border-amber-200 dark:border-amber-800 text-center leading-tight">สงวนพิเศษ</div>
                                 </div>
                             </template>
                         </div>
@@ -1091,10 +1102,11 @@
 
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
             <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">System Controls</h3>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
                 <button @click="adminAction('SKIP')" class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 py-4 rounded-xl font-bold hover:bg-blue-200 transition">ข้ามคิว</button>
                 <button @click="adminAssignModalOpen = true" class="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 py-4 rounded-xl font-bold hover:bg-purple-200 transition">เลือกแทน</button>
-                <button @click="adminAction('TOGGLE_STATUS')" 
+                <button @click="editReassignModalOpen = true" class="bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 py-4 rounded-xl font-bold hover:bg-amber-200 transition">แก้ไขตำแหน่ง</button>
+                <button @click="adminAction('TOGGLE_STATUS')"
                         :class="(!config.system_status || String(config.system_status).trim().toUpperCase() === 'OPEN') ? 'bg-green-50 dark:bg-green-900/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 hover:bg-green-100' : 'bg-red-50 dark:bg-red-900/40 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-100'"
                         class="py-4 rounded-xl font-bold transition flex flex-col items-center justify-center shadow-sm border">
                     <span class="text-[10px] uppercase tracking-wider opacity-70 mb-0.5">Toggle Status</span>
@@ -1111,7 +1123,7 @@
             <div x-show="adminTab === 'users'" class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
                     <thead class="bg-slate-50 dark:bg-slate-700 uppercase font-bold text-xs">
-                        <tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Code</th><th class="p-3">LINE Account</th><th class="p-3">Action</th></tr>
+                        <tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Code</th><th class="p-3">โครงการพิเศษ</th><th class="p-3">LINE Account</th><th class="p-3">Action</th></tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                         <template x-for="u in users" :key="u[0]">
@@ -1119,6 +1131,14 @@
                                 <td class="p-3 font-mono" x-text="u[0]"></td>
                                 <td class="p-3 font-bold" x-text="u[1]"></td>
                                 <td class="p-3 font-mono text-xs" x-text="u[2]"></td>
+                                <td class="p-3">
+                                    <select :value="u[19] || ''" @change="setUserSpecialGroup(u[0], $event.target.value)" class="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1 text-xs dark:text-white outline-none focus:ring-2 focus:ring-amber-500">
+                                        <option value="">ไม่มี</option>
+                                        <template x-for="g in SPECIAL_QUOTA_REGIONS" :key="g">
+                                            <option :value="g" x-text="g"></option>
+                                        </template>
+                                    </select>
+                                </td>
                                 <td class="p-3">
                                     <template x-if="u[6]">
                                         <div class="flex flex-col gap-1">
@@ -1194,6 +1214,90 @@
         </div>
     </div>
 
+    <div x-show="editReassignModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl animate-enter">
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-amber-500"></i> แก้ไขตำแหน่งที่เลือกไปแล้ว</h3>
+            <p class="text-xs text-slate-400 mb-4">สำหรับกรณีเลือกผิด — ย้ายคนที่เลือกไปแล้วไปตำแหน่งว่างอื่นแทน (ไม่กระทบคิว)</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 dark:text-slate-400">ผู้ใช้งาน (เฉพาะคนที่เลือกไปแล้ว)</label>
+                    <div class="relative mt-1">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input x-model="editReassignUserSearch" type="text" placeholder="ค้นหาชื่อหรือลำดับ..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div class="mt-1 max-h-44 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-600 divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                        <template x-for="u in users.filter(x => x[3] === 'SELECTED' && (editReassignUserSearch === '' || (x[0]+' '+x[1]).toLowerCase().includes(editReassignUserSearch.toLowerCase())))" :key="u[0]">
+                            <button @click="editReassignUserId = u[0]; editReassignUserSearch = 'ลำดับ ' + u[0] + ' : ' + u[1]" class="w-full text-left px-3 py-2 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/30 transition flex items-center gap-2" :class="editReassignUserId == u[0] ? 'bg-amber-50 dark:bg-amber-900/30 font-bold text-amber-700 dark:text-amber-300' : 'text-slate-700 dark:text-slate-200'">
+                                <span class="w-7 h-7 shrink-0 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold text-xs" x-text="u[0]"></span>
+                                <div class="min-w-0">
+                                    <div class="truncate" x-text="u[1]"></div>
+                                    <div class="text-[10px] text-slate-400 truncate" x-text="'ตอนนี้: ' + (u[4] || '-')"></div>
+                                </div>
+                            </button>
+                        </template>
+                        <div x-show="users.filter(x => x[3] === 'SELECTED' && (editReassignUserSearch === '' || (x[0]+' '+x[1]).toLowerCase().includes(editReassignUserSearch.toLowerCase()))).length === 0" class="py-6 text-center text-slate-400 text-xs">ไม่พบผู้ใช้ที่เลือกไปแล้ว</div>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 dark:text-slate-400">ตำแหน่งใหม่ (เฉพาะที่ยังว่าง)</label>
+                    <div class="relative mt-1">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input x-model="editReassignPosSearch" type="text" placeholder="ค้นหาชื่อตำแหน่งหรือภาค..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div class="mt-1 max-h-44 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-600 divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                        <template x-for="p in positions.filter(x => x[3] === 'AVAILABLE' && (editReassignPosSearch === '' || (x[1]+' '+x[2]).toLowerCase().includes(editReassignPosSearch.toLowerCase()))).sort((a,b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]))" :key="p[0]">
+                            <button @click="editReassignPosId = p[0]; editReassignPosSearch = p[1] + ' (' + p[2] + ')'" class="w-full text-left px-3 py-2 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/30 transition flex items-center gap-2" :class="editReassignPosId == p[0] ? 'bg-amber-50 dark:bg-amber-900/30 font-bold text-amber-700 dark:text-amber-300' : 'text-slate-700 dark:text-slate-200'">
+                                <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded shrink-0" x-text="p[2]"></span>
+                                <span class="truncate" x-text="p[1]"></span>
+                            </button>
+                        </template>
+                        <div x-show="positions.filter(x => x[3] === 'AVAILABLE' && (editReassignPosSearch === '' || (x[1]+' '+x[2]).toLowerCase().includes(editReassignPosSearch.toLowerCase()))).length === 0" class="py-6 text-center text-slate-400 text-xs">ไม่พบตำแหน่ง</div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2 mt-6">
+                <button @click="submitEditReassign" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"><i data-lucide="check" class="w-4 h-4"></i> ยืนยันการแก้ไข</button>
+                <button @click="editReassignModalOpen = false; editReassignUserId=''; editReassignUserSearch=''; editReassignPosId=''; editReassignPosSearch='';" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-3 rounded-xl font-bold text-sm">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="analysisModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
+        <div @click.away="analysisModalOpen = false" class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl animate-enter max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-1">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="search-code" class="w-5 h-5 text-indigo-500"></i> วิเคราะห์ตำแหน่ง</h3>
+                <button @click="analysisModalOpen = false" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">เช็คว่าถ้าเป็นลำดับที่เท่าไหร่ ตอนนี้ (สด ๆ) เหลือตำแหน่งให้เลือกจากภาคไหนบ้าง</p>
+
+            <div class="flex items-center gap-2 mb-4">
+                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0">เช็คลำดับที่</label>
+                <input x-model.number="analysisQueueNum" type="number" min="1" class="flex-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                <button x-show="user && user.id" @click="analysisQueueNum = parseInt(user.id)" class="shrink-0 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-2 rounded-xl hover:bg-indigo-100 transition">ของฉัน</button>
+            </div>
+
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-4 mb-4 text-center">
+                <div class="text-xs text-indigo-500 dark:text-indigo-400 font-bold uppercase tracking-wide mb-1">คนที่ยังไม่เลือกและอยู่ก่อนลำดับนี้</div>
+                <div class="text-3xl font-black text-indigo-700 dark:text-indigo-300" x-text="analysisPeopleAheadWaiting"></div>
+                <div class="text-[11px] text-indigo-400 mt-1">คนกลุ่มนี้จะเลือกตำแหน่งก่อนถึงลำดับที่ระบุ ยอดตำแหน่งว่างด้านล่างจึงมีแนวโน้มลดลงอีกก่อนถึงคิวจริง</div>
+            </div>
+
+            <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">ตำแหน่งว่างตอนนี้ (สด) แยกตามภาค</div>
+            <div class="space-y-1.5">
+                <template x-for="row in analysisAvailableByRegion" :key="row.name">
+                    <div class="flex items-center gap-2">
+                        <span class="shrink-0 text-[11px] font-bold text-white px-2.5 py-1 rounded-full min-w-[90px] text-center" :class="getRegionColorClass(row.name)" x-text="row.name"></span>
+                        <div class="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                            <div class="h-full bg-emerald-500" :style="'width:' + row.pct + '%'"></div>
+                        </div>
+                        <span class="shrink-0 text-xs font-bold text-slate-600 dark:text-slate-300 w-14 text-right" x-text="row.available + '/' + row.total"></span>
+                    </div>
+                </template>
+                <div x-show="analysisAvailableByRegion.length === 0" class="text-center text-slate-400 text-xs py-4">ไม่มีตำแหน่งว่างแล้ว</div>
+            </div>
+        </div>
+    </div>
+
     <div x-show="posDetailModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
         <div @click.away="posDetailModalOpen = false" class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-enter relative text-center">
             <button @click="posDetailModalOpen = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -1219,11 +1323,12 @@
                         </div>
                     </div>
                 </div>
-                <button x-show="isMyTurn && selectedDetailPos && selectedDetailPos[3] === 'AVAILABLE'" @click="posDetailModalOpen = false; confirmSelect(selectedDetailPos)" :disabled="isSubmitting" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition disabled:opacity-50 mb-2 flex items-center justify-center gap-2">
+                <button x-show="selectedDetailPos && canSelectPosition(selectedDetailPos)" @click="posDetailModalOpen = false; confirmSelect(selectedDetailPos)" :disabled="isSubmitting" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition disabled:opacity-50 mb-2 flex items-center justify-center gap-2">
                     <i data-lucide="check" class="w-4 h-4"></i>
                     <span x-text="isSubmitting ? 'กำลังบันทึก...' : 'เลือกตำแหน่งนี้'"></span>
                 </button>
-                <button x-show="!isMyTurn && selectedDetailPos && selectedDetailPos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-50 dark:bg-slate-700/50 text-slate-400 py-3 rounded-xl font-bold border border-slate-200 dark:border-slate-600 cursor-not-allowed mb-2">รอคิวของคุณ</button>
+                <div x-show="selectedDetailPos && isReservedForOthers(selectedDetailPos)" class="w-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 py-3 rounded-xl font-bold border border-amber-200 dark:border-amber-800 text-center mb-2 text-sm">ตำแหน่งนี้สงวนสำหรับคนในโครงการพิเศษเท่านั้น</div>
+                <button x-show="selectedDetailPos && !isMyTurn && selectedDetailPos[3] === 'AVAILABLE'" disabled class="w-full bg-slate-50 dark:bg-slate-700/50 text-slate-400 py-3 rounded-xl font-bold border border-slate-200 dark:border-slate-600 cursor-not-allowed mb-2">รอคิวของคุณ</button>
                 <button @click="posDetailModalOpen = false" class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 py-3 rounded-xl font-bold transition">ปิดหน้าต่าง</button>
             </div>
         </div>
@@ -1699,6 +1804,8 @@
                 currentPage: 'home', viewMode: localStorage.getItem('viewMode') || 'region', config: {}, positions: [], users: [], serverLogs: [],
                 search: '', filterRegion: '', filterStatus: 'ALL', dashboardFilterRegion: 'ALL', dashboardSearch: '',
                 editProfileModalOpen: false, isSavingProfile: false, adminTab: 'users', adminModalOpen: false, adminModalAction: 'CREATE', adminFormData: {id:'', name:'', code:'', region:''}, directoryViewMode: localStorage.getItem('dirViewMode') || 'grid',
+                editReassignModalOpen: false, editReassignUserId: '', editReassignUserSearch: '', editReassignPosId: '', editReassignPosSearch: '',
+                analysisModalOpen: false, analysisQueueNum: null,
                 isInitialLoading: true, loginCode: '',
                 touchStartY: 0, isPulling: false, pullDistance: 0,
                 user: safeParse('user_session', {id: null, pictureUrl: "", onboardingCompleted: false}),
@@ -1796,6 +1903,23 @@
                 },
 
                 get progressPercent() { return this.positions.length ? (this.positions.filter(p => p[3]!=='AVAILABLE').length/this.positions.length)*100 : 0; },
+
+                openAnalysisModal() {
+                    if (!this.analysisQueueNum && this.user && this.user.id) this.analysisQueueNum = parseInt(this.user.id);
+                    this.analysisModalOpen = true;
+                },
+                get analysisPeopleAheadWaiting() {
+                    const target = parseInt(this.analysisQueueNum);
+                    if (!target || isNaN(target)) return 0;
+                    return this.users.filter(u => parseInt(u[0]) < target && String(u[3]).toUpperCase() === 'WAITING').length;
+                },
+                get analysisAvailableByRegion() {
+                    return this.uniqueRegions.map(region => {
+                        const items = this.positions.filter(p => p[2] === region);
+                        const available = items.filter(p => p[3] === 'AVAILABLE').length;
+                        return { name: region, available, total: items.length, pct: items.length ? Math.round((available / items.length) * 100) : 0 };
+                    }).filter(row => row.available > 0);
+                },
                 getUserName(id) { const u = this.users.find(x => String(x[0]).trim() == String(id).trim()); return u ? u[1] : id; },
                 subtextFor(pos) {
                     if (!pos[5]) return '';
@@ -1883,6 +2007,20 @@
                     return myId === currentQ && systemOpen && notYetSelected;
                 },
 
+                // Regions reserved for a special-quota group — only cadets tagged with a
+                // matching user.specialGroup may select from these. Everyone else sees a
+                // "สงวนสำหรับโครงการพิเศษ" placeholder instead of the เลือก button.
+                SPECIAL_QUOTA_REGIONS: ['ถวายความปลอดภัย', 'โควตาชายแดนใต้'],
+                isSpecialQuotaRegion(region) { return this.SPECIAL_QUOTA_REGIONS.includes(region); },
+                canSelectPosition(pos) {
+                    if (!this.isMyTurn || pos[3] !== 'AVAILABLE') return false;
+                    if (!this.isSpecialQuotaRegion(pos[2])) return true;
+                    return this.user && this.user.specialGroup === pos[2];
+                },
+                isReservedForOthers(pos) {
+                    return this.isMyTurn && pos[3] === 'AVAILABLE' && this.isSpecialQuotaRegion(pos[2]) && (!this.user || this.user.specialGroup !== pos[2]);
+                },
+
                 get nextUser() { const nextId = parseInt(this.config.current_queue) + 1; const u = this.users.find(u => parseInt(u[0]) === nextId); return u ? {id: u[0], name: u[1]} : null; },
                 get prevUser() { const prevId = parseInt(this.config.current_queue) - 1; const u = this.users.find(u => parseInt(u[0]) === prevId); return u ? {id: u[0], name: u[1]} : null; },
                 get currentUserObj() { const currId = parseInt(this.config.current_queue); const u = this.users.find(u => parseInt(u[0]) === currId); return u ? {id: u[0], name: u[1]} : null; },
@@ -1903,7 +2041,7 @@
                     return this.positions.filter(p => p[2] === region).sort((a, b) => a[0].localeCompare(b[0]));
                 },
                 getRegionColorClass(region) {
-                    const map = { 'บช.น.': 'bg-blue-600', 'ภ.1': 'bg-red-600', 'ภ.2': 'bg-orange-500', 'ภ.3': 'bg-green-600', 'ภ.4': 'bg-gradient-to-r from-purple-600 to-fuchsia-600', 'ภ.5': 'bg-pink-600', 'ภ.6': 'bg-teal-600', 'ภ.7': 'bg-yellow-600', 'ภ.8': 'bg-indigo-600', 'ภ.9': 'bg-cyan-600', 'ตชด.': 'bg-emerald-700', 'สพฐ.ตร.': 'bg-slate-700', 'บช.ก.': 'bg-yellow-700', 'บช.ตชด.': 'bg-emerald-700', 'บช.ส.': 'bg-violet-700', 'บช.สอท.': 'bg-sky-600' };
+                    const map = { 'บช.น.': 'bg-blue-600', 'ภ.1': 'bg-red-600', 'ภ.2': 'bg-orange-500', 'ภ.3': 'bg-green-600', 'ภ.4': 'bg-gradient-to-r from-purple-600 to-fuchsia-600', 'ภ.5': 'bg-pink-600', 'ภ.6': 'bg-teal-600', 'ภ.7': 'bg-yellow-600', 'ภ.8': 'bg-indigo-600', 'ภ.9': 'bg-cyan-600', 'ตชด.': 'bg-emerald-700', 'สพฐ.ตร.': 'bg-slate-700', 'บช.ก.': 'bg-yellow-700', 'บช.ตชด.': 'bg-emerald-700', 'บช.ส.': 'bg-violet-700', 'บช.สอท.': 'bg-sky-600', 'ถวายความปลอดภัย': 'bg-amber-600', 'โควตาชายแดนใต้': 'bg-rose-600' };
                     return map[region] || 'bg-slate-700';
                 },
 
@@ -2175,6 +2313,7 @@
                                      newUserArray[5] = updatedUser.selected_at;
                                      newUserArray[6] = updatedUser.line_user_id;
                                      newUserArray[7] = updatedUser.line_display_name;
+                                     newUserArray[19] = updatedUser.special_group;
                                      this.users.splice(index, 1, newUserArray);
                                      this.users = [...this.users];
                                  }
@@ -2185,7 +2324,8 @@
                                          role: updatedUser.is_admin ? 'ADMIN' : 'USER',
                                          status: updatedUser.status,
                                          selectedPosName: updatedUser.selected_pos_name,
-                                         selectedAt: updatedUser.selected_at
+                                         selectedAt: updatedUser.selected_at,
+                                         specialGroup: updatedUser.special_group || null
                                      };
                                      localStorage.setItem('user_session', JSON.stringify(this.user));
                                  }
@@ -2246,7 +2386,7 @@
                             }
                         }
                         if (posRes.data) this.positions = posRes.data.map(p => [p.id, p.name, p.region, p.status, p.taken_by_user_id, p.province, p.special_note]);
-                        if (usersRes.data) this.users = usersRes.data.map(u => [u.id, u.name, u.code, u.status, u.selected_pos_name, u.selected_at, u.line_user_id, u.line_display_name, u.is_admin, u.phone, u.address, u.province, u.line_contact, u.facebook, u.ig, u.profile_pic, u.official_position, u.onboarding_completed, u.nickname]);
+                        if (usersRes.data) this.users = usersRes.data.map(u => [u.id, u.name, u.code, u.status, u.selected_pos_name, u.selected_at, u.line_user_id, u.line_display_name, u.is_admin, u.phone, u.address, u.province, u.line_contact, u.facebook, u.ig, u.profile_pic, u.official_position, u.onboarding_completed, u.nickname, u.special_group]);
                         if (logsRes.data) this.serverLogs = logsRes.data.map(l => [l.created_at, l.user_id, l.user_name, l.pos_id, l.pos_name, l.pos_region]);
                         this.isInitialLoading = false;
                         this.connectionError = false;
@@ -2266,7 +2406,8 @@
                                     selectedAt: u[5] || null,
                                     selectedRegion: selectedPos ? selectedPos[2] : null,
                                     onboardingCompleted: !!u[17],
-                                    pictureUrl: u[15] || this.user.pictureUrl || null
+                                    pictureUrl: u[15] || this.user.pictureUrl || null,
+                                    specialGroup: u[19] || null
                                 };
                                 localStorage.setItem('user_session', JSON.stringify(this.user));
                             }
@@ -2616,6 +2757,35 @@
                             this.sendGroupNotification(selectedPos, targetUserObj);
                         }
                         
+                        this.fetchData();
+                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + e.message, 'error'); }
+                },
+
+                async submitEditReassign() {
+                    if (!this.editReassignUserId || !this.editReassignPosId) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้ใช้งานและตำแหน่งใหม่ให้ครบถ้วน', 'warning');
+                    Swal.fire({title: 'กำลังบันทึกข้อมูล...', didOpen:()=>Swal.showLoading()});
+                    try {
+                        const { data, error } = await db.rpc('admin_reassign_position', {
+                            p_user_id: parseInt(this.editReassignUserId),
+                            p_new_pos_id: String(this.editReassignPosId)
+                        });
+                        if (error) throw error;
+                        if (data.status !== 'SUCCESS') {
+                            Swal.fire('ไม่สำเร็จ', data.msg || 'กรุณาลองใหม่', 'error');
+                            return;
+                        }
+                        Swal.fire({ title: 'สำเร็จ', text: data.msg, icon: 'success', timer: 1500, showConfirmButton: false });
+                        this.editReassignModalOpen = false;
+                        this.editReassignUserId = ''; this.editReassignUserSearch = '';
+                        this.editReassignPosId = ''; this.editReassignPosSearch = '';
+                        this.fetchData();
+                    } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + e.message, 'error'); }
+                },
+
+                async setUserSpecialGroup(userId, group) {
+                    try {
+                        const { error } = await db.from('users').update({ special_group: group || null }).eq('id', userId);
+                        if (error) throw error;
                         this.fetchData();
                     } catch(e) { Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + e.message, 'error'); }
                 },
