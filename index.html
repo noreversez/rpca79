@@ -966,7 +966,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 shrink-0">
             <div class="flex items-center gap-2 flex-wrap">
                 <h2 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="pie-chart" class="w-6 h-6 text-blue-500"></i> สถานะการเลือกตำแหน่ง</h2>
-                <button @click="openAnalysisModal()" class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition shrink-0">
+                <button @click="openAnalysisPage()" class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition shrink-0">
                     <i data-lucide="search-code" class="w-3.5 h-3.5"></i> วิเคราะห์ตำแหน่ง
                 </button>
             </div>
@@ -1262,32 +1262,39 @@
         </div>
     </div>
 
-    <div x-show="analysisModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
-        <div @click.away="analysisModalOpen = false" class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl animate-enter max-h-[85vh] overflow-y-auto custom-scrollbar">
-            <div class="flex items-center justify-between mb-1">
-                <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="search-code" class="w-5 h-5 text-indigo-500"></i> วิเคราะห์ตำแหน่ง</h3>
-                <button @click="analysisModalOpen = false" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
+    <div x-show="currentPage === 'analysis'" class="container mx-auto px-4 py-6 pb-28 animate-enter safe-pb">
+        <div class="flex items-center gap-3 mb-5">
+            <button @click="switchPage('dashboard')" class="w-10 h-10 shrink-0 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i data-lucide="arrow-left" class="w-5 h-5 text-slate-600 dark:text-slate-300"></i></button>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="search-code" class="w-6 h-6 text-indigo-500"></i> วิเคราะห์ตำแหน่ง</h2>
+        </div>
+
+        <div class="flex gap-2 mb-5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+            <button @click="analysisMode = 'queue'" :class="analysisMode === 'queue' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400'" class="px-4 py-2 rounded-lg font-bold text-sm transition">ตามลำดับที่</button>
+            <button @click="analysisMode = 'region'" :class="analysisMode === 'region' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400'" class="px-4 py-2 rounded-lg font-bold text-sm transition">ตามภาค/บช.</button>
+        </div>
+
+        <!-- ===== Mode: ตามลำดับที่ ===== -->
+        <div x-show="analysisMode === 'queue'">
             <p class="text-xs text-slate-400 mb-4">เช็คว่าถ้าเป็นลำดับที่เท่าไหร่ ตอนนี้ (สด ๆ) เหลือตำแหน่งให้เลือกจากภาคไหนบ้าง</p>
 
-            <div class="flex items-center gap-2 mb-4">
+            <div class="flex items-center gap-2 mb-4 max-w-md">
                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0">เช็คลำดับที่</label>
-                <input x-model.number="analysisQueueNum" type="number" min="1" class="flex-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                <input x-model.number="analysisQueueNum" type="number" min="1" class="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm">
                 <button x-show="user && user.id" @click="analysisQueueNum = parseInt(user.id)" class="shrink-0 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-2 rounded-xl hover:bg-indigo-100 transition">ของฉัน</button>
             </div>
 
-            <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-4 mb-4 text-center">
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-4 mb-4 text-center max-w-md">
                 <div class="text-xs text-indigo-500 dark:text-indigo-400 font-bold uppercase tracking-wide mb-1">คนที่ยังไม่เลือกและอยู่ก่อนลำดับนี้</div>
                 <div class="text-3xl font-black text-indigo-700 dark:text-indigo-300" x-text="analysisPeopleAheadWaiting"></div>
                 <div class="text-[11px] text-indigo-400 mt-1">คนกลุ่มนี้จะเลือกตำแหน่งก่อนถึงลำดับที่ระบุ ยอดตำแหน่งว่างด้านล่างจึงมีแนวโน้มลดลงอีกก่อนถึงคิวจริง</div>
             </div>
 
             <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">ตำแหน่งว่างตอนนี้ (สด) แยกตามภาค</div>
-            <div class="space-y-1.5">
+            <div class="space-y-1.5 max-w-md">
                 <template x-for="row in analysisAvailableByRegion" :key="row.name">
                     <div class="flex items-center gap-2">
                         <span class="shrink-0 text-[11px] font-bold text-white px-2.5 py-1 rounded-full min-w-[90px] text-center" :class="getRegionColorClass(row.name)" x-text="row.name"></span>
-                        <div class="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                        <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                             <div class="h-full bg-emerald-500" :style="'width:' + row.pct + '%'"></div>
                         </div>
                         <span class="shrink-0 text-xs font-bold text-slate-600 dark:text-slate-300 w-14 text-right" x-text="row.available + '/' + row.total"></span>
@@ -1295,6 +1302,37 @@
                 </template>
                 <div x-show="analysisAvailableByRegion.length === 0" class="text-center text-slate-400 text-xs py-4">ไม่มีตำแหน่งว่างแล้ว</div>
             </div>
+        </div>
+
+        <!-- ===== Mode: ตามภาค/บช. ===== -->
+        <div x-show="analysisMode === 'region'">
+            <p class="text-xs text-slate-400 mb-4">เลือกภาค/บช. แล้วดูว่าใครเลือกตำแหน่งไหนไปแล้วบ้าง เรียงตามลำดับที่จากน้อยไปมาก</p>
+
+            <div class="flex gap-1.5 overflow-x-auto custom-scrollbar pb-2 mb-4">
+                <template x-for="r in uniqueRegions" :key="r">
+                    <button @click="analysisSelectedRegion = r" class="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold text-white transition" :class="[getRegionColorClass(r), analysisSelectedRegion === r ? 'ring-2 ring-offset-2 ring-indigo-500 dark:ring-offset-slate-900' : 'opacity-60 hover:opacity-100']" x-text="r"></button>
+                </template>
+            </div>
+
+            <div x-show="analysisSelectedRegion" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
+                <div class="bg-slate-50 dark:bg-slate-900/50 px-4 py-2.5 text-xs font-bold text-slate-500 dark:text-slate-400 flex justify-between">
+                    <span x-text="analysisSelectedRegion"></span>
+                    <span x-text="analysisRegionPickList.length + ' / ' + analysisRegionTotal + ' เลือกแล้ว'"></span>
+                </div>
+                <div class="divide-y divide-slate-100 dark:divide-slate-700 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                    <template x-for="row in analysisRegionPickList" :key="row.id">
+                        <div class="flex items-center gap-3 px-4 py-2.5">
+                            <span class="w-9 h-9 shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs" x-text="row.id"></span>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-bold text-sm text-slate-800 dark:text-white truncate" x-text="row.name"></div>
+                                <div class="text-xs text-slate-400 truncate" x-text="row.posName"></div>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="analysisRegionPickList.length === 0" class="text-center text-slate-400 text-xs py-8">ยังไม่มีใครเลือกตำแหน่งในกลุ่มนี้</div>
+                </div>
+            </div>
+            <div x-show="!analysisSelectedRegion" class="text-center text-slate-400 text-xs py-8">เลือกภาค/บช. ด้านบนเพื่อดูรายชื่อ</div>
         </div>
     </div>
 
@@ -1805,7 +1843,7 @@
                 search: '', filterRegion: '', filterStatus: 'ALL', dashboardFilterRegion: 'ALL', dashboardSearch: '',
                 editProfileModalOpen: false, isSavingProfile: false, adminTab: 'users', adminModalOpen: false, adminModalAction: 'CREATE', adminFormData: {id:'', name:'', code:'', region:''}, directoryViewMode: localStorage.getItem('dirViewMode') || 'grid',
                 editReassignModalOpen: false, editReassignUserId: '', editReassignUserSearch: '', editReassignPosId: '', editReassignPosSearch: '',
-                analysisModalOpen: false, analysisQueueNum: null,
+                analysisQueueNum: null, analysisMode: 'queue', analysisSelectedRegion: '',
                 isInitialLoading: true, loginCode: '',
                 touchStartY: 0, isPulling: false, pullDistance: 0,
                 user: safeParse('user_session', {id: null, pictureUrl: "", onboardingCompleted: false}),
@@ -1904,9 +1942,23 @@
 
                 get progressPercent() { return this.positions.length ? (this.positions.filter(p => p[3]!=='AVAILABLE').length/this.positions.length)*100 : 0; },
 
-                openAnalysisModal() {
+                openAnalysisPage() {
                     if (!this.analysisQueueNum && this.user && this.user.id) this.analysisQueueNum = parseInt(this.user.id);
-                    this.analysisModalOpen = true;
+                    this.switchPage('analysis');
+                },
+                get analysisRegionPickList() {
+                    if (!this.analysisSelectedRegion) return [];
+                    return this.positions
+                        .filter(p => p[2] === this.analysisSelectedRegion && p[3] !== 'AVAILABLE' && p[4])
+                        .map(p => {
+                            const u = this.users.find(x => String(x[0]).trim() === String(p[4]).trim());
+                            return { id: p[4], name: u ? u[1] : ('ลำดับ ' + p[4]), posName: p[1] };
+                        })
+                        .sort((a, b) => parseInt(a.id) - parseInt(b.id));
+                },
+                get analysisRegionTotal() {
+                    if (!this.analysisSelectedRegion) return 0;
+                    return this.positions.filter(p => p[2] === this.analysisSelectedRegion).length;
                 },
                 get analysisPeopleAheadWaiting() {
                     const target = parseInt(this.analysisQueueNum);
