@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>รายชื่อติดต่อ นรต.79 - RPCA79</title>
+    <meta name="theme-color" content="#1e293b">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./icon-16.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body { -webkit-tap-highlight-color: transparent; font-family: 'Sarabun', sans-serif; }
+        .bg-pattern { background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px; background-color: #0f172a; }
+        .spinner { border: 3px solid rgba(255,255,255,0.15); border-top-color: #3b82f6; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .avatar-fallback { background: linear-gradient(135deg,#334155,#1e293b); }
+    </style>
+</head>
+<body class="bg-pattern min-h-screen pb-10 text-slate-100">
+
+    <div class="max-w-lg mx-auto px-4 pt-6">
+        <div class="text-center mb-5">
+            <div class="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                <img src="./icon-192.png" alt="RPCA79" class="w-9 h-9 object-contain">
+            </div>
+            <h1 class="text-lg font-bold text-white">รายชื่อติดต่อ นรต. รุ่นที่ 79</h1>
+            <div id="region-badge" class="inline-block mt-2 px-4 py-1 rounded-full text-sm font-bold text-white bg-slate-600"></div>
+            <p id="count-line" class="text-xs text-slate-400 mt-2"></p>
+        </div>
+
+        <div id="state-loading" class="flex flex-col items-center py-16 gap-3">
+            <div class="spinner"></div>
+            <p class="text-sm text-slate-400">กำลังโหลดรายชื่อ...</p>
+        </div>
+
+        <div id="state-error" class="hidden text-center py-16 text-red-400 text-sm"></div>
+
+        <!-- ไม่ได้ระบุกองบัญชาการ: โชว์ตัวเลือกให้เลือก -->
+        <div id="state-index" class="hidden">
+            <p class="text-sm font-bold text-slate-300 mb-3">เลือกกองบัญชาการ</p>
+            <div id="index-grid" class="grid grid-cols-2 gap-3"></div>
+        </div>
+
+        <div id="state-list" class="hidden">
+            <div class="flex gap-2 mb-3">
+                <button id="btn-copy" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition">คัดลอกลิงก์หน้านี้</button>
+                <button id="btn-vcf" class="flex-1 py-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 text-sm font-bold transition">บันทึกลงรายชื่อ (.vcf)</button>
+            </div>
+            <input id="search" type="text" placeholder="ค้นหาชื่อ ตำแหน่ง หรือเบอร์..."
+                class="w-full bg-slate-800/60 border border-slate-700 rounded-xl py-3 px-4 mb-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+            <div id="list" class="flex flex-col gap-2"></div>
+            <div id="empty" class="hidden text-center py-10 text-slate-500 text-sm">ไม่พบรายชื่อที่ตรงกับคำค้นหา</div>
+        </div>
+
+        <p class="text-center text-xs text-slate-600 mt-8">
+            RPCA79 · ข้อมูลจากระบบเลือกตำแหน่ง · <a href="./" class="underline hover:text-slate-400">เปิดในแอป</a>
+        </p>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://izujreipvtsnldgpdynu.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_p7MUWJqXpImPGqkGEfbiow_EDC1iRK2";
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ชื่อสั้นสำหรับลิงก์ (ให้ลิงก์ที่แชร์ในไลน์ไม่ยาว/ไม่เป็นรหัส %E0%B8...) — ต้องตรงกับ index.html
+        const SLUGS = { 'บช.น.': 'bchn', 'ภ.1': 'p1', 'ภ.2': 'p2', 'ภ.3': 'p3', 'ภ.4': 'p4', 'ภ.5': 'p5', 'ภ.6': 'p6', 'ภ.7': 'p7', 'ภ.8': 'p8', 'ภ.9': 'p9',
+            'บช.ก.': 'bchk', 'บช.ตชด.': 'bchtchd', 'บช.ปส.': 'bchps', 'บช.ส.': 'bchs', 'บช.สอท.': 'bchsot', 'ถวายความปลอดภัย': 'vip', 'โควตาชายแดนใต้': 'south' };
+        const COLORS = { 'บช.น.': '#2563eb', 'ภ.1': '#dc2626', 'ภ.2': '#f97316', 'ภ.3': '#16a34a', 'ภ.4': '#9333ea', 'ภ.5': '#db2777', 'ภ.6': '#0d9488', 'ภ.7': '#ca8a04', 'ภ.8': '#4f46e5', 'ภ.9': '#0891b2',
+            'บช.ก.': '#a16207', 'บช.ตชด.': '#047857', 'บช.ปส.': '#475569', 'บช.ส.': '#6d28d9', 'บช.สอท.': '#0284c7', 'ถวายความปลอดภัย': '#d97706', 'โควตาชายแดนใต้': '#e11d48' };
+
+        const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const $ = id => document.getElementById(id);
+        const show = id => $(id).classList.remove('hidden');
+        const hide = id => $(id).classList.add('hidden');
+
+        function resolveRegion(param) {
+            if (!param) return '';
+            const bySlug = Object.keys(SLUGS).find(k => SLUGS[k] === param.toLowerCase());
+            return bySlug || param;
+        }
+        const linkFor = region => location.origin + location.pathname + '?r=' + (SLUGS[region] || encodeURIComponent(region));
+        const subtextFor = (region, province) => !province ? '' : (/^ภ\.\d/.test(region) ? 'ภ.จว.' + province : province);
+        const phonesOf = u => String(u.phone || '').split(',').map(p => p.trim()).filter(Boolean);
+
+        function socialLinks(u) {
+            const out = [];
+            if (u.line_contact) out.push(['LINE', 'https://line.me/ti/p/~' + encodeURIComponent(u.line_contact), '#06C755']);
+            if (u.facebook) {
+                const f = String(u.facebook).trim();
+                const url = /^https?:\/\//i.test(f) ? f
+                    : (/\s/.test(f) || /[ก-๙]/.test(f)) ? 'https://www.facebook.com/search/top/?q=' + encodeURIComponent(f)
+                    : 'https://facebook.com/' + encodeURIComponent(f);
+                out.push(['Facebook', url, '#1877F2']);
+            }
+            if (u.ig) out.push(['Instagram', 'https://instagram.com/' + encodeURIComponent(String(u.ig).replace('@', '').trim()), '#E4405F']);
+            return out;
+        }
+
+        let people = []; // {u, pos}
+        let region = '';
+
+        function renderCard(p) {
+            const u = p.u, phones = phonesOf(u);
+            const sub = subtextFor(region, p.pos.province);
+            const pic = u.profile_pic
+                ? `<img src="${esc(u.profile_pic)}" class="w-12 h-12 rounded-full object-cover shrink-0" onerror="this.outerHTML='<div class=&quot;w-12 h-12 rounded-full avatar-fallback flex items-center justify-center text-slate-400 text-xs font-bold shrink-0&quot;>${esc(u.id)}</div>'">`
+                : `<div class="w-12 h-12 rounded-full avatar-fallback flex items-center justify-center text-slate-400 text-xs font-bold shrink-0">${esc(u.id)}</div>`;
+            const phoneChips = phones.length
+                ? phones.map(ph => `<a href="tel:${esc(ph.replace(/[^0-9+]/g, ''))}" class="inline-flex items-center gap-1 bg-blue-600/20 text-blue-300 border border-blue-500/30 rounded-lg px-2.5 py-1 text-sm font-bold">📞 ${esc(ph)}</a>`).join(' ')
+                : `<span class="text-xs text-slate-500">ยังไม่มีเบอร์โทร</span>`;
+            const social = socialLinks(u).map(([label, url, color]) => `<a href="${esc(url)}" target="_blank" rel="noopener" class="text-[11px] font-bold px-2 py-0.5 rounded-md text-white" style="background:${color}">${label}</a>`).join(' ');
+            return `
+            <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-3 flex gap-3">
+                ${pic}
+                <div class="min-w-0 flex-1">
+                    <div class="font-bold text-white text-sm leading-snug">${esc(u.name)}${u.nickname ? ` <span class="text-slate-400 font-normal">(${esc(u.nickname)})</span>` : ''}</div>
+                    <div class="text-xs text-blue-300 font-semibold mt-0.5">${esc(p.pos.name)}${sub ? ` <span class="text-slate-400 font-normal">· ${esc(sub)}</span>` : ''}</div>
+                    <div class="flex flex-wrap gap-1.5 mt-2">${phoneChips}</div>
+                    ${social ? `<div class="flex flex-wrap gap-1.5 mt-2">${social}</div>` : ''}
+                </div>
+            </div>`;
+        }
+
+        function renderList() {
+            const q = ($('search').value || '').trim().toLowerCase();
+            const rows = q ? people.filter(p => (p.u.name + ' ' + (p.u.nickname || '') + ' ' + p.pos.name + ' ' + (p.pos.province || '') + ' ' + (p.u.phone || '')).toLowerCase().includes(q)) : people;
+            $('list').innerHTML = rows.map(renderCard).join('');
+            $('empty').classList.toggle('hidden', rows.length > 0);
+        }
+
+        function downloadVcf() {
+            const lines = [];
+            people.forEach(p => {
+                const phones = phonesOf(p.u);
+                if (!phones.length) return;
+                const full = p.u.name + (p.u.nickname ? ' (' + p.u.nickname + ')' : '');
+                lines.push('BEGIN:VCARD', 'VERSION:3.0', 'FN:' + full, 'N:' + p.u.name + ';;;;');
+                phones.forEach(ph => lines.push('TEL;TYPE=CELL:' + ph.replace(/[^0-9+]/g, '')));
+                lines.push('ORG:นรต.79 ' + region, 'TITLE:' + p.pos.name, 'END:VCARD');
+            });
+            const blob = new Blob([lines.join('\r\n')], { type: 'text/vcard;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'นรต79-' + region + '.vcf';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        }
+
+        async function copyLink() {
+            const url = linkFor(region);
+            try { await navigator.clipboard.writeText(url); }
+            catch (e) {
+                const t = document.createElement('textarea'); t.value = url; document.body.appendChild(t); t.select();
+                try { document.execCommand('copy'); } catch (_) { prompt('คัดลอกลิงก์นี้', url); }
+                t.remove();
+            }
+            $('btn-copy').textContent = 'คัดลอกแล้ว ✓';
+            setTimeout(() => { $('btn-copy').textContent = 'คัดลอกลิงก์หน้านี้'; }, 1800);
+        }
+
+        async function load() {
+            try {
+                const param = new URLSearchParams(location.search).get('r');
+                region = resolveRegion(param);
+
+                const { data: positions, error: pErr } = await db.from('positions').select('id,name,region,province,status,taken_by_user_id');
+                if (pErr) throw pErr;
+
+                if (!region) {
+                    // หน้าสารบัญ: นับคนต่อกองบัญชาการ
+                    const counts = {};
+                    positions.filter(p => p.status !== 'AVAILABLE' && p.taken_by_user_id).forEach(p => { counts[p.region] = (counts[p.region] || 0) + 1; });
+                    $('region-badge').textContent = 'เลือกกองบัญชาการ';
+                    $('index-grid').innerHTML = Object.keys(SLUGS).filter(r => counts[r]).map(r =>
+                        `<a href="?r=${SLUGS[r]}" class="rounded-2xl p-4 text-white shadow-sm" style="background:${COLORS[r] || '#334155'}"><div class="font-black text-lg">${esc(r)}</div><div class="text-xs opacity-90">${counts[r]} คน</div></a>`).join('');
+                    hide('state-loading'); show('state-index');
+                    return;
+                }
+
+                const held = positions.filter(p => p.region === region && p.status !== 'AVAILABLE' && p.taken_by_user_id)
+                    .sort((a, b) => a.id.localeCompare(b.id));
+                $('region-badge').textContent = region;
+                $('region-badge').style.background = COLORS[region] || '#475569';
+                document.title = 'รายชื่อติดต่อ ' + region + ' - นรต.79';
+
+                const ids = held.map(p => parseInt(p.taken_by_user_id)).filter(n => !isNaN(n));
+                let users = [];
+                if (ids.length) {
+                    const { data, error } = await db.from('users').select('id,name,nickname,phone,line_contact,facebook,ig,profile_pic').in('id', ids);
+                    if (error) throw error;
+                    users = data;
+                }
+                const byId = {}; users.forEach(u => { byId[String(u.id)] = u; });
+                people = held.map(p => ({ u: byId[String(p.taken_by_user_id).trim()], pos: p })).filter(x => x.u);
+
+                const withPhone = people.filter(p => phonesOf(p.u).length).length;
+                $('count-line').textContent = people.length + ' คน · มีเบอร์โทร ' + withPhone + ' คน';
+                if (!people.length) { throw new Error('ยังไม่มีผู้เลือกตำแหน่งในกองบัญชาการนี้'); }
+
+                $('search').addEventListener('input', renderList);
+                $('btn-copy').addEventListener('click', copyLink);
+                $('btn-vcf').addEventListener('click', downloadVcf);
+                renderList();
+                hide('state-loading'); show('state-list');
+            } catch (e) {
+                console.warn('load failed:', e.message || e);
+                hide('state-loading');
+                $('state-error').textContent = (e && e.message) ? e.message : 'โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
+                show('state-error');
+            }
+        }
+        load();
+    </script>
+</body>
+</html>
