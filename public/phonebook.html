@@ -92,7 +92,8 @@
         }
         const linkFor = region => location.origin + location.pathname + '?r=' + (SLUGS[region] || encodeURIComponent(region));
         const subtextFor = (region, province) => !province ? '' : (/^ภ\.\d/.test(region) ? 'ภ.จว.' + province : province);
-        const phonesOf = u => String(u.phone || '').split(',').map(p => p.trim()).filter(Boolean);
+        // เก็บเฉพาะเบอร์ที่มีตัวเลขพอ (บางคนกรอก "." หรือ "*" ไว้ → ถ้าปล่อยผ่านจะได้บรรทัด TEL: ว่างที่ทำให้ตัวนำเข้ารายชื่อสะดุด)
+        const phonesOf = u => String(u.phone || '').split(',').map(p => p.trim()).filter(p => p.replace(/\D/g, '').length >= 6);
 
         function socialLinks(u) {
             const out = [];
@@ -119,6 +120,7 @@
                 : `<div class="w-12 h-12 rounded-full avatar-fallback flex items-center justify-center text-slate-400 text-xs font-bold shrink-0">${esc(u.id)}</div>`;
             const phoneChips = phones.length
                 ? phones.map(ph => `<a href="tel:${esc(ph.replace(/[^0-9+]/g, ''))}" class="inline-flex items-center gap-1 bg-blue-600/20 text-blue-300 border border-blue-500/30 rounded-lg px-2.5 py-1 text-sm font-bold">📞 ${esc(ph)}</a>`).join(' ')
+                    + ` <button type="button" data-save="${esc(u.id)}" class="inline-flex items-center gap-1 bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 rounded-lg px-2.5 py-1 text-sm font-bold hover:bg-emerald-600/30 transition">＋ บันทึกเบอร์</button>`
                 : `<span class="text-xs text-slate-500">ยังไม่มีเบอร์โทร</span>`;
             const social = socialLinks(u).map(([label, url, color]) => `<a href="${esc(url)}" target="_blank" rel="noopener" class="text-[11px] font-bold px-2 py-0.5 rounded-md text-white" style="background:${color}">${label}</a>`).join(' ');
             return `
@@ -149,18 +151,20 @@
             setTimeout(() => URL.revokeObjectURL(a.href), 1000);
         }
 
+        // vCard 3.0: escape \ ; , และขึ้นบรรทัดใหม่ในค่าข้อความ, ทุกบรรทัดลงท้าย CRLF (รวมบรรทัดสุดท้าย)
+        const vEsc = s => String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+        function vcardFor(p) {
+            const phones = phonesOf(p.u);
+            if (!phones.length) return '';
+            const full = p.u.name + (p.u.nickname ? ' (' + p.u.nickname + ')' : '');
+            return ['BEGIN:VCARD', 'VERSION:3.0', 'FN:' + vEsc(full), 'N:' + vEsc(p.u.name) + ';;;;',
+                ...phones.map(ph => 'TEL;TYPE=CELL:' + ph.replace(/[^0-9+]/g, '')),
+                'ORG:' + vEsc('นรต.79 ' + p.pos.region), 'TITLE:' + vEsc(p.pos.name), 'END:VCARD'].join('\r\n') + '\r\n';
+        }
         // list = [{u, pos}] ; กรณีรวมหลาย บช. ใช้ pos.region ของแต่ละคน
         function buildVcf(list) {
-            const lines = [];
-            list.forEach(p => {
-                const phones = phonesOf(p.u);
-                if (!phones.length) return;
-                const full = p.u.name + (p.u.nickname ? ' (' + p.u.nickname + ')' : '');
-                lines.push('BEGIN:VCARD', 'VERSION:3.0', 'FN:' + full, 'N:' + p.u.name + ';;;;');
-                phones.forEach(ph => lines.push('TEL;TYPE=CELL:' + ph.replace(/[^0-9+]/g, '')));
-                lines.push('ORG:นรต.79 ' + p.pos.region, 'TITLE:' + p.pos.name, 'END:VCARD');
-            });
-            return { text: lines.join('\r\n'), count: lines.filter(l => l === 'BEGIN:VCARD').length };
+            const cards = list.map(vcardFor).filter(Boolean);
+            return { text: cards.join(''), count: cards.length };
         }
 
         function buildCsv(list) {
@@ -246,6 +250,12 @@
                 $('count-line').textContent = people.length + ' คน · มีเบอร์โทร ' + withPhone + ' คน';
                 if (!people.length) { throw new Error('ยังไม่มีผู้เลือกตำแหน่งในกองบัญชาการนี้'); }
 
+                $('list').addEventListener('click', e => {
+                    const btn = e.target.closest('[data-save]');
+                    if (!btn) return;
+                    const p = people.find(x => String(x.u.id) === btn.dataset.save);
+                    if (p) saveFile('นรต79-' + p.u.name.replace(/[\\/:*?"<>|]/g, '') + '.vcf', vcardFor(p), 'text/vcard;charset=utf-8');
+                });
                 $('search').addEventListener('input', renderList);
                 $('btn-copy').addEventListener('click', copyLink);
                 $('btn-vcf').addEventListener('click', downloadVcf);
