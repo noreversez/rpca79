@@ -41,15 +41,23 @@
 
         <!-- ไม่ได้ระบุกองบัญชาการ: โชว์ตัวเลือกให้เลือก -->
         <div id="state-index" class="hidden">
-            <p class="text-sm font-bold text-slate-300 mb-3">เลือกกองบัญชาการ</p>
+            <p class="text-sm font-bold text-slate-300 mb-3">บันทึกรายชื่อทุกกองบัญชาการพร้อมกัน</p>
+            <div class="flex gap-2 mb-1">
+                <button id="btn-all-vcf" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition">บันทึกทั้งหมด (.vcf)</button>
+                <button id="btn-all-csv" class="flex-1 py-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 text-sm font-bold transition">ดาวน์โหลดทั้งหมด (.csv)</button>
+            </div>
+            <p class="text-[11px] text-slate-500 mb-5">.vcf = นำเข้าลงรายชื่อมือถือ/Google Contacts ทีเดียว · .csv = เปิดดู/กรองใน Excel</p>
+            <p class="text-sm font-bold text-slate-300 mb-3">หรือเลือกกองบัญชาการ</p>
             <div id="index-grid" class="grid grid-cols-2 gap-3"></div>
         </div>
 
         <div id="state-list" class="hidden">
-            <div class="flex gap-2 mb-3">
+            <div class="flex gap-2 mb-2">
                 <button id="btn-copy" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition">คัดลอกลิงก์หน้านี้</button>
-                <button id="btn-vcf" class="flex-1 py-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 text-sm font-bold transition">บันทึกลงรายชื่อ (.vcf)</button>
+                <button id="btn-vcf" class="flex-1 py-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 text-sm font-bold transition">บันทึก (.vcf)</button>
+                <button id="btn-csv" class="flex-1 py-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 text-sm font-bold transition">CSV</button>
             </div>
+            <a href="./phonebook.html" class="block text-center text-xs text-blue-400 hover:text-blue-300 mb-4">← กองบัญชาการอื่น / บันทึกทุกกองบัญชาการพร้อมกัน</a>
             <input id="search" type="text" placeholder="ค้นหาชื่อ ตำแหน่ง หรือเบอร์..."
                 class="w-full bg-slate-800/60 border border-slate-700 rounded-xl py-3 px-4 mb-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
             <div id="list" class="flex flex-col gap-2"></div>
@@ -132,22 +140,49 @@
             $('empty').classList.toggle('hidden', rows.length > 0);
         }
 
-        function downloadVcf() {
+        function saveFile(filename, text, mime) {
+            const blob = new Blob([text], { type: mime });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        }
+
+        // list = [{u, pos}] ; กรณีรวมหลาย บช. ใช้ pos.region ของแต่ละคน
+        function buildVcf(list) {
             const lines = [];
-            people.forEach(p => {
+            list.forEach(p => {
                 const phones = phonesOf(p.u);
                 if (!phones.length) return;
                 const full = p.u.name + (p.u.nickname ? ' (' + p.u.nickname + ')' : '');
                 lines.push('BEGIN:VCARD', 'VERSION:3.0', 'FN:' + full, 'N:' + p.u.name + ';;;;');
                 phones.forEach(ph => lines.push('TEL;TYPE=CELL:' + ph.replace(/[^0-9+]/g, '')));
-                lines.push('ORG:นรต.79 ' + region, 'TITLE:' + p.pos.name, 'END:VCARD');
+                lines.push('ORG:นรต.79 ' + p.pos.region, 'TITLE:' + p.pos.name, 'END:VCARD');
             });
-            const blob = new Blob([lines.join('\r\n')], { type: 'text/vcard;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'นรต79-' + region + '.vcf';
-            document.body.appendChild(a); a.click(); a.remove();
-            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+            return { text: lines.join('\r\n'), count: lines.filter(l => l === 'BEGIN:VCARD').length };
+        }
+
+        function buildCsv(list) {
+            const cell = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+            const head = ['กองบัญชาการ/ภาค', 'ลำดับ', 'ชื่อ-สกุล', 'ชื่อเล่น', 'ตำแหน่ง', 'สังกัด', 'เบอร์โทร', 'LINE ID', 'Facebook', 'Instagram'];
+            const rows = list.map(p => [p.pos.region, p.u.id, p.u.name, p.u.nickname || '', p.pos.name, subtextFor(p.pos.region, p.pos.province),
+                phonesOf(p.u).join(' / '), p.u.line_contact || '', p.u.facebook || '', p.u.ig || '']);
+            // BOM ให้ Excel อ่านภาษาไทยถูก; เบอร์ใส่ ="..." กันศูนย์นำหน้าหาย
+            const dataLine = r => r.map((v, i) => i === 6 && v ? '="' + String(v).replace(/"/g, '') + '"' : cell(v)).join(',');
+            return '﻿' + [head.map(cell).join(','), ...rows.map(dataLine)].join('\r\n');
+        }
+
+        const downloadVcf = () => saveFile('นรต79-' + region + '.vcf', buildVcf(people).text, 'text/vcard;charset=utf-8');
+        const downloadCsv = () => saveFile('นรต79-' + region + '.csv', buildCsv(people), 'text/csv;charset=utf-8');
+
+        async function loadAllPeople(positions) {
+            const held = positions.filter(p => p.status !== 'AVAILABLE' && p.taken_by_user_id).sort((a, b) => a.id.localeCompare(b.id));
+            const ids = held.map(p => parseInt(p.taken_by_user_id)).filter(n => !isNaN(n));
+            const { data, error } = await db.from('users').select('id,name,nickname,phone,line_contact,facebook,ig,profile_pic').in('id', ids);
+            if (error) throw error;
+            const byId = {}; data.forEach(u => { byId[String(u.id)] = u; });
+            return held.map(p => ({ u: byId[String(p.taken_by_user_id).trim()], pos: p })).filter(x => x.u);
         }
 
         async function copyLink() {
@@ -177,6 +212,16 @@
                     $('region-badge').textContent = 'เลือกกองบัญชาการ';
                     $('index-grid').innerHTML = Object.keys(SLUGS).filter(r => counts[r]).map(r =>
                         `<a href="?r=${SLUGS[r]}" class="rounded-2xl p-4 text-white shadow-sm" style="background:${COLORS[r] || '#334155'}"><div class="font-black text-lg">${esc(r)}</div><div class="text-xs opacity-90">${counts[r]} คน</div></a>`).join('');
+                    let allCache = null;
+                    const wire = (id, fn) => $(id).addEventListener('click', async () => {
+                        const btn = $(id), label = btn.textContent;
+                        btn.textContent = 'กำลังเตรียมไฟล์...'; btn.disabled = true;
+                        try { allCache = allCache || await loadAllPeople(positions); fn(allCache); }
+                        catch (e) { alert('สร้างไฟล์ไม่สำเร็จ: ' + (e.message || e)); }
+                        btn.textContent = label; btn.disabled = false;
+                    });
+                    wire('btn-all-vcf', list => saveFile('นรต79-ทุกกองบัญชาการ.vcf', buildVcf(list).text, 'text/vcard;charset=utf-8'));
+                    wire('btn-all-csv', list => saveFile('นรต79-ทุกกองบัญชาการ.csv', buildCsv(list), 'text/csv;charset=utf-8'));
                     hide('state-loading'); show('state-index');
                     return;
                 }
@@ -204,6 +249,7 @@
                 $('search').addEventListener('input', renderList);
                 $('btn-copy').addEventListener('click', copyLink);
                 $('btn-vcf').addEventListener('click', downloadVcf);
+                $('btn-csv').addEventListener('click', downloadCsv);
                 renderList();
                 hide('state-loading'); show('state-list');
             } catch (e) {
