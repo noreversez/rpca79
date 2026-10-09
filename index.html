@@ -1034,6 +1034,9 @@
                 <button @click="exportSummaryPdf()" class="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 h-10 px-4 rounded-full flex items-center gap-1.5 text-sm font-bold shadow-sm transition hover:bg-emerald-200 dark:hover:bg-emerald-900/70 shrink-0" title="ส่งออกสรุปเป็น PDF">
                     <i data-lucide="file-down" class="w-4 h-4"></i> PDF
                 </button>
+                <button @click="exportSummaryExcel()" class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 h-10 px-4 rounded-full flex items-center gap-1.5 text-sm font-bold shadow-sm transition hover:bg-blue-200 dark:hover:bg-blue-900/70 shrink-0" title="ส่งออกสรุปเป็น Excel">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Excel
+                </button>
                 <button @click="toggleDashboardFullscreen()" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 w-10 h-10 rounded-full flex items-center justify-center shadow-sm transition hover:bg-slate-300 dark:hover:bg-slate-600 shrink-0" title="เต็มจอ">
                     <span x-show="!isDashboardFullscreen"><i data-lucide="maximize" class="w-4 h-4"></i></span>
                     <span x-show="isDashboardFullscreen"><i data-lucide="minimize" class="w-4 h-4"></i></span>
@@ -2009,6 +2012,65 @@
                             });
                         return { name: region, items, total: items.length, taken: items.filter(i => i.taken).length };
                     });
+                },
+                // ===== Excel export (หน้าสรุป) =====
+                async loadXlsx() {
+                    if (window.XLSX) return window.XLSX;
+                    await new Promise((resolve, reject) => {
+                        const s = document.createElement('script');
+                        s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+                        s.onload = resolve; s.onerror = () => reject(new Error('โหลดตัวสร้างไฟล์ Excel ไม่สำเร็จ'));
+                        document.head.appendChild(s);
+                    });
+                    return window.XLSX;
+                },
+                buildSummaryWorkbook(XLSX) {
+                    const groups = this.printReportGroups;
+                    const totals = this.printTotals;
+                    const stamp = new Date().toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' });
+                    const fit = (rows, widths) => { const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = widths.map(w => ({ wch: w })); return ws; };
+
+                    const sumRows = [
+                        ['สรุปผลการเลือกตำแหน่ง นรต. รุ่นที่ 79'],
+                        ['ข้อมูล ณ', stamp],
+                        [],
+                        ['กองบัญชาการ / ภาค', 'ทั้งหมด', 'เลือกแล้ว', 'ว่าง'],
+                        ...groups.map(g => [g.name, g.total, g.taken, g.total - g.taken]),
+                        ['รวม', totals.total, totals.taken, totals.total - totals.taken]
+                    ];
+
+                    const posRows = [['กองบัญชาการ / ภาค', 'ที่', 'รหัสตำแหน่ง', 'ตำแหน่ง', 'สังกัด', 'ลำดับผู้เลือก', 'ผู้เลือก', 'สถานะ']];
+                    groups.forEach(g => g.items.forEach((r, i) => posRows.push([
+                        g.name, i + 1, r.id, r.name, r.sub || '',
+                        r.taken && r.queue !== '' ? Number(r.queue) : '', r.taken ? r.holder : '', r.taken ? 'เลือกแล้ว' : 'ว่าง'
+                    ])));
+
+                    const posMap = this.positionByUser;
+                    const personRows = [['ลำดับ', 'ชื่อ-สกุล', 'กองบัญชาการ / ภาค', 'ตำแหน่ง', 'สังกัด']];
+                    [...this.users].filter(u => parseInt(u[0]) > 0).sort((a, b) => parseInt(a[0]) - parseInt(b[0])).forEach(u => {
+                        const p = posMap[String(u[0]).trim()];
+                        personRows.push([Number(u[0]), u[1], p ? p[2] : '', p ? p[1] : 'ยังไม่ได้เลือก', p ? this.subtextFor(p) : '']);
+                    });
+
+                    const wsPos = fit(posRows, [22, 6, 12, 34, 24, 14, 38, 12]);
+                    wsPos['!autofilter'] = { ref: 'A1:H' + posRows.length };
+                    const wsPerson = fit(personRows, [8, 38, 22, 34, 24]);
+                    wsPerson['!autofilter'] = { ref: 'A1:E' + personRows.length };
+
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, fit(sumRows, [28, 12, 12, 10]), 'สรุป');
+                    XLSX.utils.book_append_sheet(wb, wsPos, 'รายการตำแหน่ง');
+                    XLSX.utils.book_append_sheet(wb, wsPerson, 'รายชื่อตามลำดับ');
+                    return wb;
+                },
+                async exportSummaryExcel() {
+                    try {
+                        const XLSX = await this.loadXlsx();
+                        const wb = this.buildSummaryWorkbook(XLSX);
+                        XLSX.writeFile(wb, 'สรุปผลการเลือกตำแหน่ง นรต79 ' + new Date().toLocaleDateString('th-TH').replace(/\//g, '-') + '.xlsx');
+                    } catch (e) {
+                        Swal.fire('ส่งออก Excel ไม่สำเร็จ', (e && e.message ? e.message : '') + ' (ลองเปิดลิงก์ใน Chrome/Safari แล้วกดใหม่)', 'error');
+                    }
                 },
                 exportSummaryPdf() {
                     const now = new Date();
