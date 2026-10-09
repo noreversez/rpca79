@@ -269,11 +269,36 @@
             gap: 0.75rem;
             margin-top: 1.5rem;
         }
+
+        /* ===== PDF export (หน้าสรุป) — print-only report ===== */
+        #print-report { display: none; }
+        @media print {
+            @page { size: A4; margin: 12mm 10mm; }
+            body.printing-summary { background: #fff !important; background-image: none !important; }
+            body.printing-summary > *:not(#print-report) { display: none !important; }
+            body.printing-summary #print-report, body.printing-summary #print-report * { visibility: visible !important; }
+            body.printing-summary #print-report { display: block !important; color: #000; font-family: 'Sarabun', sans-serif; font-size: 11px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            #print-report .pr-title { font-size: 20px; font-weight: 800; text-align: center; }
+            #print-report .pr-meta { text-align: center; color: #475569; margin: 2px 0 10px; font-size: 11px; }
+            #print-report table { width: 100%; border-collapse: collapse; }
+            #print-report th, #print-report td { border: 1px solid #cbd5e1; padding: 3px 6px; text-align: left; vertical-align: top; }
+            #print-report th { background: #e2e8f0; font-weight: 700; }
+            #print-report thead { display: table-header-group; }
+            #print-report tr { break-inside: avoid; page-break-inside: avoid; }
+            #print-report .pr-summary { margin-bottom: 14px; }
+            #print-report .pr-summary td.num, #print-report .pr-summary th.num { text-align: center; width: 70px; }
+            #print-report .pr-region { margin-bottom: 14px; }
+            #print-report .pr-region-head { break-after: avoid; page-break-after: avoid; font-weight: 800; font-size: 13px; padding: 4px 8px; color: #fff; background: #334155; }
+            #print-report td.idx { width: 28px; text-align: center; color: #64748b; }
+            #print-report td.free { color: #16a34a; font-weight: 700; }
+            #print-report td.q { width: 42px; text-align: center; font-weight: 700; }
+        }
     </style>
 </head>
 
-<body class="text-slate-800 dark:text-slate-100 bg-pattern min-h-screen transition-colors duration-300" 
-      x-init="initApp()" 
+<body class="text-slate-800 dark:text-slate-100 bg-pattern min-h-screen transition-colors duration-300"
+      :class="{ 'printing-summary': printReady }"
+      x-init="initApp()"
       x-cloak
       @touchstart="touchStartY = $event.touches[0].clientY"
       @touchmove="if (window.scrollY <= 0 && $event.touches[0].clientY > touchStartY) { isPulling = true; pullDistance = Math.min($event.touches[0].clientY - touchStartY, 120); }"
@@ -367,6 +392,31 @@
                 <input type="text" x-model="directorySearch" @input="directoryPage = 1" placeholder="ค้นหาชื่อ, ชื่อเล่น, ตำแหน่ง, เบอร์โทร หรือจังหวัด..." class="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl pl-11 pr-4 py-3 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition dark:text-white shadow-sm">
             </div>
 
+            <!-- Step 1: เลือกกองบัญชาการก่อน -->
+            <div x-show="!directoryShowList" class="mb-6">
+                <p class="text-sm font-bold text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-2"><i data-lucide="building-2" class="w-4 h-4 text-blue-500"></i> เลือกกองบัญชาการ</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <template x-for="r in uniqueRegions" :key="'dir-' + r">
+                        <button @click="selectDirectoryRegion(r)" :disabled="!directoryRegionCounts[r]" class="rounded-2xl p-4 text-white text-left shadow-sm transition active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed" :class="getRegionColorClass(r)">
+                            <div class="font-black text-lg leading-tight" x-text="r"></div>
+                            <div class="text-xs opacity-90 mt-1" x-text="(directoryRegionCounts[r] || 0) + ' คน'"></div>
+                        </button>
+                    </template>
+                    <button @click="selectDirectoryRegion('ALL')" class="rounded-2xl p-4 text-left shadow-sm transition active:scale-95 bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200">
+                        <div class="font-black text-lg leading-tight">ทั้งหมด</div>
+                        <div class="text-xs opacity-80 mt-1" x-text="directoryBaseUsers.length + ' คน'"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div x-show="directoryShowList">
+            <!-- Step 2: รายชื่อตามที่เลือกตำแหน่งจริง -->
+            <div x-show="directoryRegion !== ''" class="flex items-center gap-2 mb-4">
+                <button @click="directoryRegion = ''; directorySearch = ''; directoryPage = 1" class="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-2 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i> เปลี่ยนกองบัญชาการ
+                </button>
+                <span class="px-3 py-1.5 rounded-full text-xs font-bold text-white" :class="directoryRegion === 'ALL' ? 'bg-slate-600' : getRegionColorClass(directoryRegion)" x-text="directoryRegion === 'ALL' ? 'ทั้งหมด' : directoryRegion"></span>
+            </div>
             <div class="text-xs text-slate-400 dark:text-slate-500 text-center mb-3 font-medium" x-show="users.filter(x => parseInt(x[0]) > 0 && x[17]).length > 0">
                 หน้า <span class="text-blue-500 font-bold" x-text="directoryPage"></span> / <span class="font-bold text-slate-600 dark:text-slate-300" x-text="totalDirectoryPages"></span>
                 <span class="mx-1">•</span>
@@ -405,7 +455,7 @@
                                     </div>
                                 </td>
                                 <td class="p-4 font-bold text-sm text-slate-800 dark:text-white" x-text="u[1] + (u[18] ? ' ('+u[18]+')' : '')"></td>
-                                <td class="p-4 text-xs text-blue-500 dark:text-blue-400 font-semibold" x-text="u[16] || 'รอการจัดสรร'"></td>
+                                <td class="p-4 text-xs text-blue-500 dark:text-blue-400 font-semibold" x-text="directoryPositionLabel(u)"></td>
                                 <td class="p-4 text-xs text-slate-600 dark:text-slate-300" x-text="u[11] || '-'"></td>
                                 <td class="p-4">
                                     <div class="flex items-center justify-center gap-2">
@@ -432,7 +482,7 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="font-bold text-slate-800 dark:text-white text-base truncate" x-text="u[1] + (u[18] ? ' ('+u[18]+')' : '')"></div>
-                                <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate mb-1">ตำแหน่ง: <span class="text-blue-500 dark:text-blue-400 font-semibold" x-text="u[16] || 'รอการจัดสรรตำแหน่ง'"></span></div>
+                                <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate mb-1">ตำแหน่ง: <span class="text-blue-500 dark:text-blue-400 font-semibold" x-text="directoryPositionLabel(u)"></span></div>
                                 <div class="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
                                     <i data-lucide="map-pin" class="w-3 h-3 opacity-70"></i>
                                     <span class="truncate" x-text="u[11] || '-'"></span>
@@ -479,7 +529,7 @@
                         </div>
                         <div class="flex-1 min-w-0 flex flex-col justify-center">
                             <div class="font-bold text-slate-800 dark:text-white text-sm truncate" x-text="u[1] + (u[18] ? ' ('+u[18]+')' : '')"></div>
-                            <div class="text-[10.5px] text-slate-500 dark:text-slate-400 truncate mb-1.5"><span class="text-blue-500 dark:text-blue-400 font-semibold" x-text="u[16] || 'รอการจัดสรรตำแหน่ง'"></span> <span x-show="u[11]"><span class="mx-1 opacity-50">|</span><i data-lucide="map-pin" class="w-2.5 h-2.5 inline-block -mt-0.5 mr-0.5 opacity-70"></i><span x-text="u[11]"></span></span></div>
+                            <div class="text-[10.5px] text-slate-500 dark:text-slate-400 truncate mb-1.5"><span class="text-blue-500 dark:text-blue-400 font-semibold" x-text="directoryPositionLabel(u)"></span> <span x-show="u[11]"><span class="mx-1 opacity-50">|</span><i data-lucide="map-pin" class="w-2.5 h-2.5 inline-block -mt-0.5 mr-0.5 opacity-70"></i><span x-text="u[11]"></span></span></div>
                             
                             <div class="flex flex-wrap gap-1.5 items-center" x-show="u[12] || u[13] || u[14]">
                                 <a x-show="u[12]" :href="u[12] ? 'https://line.me/ti/p/~' + u[12] : '#'" target="_blank" class="w-6 h-6 rounded-full bg-[#06C755]/10 text-[#06C755] flex items-center justify-center hover:bg-[#06C755] hover:text-white transition" title="LINE">
@@ -519,6 +569,7 @@
                 <button @click="goToDirectoryPage(directoryPage + 1)" :disabled="directoryPage >= totalDirectoryPages" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm">
                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                 </button>
+            </div>
             </div>
         </div>
     </div>
@@ -980,6 +1031,9 @@
                     <i data-lucide="check-check" class="w-4 h-4" x-show="positions.length > 0 && positions.filter(p=>p[3]!=='AVAILABLE').length === positions.length"></i>
                     <span x-text="positions.length > 0 && positions.filter(p=>p[3]!=='AVAILABLE').length === positions.length ? 'เสร็จสิ้น' : 'กำลังดำเนินการ'"></span>
                 </div>
+                <button @click="exportSummaryPdf()" class="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 h-10 px-4 rounded-full flex items-center gap-1.5 text-sm font-bold shadow-sm transition hover:bg-emerald-200 dark:hover:bg-emerald-900/70 shrink-0" title="ส่งออกสรุปเป็น PDF">
+                    <i data-lucide="file-down" class="w-4 h-4"></i> PDF
+                </button>
                 <button @click="toggleDashboardFullscreen()" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 w-10 h-10 rounded-full flex items-center justify-center shadow-sm transition hover:bg-slate-300 dark:hover:bg-slate-600 shrink-0" title="เต็มจอ">
                     <span x-show="!isDashboardFullscreen"><i data-lucide="maximize" class="w-4 h-4"></i></span>
                     <span x-show="isDashboardFullscreen"><i data-lucide="minimize" class="w-4 h-4"></i></span>
@@ -1854,8 +1908,11 @@
                 onboardingForm: { phone: '', phones: [''], address: '', province: '', line_contact: '', facebook: '', ig: '', profile_pic: '', nickname: '' },
                 onboardingLoading: false,
                 directorySearch: '',
+                directoryRegion: '',
                 directoryPage: 1,
                 directoryPageSize: 20,
+                printReady: false,
+                printTimestamp: '',
                 phoneSelectModalOpen: false,
                 phoneSelectUser: null,
                 phoneSelectNumbers: [],
@@ -1887,18 +1944,81 @@
                 toggleDarkMode() { this.darkMode = !this.darkMode; localStorage.setItem('darkMode', this.darkMode); },
                 toggleSidebar() { this.sidebarCollapsed = !this.sidebarCollapsed; localStorage.setItem('sidebarCollapsed', JSON.stringify(this.sidebarCollapsed)); },
                 toggleBureauSelector() { this.bureauSelectorCollapsed = !this.bureauSelectorCollapsed; localStorage.setItem('bureauSelectorCollapsed', JSON.stringify(this.bureauSelectorCollapsed)); },
+                // userId -> the position that user actually selected in the live round
+                get positionByUser() {
+                    const map = {};
+                    this.positions.forEach(p => { if (p[3] !== 'AVAILABLE' && p[4]) map[String(p[4]).trim()] = p; });
+                    return map;
+                },
+                selectedPosOf(userId) { return this.positionByUser[String(userId).trim()] || null; },
+                directoryPositionLabel(u) {
+                    const p = this.selectedPosOf(u[0]);
+                    if (!p) return u[16] || 'รอการจัดสรรตำแหน่ง';
+                    const sub = this.subtextFor(p);
+                    return p[2] + ' • ' + p[1] + (sub ? ' (' + sub + ')' : '');
+                },
+                get directoryBaseUsers() { return this.users.filter(x => parseInt(x[0]) > 0 && x[17]); },
+                get directoryRegionCounts() {
+                    const map = this.positionByUser;
+                    const counts = {};
+                    this.directoryBaseUsers.forEach(u => { const p = map[String(u[0]).trim()]; if (p) counts[p[2]] = (counts[p[2]] || 0) + 1; });
+                    return counts;
+                },
+                get directoryShowList() { return this.directoryRegion !== '' || !!this.directorySearch; },
+                selectDirectoryRegion(region) {
+                    this.directoryRegion = region;
+                    this.directorySearch = '';
+                    this.directoryPage = 1;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
                 get matchedDirectoryUsers() {
-                    return this.users.filter(x => {
-                        if (parseInt(x[0]) <= 0 || !x[17]) return false;
-                        if (!this.directorySearch) return true;
-                        const s = this.directorySearch.toLowerCase();
+                    const posMap = this.positionByUser;
+                    const region = (this.directoryRegion && this.directoryRegion !== 'ALL') ? this.directoryRegion : null;
+                    const s = this.directorySearch ? this.directorySearch.toLowerCase() : '';
+                    const list = this.directoryBaseUsers.filter(x => {
+                        const pos = posMap[String(x[0]).trim()];
+                        if (region && (!pos || pos[2] !== region)) return false;
+                        if (!s) return true;
                         const name = x[1] ? x[1].toLowerCase() : '';
                         const phone = x[9] ? x[9].toLowerCase() : '';
                         const province = x[11] ? x[11].toLowerCase() : '';
-                        const position = x[16] ? x[16].toLowerCase() : '';
+                        const position = ((x[16] || '') + ' ' + (pos ? pos[2] + ' ' + pos[1] + ' ' + (pos[5] || '') : '')).toLowerCase();
                         const nickname = x[18] ? x[18].toLowerCase() : '';
                         return name.includes(s) || phone.includes(s) || province.includes(s) || position.includes(s) || nickname.includes(s);
                     });
+                    // inside one กองบัญชาการ, keep people at the same บก./จังหวัด next to each other
+                    // (same order as the position list: P001, P002, ...)
+                    if (region) list.sort((a, b) => posMap[String(a[0]).trim()][0].localeCompare(posMap[String(b[0]).trim()][0]));
+                    return list;
+                },
+
+                // ===== PDF export (หน้าสรุป) =====
+                get printTotals() {
+                    return { total: this.positions.length, taken: this.positions.filter(p => p[3] !== 'AVAILABLE').length };
+                },
+                get printReportGroups() {
+                    const userMap = {};
+                    this.users.forEach(u => { userMap[String(u[0]).trim()] = u; });
+                    return this.uniqueRegions.map(region => {
+                        const items = this.positions.filter(p => p[2] === region)
+                            .sort((a, b) => a[0].localeCompare(b[0]))
+                            .map(p => {
+                                const taken = p[3] !== 'AVAILABLE';
+                                const holder = taken && p[4] ? userMap[String(p[4]).trim()] : null;
+                                return { id: p[0], name: p[1], sub: this.subtextFor(p), taken, queue: holder ? holder[0] : (p[4] || ''), holder: holder ? holder[1] : (taken ? 'ลำดับ ' + p[4] : '') };
+                            });
+                        return { name: region, items, total: items.length, taken: items.filter(i => i.taken).length };
+                    });
+                },
+                exportSummaryPdf() {
+                    const now = new Date();
+                    this.printTimestamp = now.toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' });
+                    this.printReady = true;
+                    const oldTitle = document.title;
+                    document.title = 'สรุปผลการเลือกตำแหน่ง นรต79 ' + now.toLocaleDateString('th-TH').replace(/\//g, '-');
+                    const cleanup = () => { this.printReady = false; document.title = oldTitle; window.removeEventListener('afterprint', cleanup); };
+                    window.addEventListener('afterprint', cleanup);
+                    this.$nextTick(() => setTimeout(() => window.print(), 150));
                 },
                 get filteredDirectoryUsers() {
                     const start = (this.directoryPage - 1) * this.directoryPageSize;
@@ -2104,6 +2224,12 @@
                 },
 
                 initApp() {
+                    // /?print=summary pre-renders the summary report so the browser's own
+                    // "print / save as PDF" produces it directly (also used for headless export).
+                    if (new URLSearchParams(location.search).get('print') === 'summary') {
+                        this.printTimestamp = new Date().toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' });
+                        this.printReady = true;
+                    }
                     this.fetchData();
                     this.initRealtime();
                     document.addEventListener('visibilitychange', () => { if (!document.hidden) this.fetchData(); });
@@ -3121,6 +3247,54 @@
                 </template>
             </div>
         </div>
+    </div>
+
+    <!-- ===== PDF export: print-only summary report (rendered only while printing) ===== -->
+    <div id="print-report">
+        <template x-if="printReady">
+            <div>
+                <div class="pr-title">สรุปผลการเลือกตำแหน่ง นรต. รุ่นที่ 79</div>
+                <div class="pr-meta">
+                    ข้อมูล ณ <span x-text="printTimestamp"></span>
+                    &nbsp;•&nbsp; เลือกแล้ว <span x-text="printTotals.taken"></span> / <span x-text="printTotals.total"></span> ตำแหน่ง
+                    &nbsp;•&nbsp; เหลือว่าง <span x-text="printTotals.total - printTotals.taken"></span>
+                </div>
+
+                <table class="pr-summary">
+                    <thead><tr><th>กองบัญชาการ / ภาค</th><th class="num">ทั้งหมด</th><th class="num">เลือกแล้ว</th><th class="num">ว่าง</th></tr></thead>
+                    <tbody>
+                        <template x-for="g in printReportGroups" :key="'sum-' + g.name">
+                            <tr>
+                                <td x-text="g.name"></td>
+                                <td class="num" x-text="g.total"></td>
+                                <td class="num" x-text="g.taken"></td>
+                                <td class="num" x-text="g.total - g.taken"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                <template x-for="g in printReportGroups" :key="'reg-' + g.name">
+                    <div class="pr-region">
+                        <div class="pr-region-head" x-text="g.name + '  (เลือกแล้ว ' + g.taken + ' / ' + g.total + ')'"></div>
+                        <table>
+                            <thead><tr><th>ที่</th><th>ตำแหน่ง</th><th>สังกัด</th><th>ลำดับ</th><th>ผู้เลือก</th></tr></thead>
+                            <tbody>
+                                <template x-for="(row, i) in g.items" :key="row.id">
+                                    <tr>
+                                        <td class="idx" x-text="i + 1"></td>
+                                        <td x-text="row.name"></td>
+                                        <td x-text="row.sub || '-'"></td>
+                                        <td class="q" x-text="row.taken ? row.queue : ''"></td>
+                                        <td :class="row.taken ? '' : 'free'" x-text="row.taken ? row.holder : 'ว่าง'"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+            </div>
+        </template>
     </div>
 </body>
 </html>
